@@ -130,15 +130,15 @@ function PublicSite({vehicles,fleet,setModal,notify,loading,embedded}){
         <div className="hero-grid-bg" />
         <div className="hero-orbit orbit-1" /><div className="hero-orbit orbit-2" />
         <div className="hero-copy">
-          <div className="eyebrow"><span>LOS SANTOS</span><i/> EURASIA <i/> RÉSEAU GLOBAL <span className="live-dot">ACTIVE</span></div>
+          <div className="eyebrow"><span>LOS SANTOS</span><i/> ADVISORY <i/> AUTOMOTIVE <i/> LOGISTICS <span className="live-dot">DISPONIBLE</span></div>
           <h1><span>NAIRI</span><br/>CORPORATION</h1>
-          <p className="hero-lead">Maison de négoce, gestion privée & transport.</p>
-          <p className="hero-text">Un seul interlocuteur pour structurer vos affaires, déplacer vos clients et orchestrer vos flux. Vous vous concentrez sur l’essentiel. <strong>Nous gérons le reste.</strong></p>
+          <p className="hero-lead">Conseil, mobilité et logistique. Sans intermédiaire inutile.</p>
+          <p className="hero-text">Nairi centralise vos demandes, coordonne les bons interlocuteurs et assure le suivi jusqu’à l’exécution. <strong>Une demande, un contact, un résultat.</strong></p>
           <div className="hero-actions">
             <button className="primary" onClick={()=>setModal({type:'advisory'})}>Initier une consultation <ArrowRight size={17}/></button>
             <a href="#automotive" className="secondary">Explorer les services</a>
           </div>
-          <div className="hero-trust"><ShieldCheck size={17}/> Rigueur institutionnelle · Discrétion absolue · Exécution terrain</div>
+          <div className="hero-trust"><ShieldCheck size={17}/> Service direct · Suivi clair · Exécution maîtrisée</div>
         </div>
         <div className="hero-emblem">
           <div className="emblem-shell"><img src="/assets/nairi-logo.png" alt=""/></div>
@@ -148,7 +148,7 @@ function PublicSite({vehicles,fleet,setModal,notify,loading,embedded}){
       </section>
 
       <section className="quick-actions section-tight">
-        <div className="section-kicker">ACCÈS DIRECT · OPERATIONS</div>
+        <div className="section-kicker">SERVICES · ACCÈS DIRECT</div>
         <div className="action-grid">
           <ActionCard num="01" icon={BriefcaseBusiness} title="Mise en relation" text="Sourcing, négociation, recherche de partenaires et gestion de dossiers." action="Déposer une demande" onClick={()=>setModal({type:'advisory'})}/>
           <ActionCard num="02" icon={CarFront} title="Réserver un véhicule" text="Flotte premium disponible à l’heure, avec ou sans chauffeur accrédité." action="Voir la flotte" href="#automotive"/>
@@ -212,9 +212,9 @@ function PublicSite({vehicles,fleet,setModal,notify,loading,embedded}){
       </section>
 
       <section className="section philosophy">
-        <div className="section-kicker">PHILOSOPHIE OPÉRATIONNELLE</div>
-        <blockquote>« Rigueur institutionnelle.<br/><em>Efficacité absolue sur le terrain.</em> »</blockquote>
-        <div className="principles"><span>FIABILITÉ INTÉGRALE</span><span>DISCRÉTION ABSOLUE</span><span>SOLUTIONS SUR-MESURE</span><span>DOUBLE PÔLE INTÉGRÉ</span></div>
+        <div className="section-kicker">NOTRE APPROCHE</div>
+        <blockquote>« Un service clair.<br/><em>Une exécution sans détour.</em> »</blockquote>
+        <div className="principles"><span>CONTACT DIRECT</span><span>SUIVI CONTINU</span><span>SOLUTIONS SUR-MESURE</span><span>EXÉCUTION TERRAIN</span></div>
       </section>
 
       <section className="section direction">

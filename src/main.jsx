@@ -2,60 +2,145 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createClient } from '@supabase/supabase-js'
 import {
-  ArrowRight, BriefcaseBusiness, Building2, CalendarClock, CarFront, Check,
-  ChevronDown, ChevronRight, CircleDollarSign, ClipboardList, Clock3, Copy,
-  Database, DollarSign, ExternalLink, FileText, Gauge, Headphones, KeyRound,
-  LayoutDashboard, LockKeyhole, LogIn, LogOut, Menu, MessageSquareText, Package,
-  Phone, Plus, RefreshCw, Route, Search, Send, ShieldCheck, Sparkles, Truck,
-  UserRound, UsersRound, WalletCards, X, Pencil, Trash2, MapPin, UserCheck,
-  AlertTriangle, BadgeCheck, TimerReset, Boxes
+  ArrowRight, ArrowUpRight, BadgeCheck, Banknote, Boxes, BriefcaseBusiness,
+  Building2, Check, ChevronRight, CircleDollarSign, ClipboardList, Clock3,
+  Copy, FileText, Gauge, Handshake, HardHat, Headphones, Inbox, LayoutDashboard,
+  LockKeyhole, LogIn, LogOut, MapPin, Menu, MessageCircle, MessageSquareText,
+  PackageCheck, Pencil, Phone, Plus, RefreshCw, Route, Search, Send, ShieldCheck,
+  Truck, UserRound, UsersRound, Warehouse, X, AlertTriangle, Trash2, Eye,
+  CalendarDays, SlidersHorizontal, CircleDot, UserCheck, ExternalLink
 } from 'lucide-react'
 import './styles.css'
 
 const SB_URL = import.meta.env.VITE_SUPABASE_URL
 const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+const DISCORD_URL = import.meta.env.VITE_DISCORD_URL || 'https://discord.gg/uxtzfStWsF'
 const supabase = SB_URL && SB_KEY ? createClient(SB_URL, SB_KEY) : null
 const DEMO = !supabase
 
-const vehicleSeeds = [
-  { id:'demo-argento', name:'Argento', brand:'Obey', category:'Berline d’exception', hourly_rate:4000, deposit:10000, status:'available', active:true, sort_order:1, image_url:'https://img.gta5-mods.com/q95/images/obey-argento-add-on-sounds-lods/152cdf-2.jpg', description:'Berline premium au tempérament sportif, pensée pour les rendez-vous où l’arrivée compte autant que le trajet.' },
-  { id:'demo-toros', name:'Toros', brand:'Pegassi', category:'SUV Grand Tourisme', hourly_rate:5000, deposit:12000, status:'available', active:true, sort_order:2, image_url:'https://img.gta5-mods.com/q75/images/pegassi-toros-rework-facelift-add-on-fivem/0ecdf8-1.png', description:'SUV haut de gamme, confortable et imposant, adapté aux transferts VIP comme aux longues distances.' },
-  { id:'demo-schweizer', name:'Schweizer V8', brand:'Schweizer', category:'Muscle V8', hourly_rate:1000, deposit:5000, status:'available', active:true, sort_order:3, image_url:'https://i.ytimg.com/vi/w77zxaHDiL0/sddefault.jpg', description:'Une alternative plus accessible, brute et charismatique, pour se déplacer avec personnalité.' },
+const LOGISTICS_IMAGE = 'https://static.wikia.nocookie.net/gtawiki/images/8/85/PounderCustom-GTAO-front.png/revision/latest?cb=20190716203227'
+const SPEEDO_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRXnzWrFCD-gykInC86VszO2o5mRsMtoO8UEQX2VCyRw&s=10'
+
+const FLEET_SEEDS = [
+  { id:'demo-pounder', name:'Pounder', brand:'MTL', category:'Poids lourd', status:'available', active:true, sort_order:1, image_url:LOGISTICS_IMAGE, description:'Porteur lourd pour ravitaillements, tournées régulières et cargaisons volumineuses.' },
+  { id:'demo-speedo', name:'Speedo Express', brand:'Vapid', category:'Utilitaire', status:'available', active:true, sort_order:2, image_url:SPEEDO_IMAGE, description:'Utilitaire agile pour les urgences, petits volumes et livraisons rapides en zone urbaine.' },
 ]
 
-const fleetSeeds = [
-  { id:'demo-pounder', name:'Pounder', brand:'MTL', category:'Poids lourd', status:'available', active:true, sort_order:1, image_url:'https://static.wikia.nocookie.net/gtawiki/images/8/85/PounderCustom-GTAO-front.png/revision/latest?cb=20190716203227', description:'Gros porteur destiné aux ravitaillements et aux cargaisons volumineuses.' },
-  { id:'demo-speedo', name:'Speedo Express', brand:'Vapid', category:'Utilitaire', status:'available', active:true, sort_order:2, image_url:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRXnzWrFCD-gykInC86VszO2o5mRsMtoO8UEQX2VCyRw&s=10', description:'Utilitaire rapide pour les livraisons urgentes, discrètes ou de faible volume.' },
+const CORP_SERVICES = [
+  { id:'business_intro', n:'01', title:'Mise en relation', text:'Vous avez un besoin mais pas le bon interlocuteur. Nairi identifie, approche et qualifie le partenaire adapté.' },
+  { id:'sourcing', n:'02', title:'Sourcing & recherche', text:'Recherche de biens, prestataires, fournisseurs ou opportunités selon votre cahier des charges.' },
+  { id:'negotiation', n:'03', title:'Négociation & accords', text:'Nous préparons le dossier, centralisons les échanges et négocions en votre nom jusqu’à l’accord.' },
+  { id:'admin_support', n:'04', title:'Gestion de dossier', text:'Suivi administratif, coordination des parties et historique clair pour ne plus perdre vos demandes dans les messages.' },
+]
+
+const LOG_SERVICES = [
+  { id:'business_supply', icon:Warehouse, title:'Ravitaillement entreprise', tag:'FLUX MÉTIER', text:'Prise en charge des tournées de ravitaillement nécessaires au fonctionnement quotidien de votre établissement.' },
+  { id:'dedicated_route', icon:Route, title:'Desserte dédiée', tag:'RÉCURRENT', text:'Nairi devient votre transporteur référent avec des passages planifiés et une organisation stable.' },
+  { id:'urgent_resupply', icon:Gauge, title:'Réapprovisionnement urgent', tag:'PRIORITAIRE', text:'Stock critique, besoin immédiat ou imprévu : une demande prioritaire est injectée dans notre planning.' },
+  { id:'special_freight', icon:Boxes, title:'Fret sur mesure', tag:'HORS SCRIPT', text:'Alcool, matériel, objets RP ou marchandise particulière : nous organisons un transport dédié hors des flux automatiques.' },
+  { id:'intersite_transfer', icon:Truck, title:'Transport inter-sites', tag:'B2B', text:'Transfert de marchandises entre entrepôts, commerces, garages, points de vente ou sites partenaires.' },
+  { id:'secure_convoy', icon:ShieldCheck, title:'Convoi sensible', tag:'SUR DEMANDE', text:'Pour les cargaisons qui exigent davantage de coordination, de discrétion ou de sécurisation opérationnelle.' },
 ]
 
 const JOBS = [
-  { id:'heavy_driver', title:'Conducteur poids lourd', icon:Truck, text:'Ravitaillement d’entreprises, tournées de fret et missions logistiques spéciales.' },
-  { id:'private_driver', title:'Chauffeur privé', icon:CarFront, text:'Prise en charge de clients, conduite premium et représentation de la maison.' },
-  { id:'advisor', title:'Conseiller / Commercial', icon:BriefcaseBusiness, text:'Prospection, relation client, négociation et développement des partenariats Nairi.' },
+  { id:'heavy_driver', icon:Truck, title:'Conducteur poids lourd', text:'Tournées, chargement, livraison et représentation Nairi auprès des entreprises clientes.' },
+  { id:'dispatcher', icon:ClipboardList, title:'Dispatcher / Exploitant', text:'Planification des dossiers, affectation des chauffeurs et suivi opérationnel des flux.' },
+  { id:'advisor', icon:BriefcaseBusiness, title:'Conseiller / Commercial', text:'Prospection, mise en relation, développement du réseau partenaires et suivi des dossiers Corporate.' },
 ]
 
-const money = n => new Intl.NumberFormat('fr-FR').format(Number(n || 0)) + '$'
-const dt = v => v ? new Date(v).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' }) : '—'
-const shortRef = prefix => `${prefix}-${Math.random().toString(36).slice(2,6).toUpperCase()}${Date.now().toString().slice(-4)}`
-const statusLabel = s => ({new:'Nouvelle',review:'À étudier',accepted:'Acceptée',deposit_pending:'Caution attendue',confirmed:'Confirmée',assigned:'Affectée',in_progress:'En cours',in_transit:'En transit',completed:'Terminée',delivered:'Livrée',contacted:'Contact établi',negotiation:'Négociation',interview:'Entretien',rejected:'Refusée',cancelled:'Annulée',available:'Disponible',reserved:'Réservé',service:'En service',unavailable:'Indisponible'}[s] || s)
+const CASE_STATUS = {
+  new:'Nouveau', qualified:'Qualifié', waiting_client:'Attente client', accepted:'Accepté',
+  scheduled:'Planifié', in_progress:'En cours', completed:'Terminé', declined:'Refusé', cancelled:'Annulé'
+}
+const STATUS_FLOW = ['new','qualified','accepted','scheduled','in_progress','waiting_client','completed','declined','cancelled']
+const FLEET_STATUS = {available:'Disponible', service:'En mission', maintenance:'Maintenance', unavailable:'Indisponible'}
+const APP_STATUS = {new:'Nouvelle',review:'À étudier',interview:'Entretien',accepted:'Acceptée',rejected:'Refusée'}
+
+const serviceLabel = id => [...CORP_SERVICES,...LOG_SERVICES].find(x=>x.id===id)?.title || id || 'Demande générale'
+const statusLabel = s => CASE_STATUS[s] || APP_STATUS[s] || FLEET_STATUS[s] || s
+const dt = v => v ? new Date(v).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}) : '—'
+const d = v => v ? new Date(v).toLocaleDateString('fr-FR') : '—'
+const money = n => new Intl.NumberFormat('fr-FR').format(Number(n || 0)) + ' $'
+const cls = (...xs) => xs.filter(Boolean).join(' ')
+
+const DEMO_KEYS = {
+  cases:'nairi_v3_cases', messages:'nairi_v3_messages', partners:'nairi_v3_partners',
+  fleet:'nairi_v3_fleet', finance:'nairi_v3_finance', applications:'nairi_v3_applications'
+}
+const demoGet = (key, fallback=[]) => { try { const v=JSON.parse(localStorage.getItem(DEMO_KEYS[key])); return Array.isArray(v)?v:fallback } catch { return fallback } }
+const demoSet = (key, value) => localStorage.setItem(DEMO_KEYS[key], JSON.stringify(value))
+const makeRef = kind => `${kind==='logistics'?'NL':'NC'}-${new Date().toISOString().slice(2,10).replaceAll('-','')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`
+const uuid = () => crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+function ensureDemo(){
+  if(!localStorage.getItem(DEMO_KEYS.fleet)) demoSet('fleet',FLEET_SEEDS)
+  if(!localStorage.getItem(DEMO_KEYS.partners)) demoSet('partners',[
+    {id:'demo-partner',name:'Votre partenaire',eyebrow:'RÉSEAU NAIRI',description:'Les entreprises partenaires publiées depuis le back-office apparaîtront ici avec leur image et leur présentation.',image_url:'',active:true,sort_order:1}
+  ])
+}
+if(DEMO && typeof localStorage!=='undefined') ensureDemo()
+
+async function publicOpenCase(payload){
+  if(!supabase){
+    const reference=makeRef(payload.kind)
+    const now=new Date().toISOString()
+    const row={id:uuid(),reference,status:'new',created_at:now,updated_at:now,assigned_to:null,...payload}
+    const cases=demoGet('cases'); demoSet('cases',[row,...cases])
+    const messages=demoGet('messages');
+    demoSet('messages',[...messages,{id:uuid(),case_id:row.id,author_type:'system',author_name:'Nairi',visibility:'public',body:'Votre dossier a bien été ouvert. Notre équipe va le qualifier puis revenir vers vous ici.',created_at:now}])
+    return reference
+  }
+  const {data,error}=await supabase.rpc('open_case',{
+    p_kind:payload.kind,p_service:payload.service,p_contact_name:payload.contact_name,p_company_name:payload.company_name||null,
+    p_phone:payload.phone,p_title:payload.title,p_description:payload.description,p_origin:payload.origin||null,
+    p_destination:payload.destination||null,p_cargo:payload.cargo||null,p_quantity:payload.quantity||null,
+    p_requested_at:payload.requested_at||null,p_frequency:payload.frequency||null,p_urgency:payload.urgency||'standard'
+  })
+  if(error) throw error
+  return data
+}
+
+async function publicTrack(reference,phone){
+  if(!supabase){
+    const row=demoGet('cases').find(c=>c.reference.toUpperCase()===reference.trim().toUpperCase() && c.phone.trim()===phone.trim())
+    if(!row) return null
+    const messages=demoGet('messages').filter(m=>m.case_id===row.id && m.visibility==='public').sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
+    return {case:row,messages}
+  }
+  const [{data:caseRows,error:e1},{data:messages,error:e2}] = await Promise.all([
+    supabase.rpc('track_case',{p_reference:reference,p_phone:phone}),
+    supabase.rpc('case_public_messages',{p_reference:reference,p_phone:phone})
+  ])
+  if(e1) throw e1; if(e2) throw e2
+  if(!caseRows?.length) return null
+  return {case:caseRows[0],messages:messages||[]}
+}
+
+async function publicReply(reference,phone,body){
+  if(!supabase){
+    const cases=demoGet('cases'); const row=cases.find(c=>c.reference.toUpperCase()===reference.trim().toUpperCase() && c.phone.trim()===phone.trim())
+    if(!row) throw new Error('Dossier introuvable')
+    const now=new Date().toISOString()
+    demoSet('messages',[...demoGet('messages'),{id:uuid(),case_id:row.id,author_type:'client',author_name:row.contact_name,visibility:'public',body,created_at:now}])
+    demoSet('cases',cases.map(c=>c.id===row.id?{...c,updated_at:now}:c))
+    return true
+  }
+  const {error}=await supabase.rpc('reply_case',{p_reference:reference,p_phone:phone,p_body:body})
+  if(error) throw error
+  return true
+}
 
 function useHashRoute(){
-  const [hash,setHash]=React.useState(location.hash || '#home')
-  React.useEffect(()=>{ const f=()=>setHash(location.hash||'#home'); addEventListener('hashchange',f); return()=>removeEventListener('hashchange',f)},[])
-  return hash
+  const [route,setRoute]=React.useState(location.hash || '#home')
+  React.useEffect(()=>{const f=()=>setRoute(location.hash||'#home');addEventListener('hashchange',f);return()=>removeEventListener('hashchange',f)},[])
+  return route
 }
 
 function useFivemBridge(){
   const [embedded,setEmbedded]=React.useState(new URLSearchParams(location.search).get('fivem')==='1')
   const [visible,setVisible]=React.useState(!embedded)
-  React.useEffect(()=>{
-    const fn=e=>{ if(e.data?.action==='open'){setVisible(true); setEmbedded(true)} if(e.data?.action==='close')setVisible(false) }
-    addEventListener('message',fn); return()=>removeEventListener('message',fn)
-  },[])
-  React.useEffect(()=>{
-    const fn=e=>{ if(e.key==='Escape' && embedded){ setVisible(false); const resource=window.GetParentResourceName?.(); if(resource) fetch(`https://${resource}/close`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).catch(()=>{}) }}
-    addEventListener('keydown',fn); return()=>removeEventListener('keydown',fn)
-  },[embedded])
+  React.useEffect(()=>{const fn=e=>{if(e.data?.action==='open'){setVisible(true);setEmbedded(true)}if(e.data?.action==='close')setVisible(false)};addEventListener('message',fn);return()=>removeEventListener('message',fn)},[])
+  React.useEffect(()=>{const fn=e=>{if(e.key==='Escape'&&embedded){setVisible(false);const r=window.GetParentResourceName?.();if(r)fetch(`https://${r}/close`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).catch(()=>{})}};addEventListener('keydown',fn);return()=>removeEventListener('keydown',fn)},[embedded])
   return {embedded,visible}
 }
 
@@ -63,301 +148,400 @@ function App(){
   const route=useHashRoute()
   const {embedded,visible}=useFivemBridge()
   const [modal,setModal]=React.useState(null)
-  const [vehicles,setVehicles]=React.useState(vehicleSeeds)
-  const [fleet,setFleet]=React.useState(fleetSeeds)
   const [toast,setToast]=React.useState(null)
+  const [partners,setPartners]=React.useState([])
+  const [fleet,setFleet]=React.useState(FLEET_SEEDS)
   const [session,setSession]=React.useState(null)
-  const [staffProfile,setStaffProfile]=React.useState(null)
-  const [loadingData,setLoadingData]=React.useState(false)
+  const [profile,setProfile]=React.useState(null)
 
-  const notify=(text,type='ok')=>{ setToast({text,type}); setTimeout(()=>setToast(null),3800) }
-
-  async function loadPublicData(){
-    if(!supabase) return
-    setLoadingData(true)
-    const [{data:v},{data:f}] = await Promise.all([
-      supabase.from('vehicles').select('*').eq('active',true).order('sort_order'),
-      supabase.from('fleet_vehicles').select('*').eq('active',true).order('sort_order'),
+  const notify=(text,type='ok')=>{setToast({text,type});setTimeout(()=>setToast(null),3500)}
+  const loadPublic=React.useCallback(async()=>{
+    if(!supabase){setPartners(demoGet('partners'));setFleet(demoGet('fleet',FLEET_SEEDS));return}
+    const [{data:p},{data:f}] = await Promise.all([
+      supabase.from('partners').select('*').eq('active',true).order('sort_order'),
+      supabase.from('fleet_vehicles').select('*').eq('active',true).order('sort_order')
     ])
-    if(v?.length) setVehicles(v)
-    if(f?.length) setFleet(f)
-    setLoadingData(false)
-  }
+    setPartners(p||[]); if(f?.length)setFleet(f)
+  },[])
 
-  React.useEffect(()=>{ loadPublicData() },[])
+  React.useEffect(()=>{loadPublic()},[loadPublic])
   React.useEffect(()=>{
-    if(!supabase) return
+    if(!supabase)return
     supabase.auth.getSession().then(({data})=>setSession(data.session))
     const {data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>setSession(s))
     return()=>subscription.unsubscribe()
   },[])
   React.useEffect(()=>{
-    if(!supabase || !session) { setStaffProfile(null); return }
-    supabase.from('staff_profiles').select('*').eq('id',session.user.id).maybeSingle().then(({data})=>setStaffProfile(data||null))
+    if(!supabase||!session){setProfile(null);return}
+    supabase.from('staff_profiles').select('*').eq('id',session.user.id).maybeSingle().then(({data})=>setProfile(data||null))
   },[session])
 
-  if(embedded && !visible) return <div className="nui-hidden" />
-  if(route.startsWith('#staff')) return <StaffApp session={session} staffProfile={staffProfile} notify={notify} vehicles={vehicles} fleet={fleet} reloadPublic={loadPublicData} demo={DEMO} />
+  if(embedded&&!visible)return <div className="nui-hidden"/>
+  if(route.startsWith('#staff')) return <StaffApp session={session} profile={profile} notify={notify} loadPublic={loadPublic} demo={DEMO}/>
 
   return <>
-    <PublicSite vehicles={vehicles} fleet={fleet} modal={modal} setModal={setModal} notify={notify} loading={loadingData} embedded={embedded} />
-    {modal && <Modal type={modal.type} payload={modal.payload} vehicles={vehicles} close={()=>setModal(null)} notify={notify} />}
-    {toast && <Toast {...toast} />}
+    <PublicSite partners={partners} fleet={fleet} setModal={setModal} embedded={embedded}/>
+    {modal && <ModalShell close={()=>setModal(null)}><ModalContent modal={modal} close={()=>setModal(null)} notify={notify}/></ModalShell>}
+    {toast&&<Toast {...toast}/>} 
   </>
 }
 
-function PublicSite({vehicles,fleet,setModal,notify,loading,embedded}){
+function PublicSite({partners,fleet,setModal,embedded}){
   const [menu,setMenu]=React.useState(false)
-  return <div className={`site ${embedded?'embedded':''}`}>
+  const openCase=(kind,service=null)=>setModal({type:'case',kind,service})
+  return <div className={cls('site',embedded&&'embedded')}>
     <header className="topbar">
-      <a className="brand" href="#home" onClick={()=>setMenu(false)}>
-        <img src="/assets/nairi-logo.png" alt="Nairi Corporation" />
-        <span><strong>NAIRI</strong><small>CORPORATION</small></span>
-      </a>
+      <a className="brand" href="#home" onClick={()=>setMenu(false)}><img src="/assets/nairi-logo.png"/><div><strong>NAIRI</strong><span>CORPORATION</span></div></a>
       <nav className={menu?'open':''}>
-        <a href="#advisory" onClick={()=>setMenu(false)}>Advisory</a>
-        <a href="#automotive" onClick={()=>setMenu(false)}>Automotive</a>
+        <a href="#corporation" onClick={()=>setMenu(false)}>Corporation</a>
         <a href="#logistics" onClick={()=>setMenu(false)}>Logistics</a>
-        <a href="#careers" onClick={()=>setMenu(false)}>Carrières</a>
-        <button className="ghost small" onClick={()=>{setModal({type:'track'});setMenu(false)}}><Search size={15}/> Suivre un dossier</button>
-        <a className="staff-link" href="#staff"><LockKeyhole size={14}/> Staff</a>
+        <a href="#partners" onClick={()=>setMenu(false)}>Partenaires</a>
+        <a href="#careers" onClick={()=>setMenu(false)}>Recrutement</a>
+        <button className="nav-track" onClick={()=>{setModal({type:'track'});setMenu(false)}}><Search size={14}/> Suivre un dossier</button>
+        <a className="staff-link" href="#staff"><LockKeyhole size={13}/> Staff</a>
       </nav>
-      <button className="menu-btn" onClick={()=>setMenu(!menu)} aria-label="Menu">{menu?<X/>:<Menu/>}</button>
+      <button className="menu-btn" onClick={()=>setMenu(v=>!v)}>{menu?<X/>:<Menu/>}</button>
     </header>
 
     <main>
       <section id="home" className="hero">
-        <div className="hero-grid-bg" />
-        <div className="hero-orbit orbit-1" /><div className="hero-orbit orbit-2" />
-        <div className="hero-copy">
-          <div className="eyebrow"><span>LOS SANTOS</span><i/> ADVISORY <i/> AUTOMOTIVE <i/> LOGISTICS <span className="live-dot">DISPONIBLE</span></div>
-          <h1><span>NAIRI</span><br/>CORPORATION</h1>
-          <p className="hero-lead">Conseil, mobilité et logistique. Sans intermédiaire inutile.</p>
-          <p className="hero-text">Nairi centralise vos demandes, coordonne les bons interlocuteurs et assure le suivi jusqu’à l’exécution. <strong>Une demande, un contact, un résultat.</strong></p>
+        <div className="hero-wordmark" aria-hidden="true">NAIRI</div>
+        <div className="hero-main">
+          <div className="microline"><span>LOS SANTOS</span><i/> CORPORATE SERVICES <i/> ROAD LOGISTICS</div>
+          <h1>Faire avancer<br/><em>vos affaires.</em></h1>
+          <p className="hero-lead">Un point d’entrée unique pour trouver le bon partenaire, structurer une demande et faire circuler ce qui compte.</p>
           <div className="hero-actions">
-            <button className="primary" onClick={()=>setModal({type:'advisory'})}>Initier une consultation <ArrowRight size={17}/></button>
-            <a href="#automotive" className="secondary">Explorer les services</a>
+            <button className="btn btn-light" onClick={()=>setModal({type:'case'})}>Ouvrir un dossier <ArrowRight size={17}/></button>
+            <button className="btn btn-ghost" onClick={()=>setModal({type:'track'})}>Suivre ma demande</button>
           </div>
-          <div className="hero-trust"><ShieldCheck size={17}/> Service direct · Suivi clair · Exécution maîtrisée</div>
         </div>
-        <div className="hero-emblem">
-          <div className="emblem-shell"><img src="/assets/nairi-logo.png" alt=""/></div>
-          <div className="coord top">43°N / 40°E</div><div className="coord bottom">NR-CORP.02</div>
-        </div>
-        <div className="hero-index"><b>EST.</b><span>MMXXV</span><b>INDEX</b><span>NR-CORP.02</span></div>
-      </section>
-
-      <section className="quick-actions section-tight">
-        <div className="section-kicker">SERVICES · ACCÈS DIRECT</div>
-        <div className="action-grid">
-          <ActionCard num="01" icon={BriefcaseBusiness} title="Mise en relation" text="Sourcing, négociation, recherche de partenaires et gestion de dossiers." action="Déposer une demande" onClick={()=>setModal({type:'advisory'})}/>
-          <ActionCard num="02" icon={CarFront} title="Réserver un véhicule" text="Flotte premium disponible à l’heure, avec ou sans chauffeur accrédité." action="Voir la flotte" href="#automotive"/>
-          <ActionCard num="03" icon={Truck} title="Organiser un transport" text="Ravitaillement, urgence, fret sur-mesure ou marchandise sensible." action="Créer une mission" onClick={()=>setModal({type:'logistics'})}/>
-          <ActionCard num="04" icon={UsersRound} title="Rejoindre Nairi" text="Conducteurs poids lourds, chauffeurs privés et conseillers commerciaux." action="Voir les postes" href="#careers"/>
+        <div className="hero-side">
+          <div className="hero-mark"><img src="/assets/nairi-logo.png"/></div>
+          <div className="hero-side-copy"><small>NAIRI CORPORATION</small><p>Maison de négoce, mise en relation & coordination.</p><a href="#corporation">Découvrir <ArrowUpRight size={15}/></a></div>
+          <div className="hero-side-copy"><small>NAIRI LOGISTICS</small><p>Ravitaillement, fret routier & opérations B2B.</p><a href="#logistics">Découvrir <ArrowUpRight size={15}/></a></div>
         </div>
       </section>
 
-      <section id="advisory" className="section split-section">
-        <div>
-          <div className="section-kicker">01 — ADVISORY & TRADE</div>
-          <h2>Vos intérêts,<br/><em>notre réseau.</em></h2>
-        </div>
-        <div className="prose-card">
-          <p>Nairi Corporation intervient comme relais privé entre un besoin et sa solution. Recherche de prestataires, sourcing de biens, rédaction et suivi d’accords, négociation ou gestion administrative : chaque dossier est traité avec un interlocuteur unique.</p>
-          <p>Lorsqu’une demande sort de notre périmètre direct, nous activons notre réseau de partenaires et orchestrons la mise en relation dans un cadre transparent, rémunéré au succès.</p>
-          <div className="mini-features"><span><Check/> Sourcing</span><span><Check/> Négociation</span><span><Check/> Intermédiation</span><span><Check/> Suivi privé</span></div>
-          <button className="primary" onClick={()=>setModal({type:'advisory'})}>Soumettre une consultation <ArrowRight size={16}/></button>
-        </div>
+      <section className="entry-strip">
+        <div><span>01</span><b>Exprimez le besoin</b><p>Un formulaire court, adapté à votre demande.</p></div>
+        <ChevronRight/>
+        <div><span>02</span><b>Nairi qualifie le dossier</b><p>Un interlocuteur reprend votre demande.</p></div>
+        <ChevronRight/>
+        <div><span>03</span><b>Suivez l’exécution</b><p>Statut, réponses et historique au même endroit.</p></div>
       </section>
 
-      <section id="automotive" className="section automotive-section">
-        <div className="section-head">
-          <div><div className="section-kicker">02 — NAIRI AUTOMOTIVE</div><h2>Flotte <em>d’exception.</em></h2></div>
-          <div className="section-note"><Gauge size={18}/><span>{loading?'Synchronisation…':`${vehicles.filter(v=>v.status==='available').length} véhicule(s) disponible(s)`}</span></div>
+      <section id="corporation" className="corp-section">
+        <div className="section-number">01 / CORPORATION</div>
+        <div className="corp-intro">
+          <div><span className="eyebrow">NAIRI CORPORATION</span><h2>Le bon interlocuteur.<br/><em>Au bon moment.</em></h2></div>
+          <div className="corp-statement"><p>Nairi agit comme un relais opérationnel entre votre besoin et le marché de Los Santos. Vous nous confiez le problème ; nous cherchons, qualifions, mettons en relation et suivons l’affaire jusqu’à sa résolution.</p><button className="text-link" onClick={()=>openCase('corporate')}>Confier une demande <ArrowRight size={16}/></button></div>
         </div>
-        <div className="vehicle-grid">
-          {vehicles.map((v,i)=><VehicleCard key={v.id} vehicle={v} index={i+1} onBook={()=>setModal({type:'booking',payload:v})}/>) }
+        <div className="corp-services">
+          {CORP_SERVICES.map(s=><button key={s.id} className="corp-service" onClick={()=>openCase('corporate',s.id)}><span>{s.n}</span><div><h3>{s.title}</h3><p>{s.text}</p></div><ArrowUpRight/></button>)}
         </div>
-        <div className="chauffeur-banner">
-          <div><UserCheck/><span><b>Service chauffeur privé</b>Un chauffeur accrédité peut rester à votre disposition pendant toute la durée de la prestation.</span></div>
-          <button className="secondary" onClick={()=>setModal({type:'booking'})}>Réserver avec chauffeur <ArrowRight size={16}/></button>
-        </div>
+        <div className="corp-promise"><Handshake/><div><small>NOTRE POSITION</small><h3>Ni annuaire, ni simple intermédiaire.</h3><p>Chaque dossier est suivi par Nairi : compréhension du besoin, recherche des parties, prise de contact, coordination et retour au client. Notre valeur est dans l’exécution et le réseau.</p></div></div>
       </section>
 
-      <section id="logistics" className="section logistics-section">
-        <div className="section-head">
-          <div><div className="section-kicker">03 — NAIRI LOGISTICS</div><h2>Le terrain comme<br/><em>chaîne de valeur.</em></h2></div>
-          <p>Du ravitaillement quotidien à l’opération prioritaire, la flotte Nairi intervient sur l’ensemble de Los Santos avec une logique simple : la bonne capacité, au bon endroit, au bon moment.</p>
+      <section id="logistics" className="logistics-section">
+        <div className="section-number light">02 / LOGISTICS</div>
+        <div className="logistics-head">
+          <div><span className="eyebrow light">NAIRI LOGISTICS</span><h2>Le fret devient<br/><em>un vrai métier RP.</em></h2></div>
+          <p>Le script camionneur fait circuler les cartons. Nairi Logistics construit tout ce qu’il y a autour : contrats de desserte, urgences, planification, relation entreprise, transports hors-script et traçabilité des missions.</p>
         </div>
-        <div className="logistics-layout">
-          <div className="service-stack">
-            <LogService icon={Boxes} title="Ravitaillement entreprise" text="Planifiez vos réapprovisionnements et confiez vos rotations à Nairi."/>
-            <LogService icon={TimerReset} title="Livraison urgente" text="Besoin critique de stock ? Une mission prioritaire peut être ouverte immédiatement."/>
-            <LogService icon={Package} title="Transport spécial" text="Alcool, matériel, marchandises RP, cargaison particulière ou trajet sur-mesure."/>
-            <LogService icon={ShieldCheck} title="Convoi sécurisé" text="Escorte et sécurisation pour les flux qui exigent une attention renforcée."/>
-            <button className="primary wide" onClick={()=>setModal({type:'logistics'})}>Demander une opération logistique <ArrowRight size={16}/></button>
+
+        <div className="log-service-grid">
+          {LOG_SERVICES.map((s,i)=>{const Icon=s.icon;return <button className="log-service-card" key={s.id} onClick={()=>openCase('logistics',s.id)}><div className="log-card-top"><span>0{i+1}</span><Icon/></div><small>{s.tag}</small><h3>{s.title}</h3><p>{s.text}</p><div>Créer une demande <ArrowRight size={15}/></div></button>})}
+        </div>
+
+        <div className="contract-feature">
+          <div className="contract-copy"><small>CONTRAT DE DESSERTE</small><h3>Votre entreprise peut faire de Nairi son transporteur référent.</h3><p>Au lieu d’appeler un camionneur au hasard à chaque rupture de stock, ouvrez un dossier de desserte. Nous définissons ensemble la fréquence, les horaires privilégiés, les marchandises et les points à servir. Les missions peuvent ensuite être planifiées et suivies dans le back-office Nairi.</p><button className="btn btn-light" onClick={()=>openCase('logistics','dedicated_route')}>Demander une desserte <ArrowRight size={16}/></button></div>
+          <div className="contract-flow">
+            {['Entreprise cliente','Planning Nairi','Chauffeur affecté','Chargement','Livraison & clôture'].map((x,i)=><div key={x}><span>{String(i+1).padStart(2,'0')}</span><b>{x}</b></div>)}
           </div>
-          <div className="fleet-showcase">
-            {fleet.map((f,i)=><div className="fleet-card" key={f.id}>
-              <div className="fleet-image"><img src={f.image_url} alt={f.name} onError={e=>{e.currentTarget.style.display='none';e.currentTarget.parentNode.classList.add('fallback')}}/><Truck className="fallback-icon"/></div>
-              <div className="fleet-body"><span>FRET / 0{i+1}</span><h3>{f.brand} {f.name}</h3><p>{f.description}</p><div className="fleet-tags"><b>{f.category}</b><i className={`status ${f.status}`}>{statusLabel(f.status)}</i></div></div>
-            </div>)}
+        </div>
+
+        <div className="fleet-block">
+          <div className="fleet-title"><div><small>OUTILS DE TERRAIN</small><h3>Flotte Logistics</h3></div><p>La flotte est un moyen, pas le produit. Le client réserve une opération ; Nairi choisit le véhicule adapté.</p></div>
+          <div className="fleet-grid">
+            {fleet.map((v,i)=><article className="fleet-card" key={v.id}><div className="fleet-image"><img src={v.image_url} alt={v.name}/><span>FLEET / {String(i+1).padStart(2,'0')}</span></div><div className="fleet-copy"><div><small>{v.brand} · {v.category}</small><h4>{v.name}</h4></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}
           </div>
         </div>
       </section>
 
-      <section id="careers" className="section careers-section">
-        <div className="section-head"><div><div className="section-kicker">04 — CARRIÈRES</div><h2>Rejoignez<br/><em>la maison.</em></h2></div><p>Nous recherchons des profils fiables, autonomes et capables de représenter Nairi avec professionnalisme sur le terrain comme face aux clients.</p></div>
-        <div className="jobs-grid">{JOBS.map((j,i)=><div className="job-card" key={j.id}><span>0{i+1}</span><j.icon/><h3>{j.title}</h3><p>{j.text}</p><button className="link-btn" onClick={()=>setModal({type:'application',payload:j})}>Postuler <ArrowRight size={15}/></button></div>)}</div>
+      <section id="partners" className="partners-section">
+        <div className="section-number">03 / RÉSEAU</div>
+        <div className="partners-head"><div><span className="eyebrow">PARTENAIRES</span><h2>Un réseau qui<br/><em>travaille vraiment.</em></h2></div><p>Les partenaires Nairi sont visibles ici parce qu’ils font partie du réseau actif : fournisseurs, commerces, prestataires et entreprises avec lesquelles nous pouvons construire une solution.</p></div>
+        {partners.length ? <div className="partner-grid">{partners.map(p=><article className="partner-card" key={p.id}>
+          <div className={cls('partner-visual',!p.image_url&&'empty')}>{p.image_url?<img src={p.image_url} alt={p.name}/>:<Building2/>}<span>{p.eyebrow||'PARTENAIRE NAIRI'}</span></div>
+          <div className="partner-copy"><h3>{p.name}</h3><p>{p.description}</p>{p.link_url&&<a href={p.link_url} target="_blank" rel="noreferrer">Voir le partenaire <ArrowUpRight size={14}/></a>}</div>
+        </article>)}</div> : <div className="empty-public"><Handshake/><h3>Le réseau est en cours de constitution.</h3><p>Les partenaires publiés depuis l’espace staff apparaîtront ici.</p></div>}
       </section>
 
-      <section className="section philosophy">
-        <div className="section-kicker">NOTRE APPROCHE</div>
-        <blockquote>« Un service clair.<br/><em>Une exécution sans détour.</em> »</blockquote>
-        <div className="principles"><span>CONTACT DIRECT</span><span>SUIVI CONTINU</span><span>SOLUTIONS SUR-MESURE</span><span>EXÉCUTION TERRAIN</span></div>
+      <section className="case-center">
+        <div className="case-center-inner">
+          <div><span className="eyebrow light">DOSSIERS NAIRI</span><h2>Le site garde la trace.<br/><em>Discord garde la discussion.</em></h2><p>Pour éviter le doublon : utilisez le site pour toute demande qui doit être suivie, affectée ou clôturée. Discord reste parfait pour les échanges rapides, la communauté et le vocal.</p></div>
+          <div className="case-actions">
+            <button className="case-action" onClick={()=>setModal({type:'case'})}><FileText/><div><b>Ouvrir un dossier</b><span>Corporate ou Logistics</span></div><ArrowRight/></button>
+            <button className="case-action" onClick={()=>setModal({type:'track'})}><Search/><div><b>Suivre un dossier</b><span>Référence + téléphone</span></div><ArrowRight/></button>
+            <a className="case-action" href={DISCORD_URL} target="_blank" rel="noreferrer"><MessageCircle/><div><b>Discussion rapide</b><span>Ouvrir Discord</span></div><ExternalLink/></a>
+          </div>
+        </div>
       </section>
 
-      <section className="section direction">
-        <div className="section-kicker">05 — DIRECTION & EXÉCUTIF</div>
-        <div className="direction-grid"><div><small>INTERNATIONAL ADVISORY</small><h3>E. Khatchadourian</h3><p>Fondateur & CEO</p></div><div><small>AUTOMOTIVE & LOGISTICS</small><h3>T. Markoussian</h3><p>Responsable Transit & Logistique</p></div></div>
+      <section id="careers" className="careers-section">
+        <div className="section-number">04 / RECRUTEMENT</div>
+        <div className="careers-head"><div><span className="eyebrow">REJOINDRE NAIRI</span><h2>Construire l’activité.<br/><em>Pas seulement la conduire.</em></h2></div><p>La croissance de Nairi repose autant sur les conducteurs terrain que sur ceux qui organisent les flux et développent les relations entreprises.</p></div>
+        <div className="jobs-grid">{JOBS.map(j=>{const Icon=j.icon;return <button key={j.id} className="job-card" onClick={()=>setModal({type:'apply',job:j.id})}><Icon/><small>POSTE OUVERT</small><h3>{j.title}</h3><p>{j.text}</p><span>Postuler <ArrowRight size={14}/></span></button>})}</div>
       </section>
 
-      <section className="cta-final">
-        <img src="/assets/nairi-logo.png" alt=""/>
-        <div><div className="section-kicker">NAIRI CORPORATION · LOS SANTOS</div><h2>Une demande.<br/><em>Un interlocuteur.</em></h2><p>Initiez votre dossier depuis l’application. Notre équipe prend ensuite le relais.</p></div>
-        <div className="cta-buttons"><button className="primary" onClick={()=>setModal({type:'advisory'})}>Nouvelle demande</button><button className="secondary" onClick={()=>setModal({type:'track'})}>Suivre un dossier</button></div>
+      <section className="final-cta">
+        <img src="/assets/nairi-logo.png"/>
+        <div><small>NAIRI CORPORATION · LOS SANTOS</small><h2>Une demande.<br/>Un dossier. <em>Un suivi.</em></h2></div>
+        <button className="btn btn-dark" onClick={()=>setModal({type:'case'})}>Nous contacter <ArrowRight size={17}/></button>
       </section>
     </main>
-    <footer><span>LOS SANTOS · MOSCOU · SAINT-PÉTERSBOURG · KAZAN · CRACOVIE · BELGRADE · TIRANA · EREVAN</span><b>NAIRI CORPORATION / 08 2026</b></footer>
+    <footer><div className="brand compact"><img src="/assets/nairi-logo.png"/><div><strong>NAIRI</strong><span>CORPORATION</span></div></div><p>Maison de Négoce, Gestion Administrative & Transport</p><div>Corporate · Logistics · Los Santos</div></footer>
   </div>
 }
 
-function ActionCard({num,icon:Icon,title,text,action,onClick,href}){ const content=<><div className="action-top"><span>{num}</span><Icon/></div><h3>{title}</h3><p>{text}</p><div className="action-link">{action}<ChevronRight size={16}/></div></>; return href?<a className="action-card" href={href}>{content}</a>:<button className="action-card" onClick={onClick}>{content}</button> }
-function VehicleCard({vehicle,index,onBook}){ return <article className="vehicle-card"><div className="vehicle-image"><img src={vehicle.image_url} alt={vehicle.name} onError={e=>{e.currentTarget.style.display='none'; e.currentTarget.parentNode.classList.add('fallback')}}/><CarFront className="fallback-icon"/><span className="vehicle-num">AUTO / 0{index}</span><span className={`status floating ${vehicle.status}`}>{statusLabel(vehicle.status)}</span></div><div className="vehicle-info"><small>{vehicle.brand} — {vehicle.category}</small><h3>{vehicle.name}</h3><p>{vehicle.description}</p><div className="price-row"><div><span>LOCATION</span><b>{money(vehicle.hourly_rate)} <small>/ H</small></b></div><div><span>CAUTION</span><b>{money(vehicle.deposit)}</b></div></div><button className="primary wide" disabled={vehicle.status!=='available'} onClick={onBook}>{vehicle.status==='available'?'Réserver ce véhicule':'Indisponible'} <ArrowRight size={16}/></button></div></article> }
-function LogService({icon:Icon,title,text}){return <div className="log-service"><Icon/><div><h3>{title}</h3><p>{text}</p></div><ChevronRight/></div>}
-
-function Modal({type,payload,vehicles,close,notify}){
-  React.useEffect(()=>{document.body.style.overflow='hidden'; return()=>{document.body.style.overflow=''}},[])
-  const titles={advisory:['Consultation privée','Advisory & Trade'],booking:['Réservation Automotive','Automotive'],logistics:['Mission logistique','Logistics'],application:['Candidature','Carrières'],track:['Suivre un dossier','Operations']}
-  return <div className="modal-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)close()}}><div className="modal-panel"><div className="modal-head"><div><span>{titles[type]?.[1]}</span><h2>{titles[type]?.[0]}</h2></div><button onClick={close}><X/></button></div><div className="modal-content">{type==='advisory'&&<AdvisoryForm close={close} notify={notify}/>} {type==='booking'&&<BookingForm initial={payload} vehicles={vehicles} close={close} notify={notify}/>} {type==='logistics'&&<LogisticsForm close={close} notify={notify}/>} {type==='application'&&<ApplicationForm job={payload} close={close} notify={notify}/>} {type==='track'&&<TrackForm/>}</div></div></div>
+function ModalShell({children,close}){
+  React.useEffect(()=>{const f=e=>e.key==='Escape'&&close();addEventListener('keydown',f);return()=>removeEventListener('keydown',f)},[close])
+  return <div className="modal-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}>{children}</div>
 }
 
-function Field({label,children,hint}){return <label className="field"><span>{label}</span>{children}{hint&&<small>{hint}</small>}</label>}
-function Input(props){return <input {...props}/>} function Textarea(props){return <textarea {...props}/>}
-
-async function insertPublic(table,row){
-  if(DEMO){ const all=JSON.parse(localStorage.getItem('nairi_demo_requests')||'[]'); all.push({table,...row,id:crypto.randomUUID(),created_at:new Date().toISOString()}); localStorage.setItem('nairi_demo_requests',JSON.stringify(all)); return {data:row,error:null} }
-  return supabase.from(table).insert(row)
+function ModalContent({modal,close,notify}){
+  if(modal.type==='track')return <TrackPortal close={close} notify={notify}/>
+  if(modal.type==='apply')return <ApplicationForm job={modal.job} close={close} notify={notify}/>
+  return <CaseForm initialKind={modal.kind} initialService={modal.service} close={close} notify={notify}/>
 }
 
-function FormSuccess({reference,close}){ const [copied,setCopied]=React.useState(false); return <div className="success-state"><div className="success-icon"><Check/></div><h3>Demande enregistrée.</h3><p>Conservez votre référence. Elle permet de suivre l’avancement du dossier avec votre numéro de téléphone.</p><button className="reference" onClick={()=>{navigator.clipboard?.writeText(reference);setCopied(true)}}><span>{reference}</span>{copied?<Check/>:<Copy/>}</button><button className="primary wide" onClick={close}>Terminer</button></div> }
+function ModalHeader({kicker,title,close}){return <div className="modal-head"><div><span>{kicker}</span><h2>{title}</h2></div><button onClick={close}><X/></button></div>}
+function Field({label,hint,children,full=false}){return <label className={cls('field',full&&'full')}><span>{label}</span>{children}{hint&&<small>{hint}</small>}</label>}
+const Input=props=><input {...props}/>
+const Textarea=props=><textarea {...props}/>
 
-function AdvisoryForm({close,notify}){
-  const [done,setDone]=React.useState(null),[busy,setBusy]=React.useState(false)
-  async function submit(e){e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget),ref=shortRef('ADV');const {error}=await insertPublic('advisory_requests',{client_ref:ref,contact_name:f.get('name'),phone:f.get('phone'),request_text:f.get('request'),status:'new'});setBusy(false); if(error)return notify(error.message,'error'); setDone(ref)}
-  if(done)return <FormSuccess reference={done} close={close}/>
-  return <form onSubmit={submit} className="form"><p className="form-intro">Décrivez votre besoin. Un conseiller Nairi reprendra contact pour qualifier le dossier et activer le réseau approprié.</p><Field label="Nom & prénom ou entreprise"><Input name="name" required placeholder="Ex. Bahama Mamas / Aram S."/></Field><Field label="Téléphone"><Input name="phone" required placeholder="Votre numéro IG"/></Field><Field label="Votre demande"><Textarea name="request" required rows="6" placeholder="Recherche d’un fournisseur, négociation, mise en relation, besoin administratif…"/></Field><button className="primary wide" disabled={busy}>{busy?'Transmission…':'Soumettre la consultation'} <Send size={16}/></button></form>
+function CaseForm({initialKind,initialService,close,notify}){
+  const [kind,setKind]=React.useState(initialKind||'')
+  const [form,setForm]=React.useState({service:initialService||'',contact_name:'',company_name:'',phone:'',title:'',description:'',origin:'',destination:'',cargo:'',quantity:'',requested_at:'',frequency:'',urgency:'standard'})
+  const [busy,setBusy]=React.useState(false)
+  const [reference,setReference]=React.useState(null)
+  const services=kind==='logistics'?LOG_SERVICES:CORP_SERVICES
+  React.useEffect(()=>{if(initialService)setForm(v=>({...v,service:initialService}))},[initialService])
+
+  async function submit(e){
+    e.preventDefault(); if(!kind||!form.service)return notify('Choisis le type de demande.','error')
+    if(!form.contact_name||!form.phone||!form.title||!form.description)return notify('Remplis les champs obligatoires.','error')
+    setBusy(true)
+    try{const ref=await publicOpenCase({...form,kind});setReference(ref)}catch(err){notify(err.message||'Impossible d’ouvrir le dossier.','error')}finally{setBusy(false)}
+  }
+  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DOSSIER CRÉÉ" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre dossier est ouvert.</h3><p>Gardez cette référence. Avec votre numéro de téléphone, elle permet de suivre le statut, lire les réponses Nairi et répondre directement depuis le site.</p><CopyRef value={reference}/><div className="success-actions"><button className="btn btn-dark" onClick={close}>Terminer</button></div></div></div>
+
+  return <div className="modal-panel case-modal">
+    <ModalHeader kicker="CONTACT NAIRI" title="Ouvrir un dossier" close={close}/>
+    <form className="modal-body" onSubmit={submit}>
+      <div className="form-intro"><span>01</span><div><b>Choisissez le pôle</b><p>Une seule porte d’entrée, deux métiers.</p></div></div>
+      <div className="kind-choice">
+        <button type="button" className={kind==='corporate'?'active':''} onClick={()=>{setKind('corporate');setForm(v=>({...v,service:''}))}}><BriefcaseBusiness/><div><b>Nairi Corporation</b><span>Mise en relation, sourcing, négociation, gestion.</span></div></button>
+        <button type="button" className={kind==='logistics'?'active':''} onClick={()=>{setKind('logistics');setForm(v=>({...v,service:''}))}}><Truck/><div><b>Nairi Logistics</b><span>Ravitaillement, fret, tournées et urgences.</span></div></button>
+      </div>
+      {kind&&<>
+        <div className="form-intro"><span>02</span><div><b>Précisez la demande</b><p>On affiche uniquement ce qui est utile à votre dossier.</p></div></div>
+        <Field label="Type de demande" full><select required value={form.service} onChange={e=>setForm({...form,service:e.target.value})}><option value="">Sélectionner...</option>{services.map(s=><option value={s.id} key={s.id}>{s.title}</option>)}</select></Field>
+        <div className="form-grid"><Field label="Nom & prénom"><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})}/></Field><Field label="Entreprise"><Input value={form.company_name} onChange={e=>setForm({...form,company_name:e.target.value})} placeholder="Facultatif"/></Field></div>
+        <div className="form-grid"><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field><Field label="Objet du dossier"><Input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="Ex. recherche fournisseur / rupture de stock"/></Field></div>
+        {kind==='logistics'&&<>
+          <div className="form-grid"><Field label="Point de départ"><Input value={form.origin} onChange={e=>setForm({...form,origin:e.target.value})}/></Field><Field label="Destination"><Input value={form.destination} onChange={e=>setForm({...form,destination:e.target.value})}/></Field></div>
+          <div className="form-grid"><Field label="Marchandise / besoin"><Input value={form.cargo} onChange={e=>setForm({...form,cargo:e.target.value})} placeholder="Cartons, alcool, matériel..."/></Field><Field label="Volume / quantité"><Input value={form.quantity} onChange={e=>setForm({...form,quantity:e.target.value})} placeholder="Estimation libre"/></Field></div>
+          <div className="form-grid"><Field label="Date / heure souhaitée"><Input type="datetime-local" value={form.requested_at} onChange={e=>setForm({...form,requested_at:e.target.value})}/></Field><Field label="Fréquence"><select value={form.frequency} onChange={e=>setForm({...form,frequency:e.target.value})}><option value="">Ponctuel</option><option value="daily">Quotidien</option><option value="several_week">Plusieurs fois / semaine</option><option value="weekly">Hebdomadaire</option><option value="on_demand">À la demande</option></select></Field></div>
+          <Field label="Priorité" full><select value={form.urgency} onChange={e=>setForm({...form,urgency:e.target.value})}><option value="standard">Standard</option><option value="urgent">Urgent / stock critique</option><option value="planned">Planifiable</option></select></Field>
+        </>}
+        <Field label="Décrivez votre demande" full hint="Le staff pourra vous poser des questions complémentaires dans le suivi du dossier."><Textarea required rows="5" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></Field>
+        <button className="btn btn-dark wide" disabled={busy}>{busy?'Ouverture...':'Ouvrir le dossier'} <ArrowRight size={16}/></button>
+      </>}
+    </form>
+  </div>
 }
 
-function BookingForm({initial,vehicles,close,notify}){
-  const [vehicleId,setVehicleId]=React.useState(initial?.id||vehicles.find(v=>v.status==='available')?.id||''); const [hours,setHours]=React.useState(1); const [driver,setDriver]=React.useState(false); const [done,setDone]=React.useState(null),[busy,setBusy]=React.useState(false)
-  const v=vehicles.find(x=>x.id===vehicleId); const estimate=(v?.hourly_rate||0)*Number(hours||0)
-  async function submit(e){e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget),ref=shortRef('AUTO');const {error}=await insertPublic('automotive_bookings',{client_ref:ref,contact_name:f.get('name'),phone:f.get('phone'),vehicle_id:DEMO?null:vehicleId,vehicle_name:v?.name||f.get('vehicle'),with_driver:driver,duration_hours:Number(hours),requested_at:f.get('date')||null,pickup_location:f.get('pickup'),notes:f.get('notes'),estimated_price:estimate,deposit_amount:v?.deposit||0,status:'new'});setBusy(false);if(error)return notify(error.message,'error');setDone(ref)}
-  if(done)return <FormSuccess reference={done} close={close}/>
-  return <form onSubmit={submit} className="form"><div className="form-grid"><Field label="Nom & prénom ou entreprise"><Input name="name" required/></Field><Field label="Téléphone"><Input name="phone" required/></Field></div><Field label="Véhicule"><select name="vehicle" value={vehicleId} onChange={e=>setVehicleId(e.target.value)} required>{vehicles.filter(x=>x.status==='available').map(x=><option key={x.id} value={x.id}>{x.brand} {x.name} — {money(x.hourly_rate)}/h</option>)}</select></Field><div className="form-grid"><Field label="Durée (heures)"><Input type="number" min="1" max="24" name="hours" value={hours} onChange={e=>setHours(e.target.value)} required/></Field><Field label="Date & heure souhaitées"><Input type="datetime-local" name="date" required/></Field></div><Field label="Lieu de prise en charge"><Input name="pickup" placeholder="Ex. Pillbox Hill, Arcadius…"/></Field><label className="toggle-field"><input type="checkbox" checked={driver} onChange={e=>setDriver(e.target.checked)}/><span className="toggle"/><div><b>Chauffeur accrédité</b><small>Le chauffeur reste à disposition durant la prestation.</small></div></label><Field label="Informations complémentaires"><Textarea rows="3" name="notes" placeholder="Trajet prévu, nombre de passagers, contraintes…"/></Field>{v&&<div className="estimate"><div><span>Location estimée</span><b>{money(estimate)}</b></div><div><span>Caution</span><b>{money(v.deposit)}</b></div><small>Le prix du chauffeur et les prestations spécifiques peuvent être confirmés par l’équipe Nairi.</small></div>}<button className="primary wide" disabled={busy||!v}>{busy?'Transmission…':'Demander la réservation'} <ArrowRight size={16}/></button></form>
+function CopyRef({value}){const [done,setDone]=React.useState(false);return <button className="copy-ref" onClick={()=>{navigator.clipboard?.writeText(value);setDone(true)}}><span>{value}</span>{done?<Check/>:<Copy/>}</button>}
+
+function TrackPortal({close,notify}){
+  const [reference,setReference]=React.useState('')
+  const [phone,setPhone]=React.useState('')
+  const [data,setData]=React.useState(null)
+  const [busy,setBusy]=React.useState(false)
+  const [reply,setReply]=React.useState('')
+
+  async function search(e){e?.preventDefault();setBusy(true);try{const r=await publicTrack(reference,phone);setData(r);if(!r)notify('Aucun dossier trouvé avec ces informations.','error')}catch(err){notify(err.message||'Erreur de suivi.','error')}finally{setBusy(false)}}
+  async function send(){if(!reply.trim())return;setBusy(true);try{await publicReply(reference,phone,reply.trim());setReply('');setData(await publicTrack(reference,phone));notify('Réponse envoyée.')}catch(err){notify(err.message||'Envoi impossible.','error')}finally{setBusy(false)}}
+
+  return <div className="modal-panel track-modal"><ModalHeader kicker="PORTAIL CLIENT" title="Suivre un dossier" close={close}/><div className="modal-body">
+    {!data?<form onSubmit={search} className="track-search"><p>Pas de compte à créer. Saisissez simplement la référence remise à l’ouverture et le téléphone utilisé dans la demande.</p><Field label="Référence du dossier"><Input required value={reference} onChange={e=>setReference(e.target.value.toUpperCase())} placeholder="NL-260825-AB12"/></Field><Field label="Téléphone"><Input required value={phone} onChange={e=>setPhone(e.target.value)}/></Field><button className="btn btn-dark wide" disabled={busy}><Search size={16}/>{busy?'Recherche...':'Afficher le dossier'}</button></form>:
+      <div className="client-case">
+        <div className="client-case-head"><div><small>{data.case.kind==='logistics'?'NAIRI LOGISTICS':'NAIRI CORPORATION'}</small><h3>{data.case.title}</h3><span>{data.case.reference}</span></div><CaseStatus value={data.case.status}/></div>
+        <div className="client-summary"><div><span>Service</span><b>{serviceLabel(data.case.service)}</b></div><div><span>Ouvert le</span><b>{dt(data.case.created_at)}</b></div>{data.case.requested_at&&<div><span>Échéance souhaitée</span><b>{dt(data.case.requested_at)}</b></div>}</div>
+        <div className="conversation"><div className="conversation-title"><MessageSquareText/><div><b>Échanges du dossier</b><span>Les notes internes du staff ne sont jamais visibles ici.</span></div></div>{data.messages?.length?data.messages.map(m=><MessageBubble key={m.id} m={m}/>):<div className="empty-line">Aucun message pour le moment.</div>}</div>
+        {!['completed','declined','cancelled'].includes(data.case.status)&&<div className="client-reply"><Textarea rows="3" value={reply} onChange={e=>setReply(e.target.value)} placeholder="Répondre à Nairi..."/><button className="btn btn-dark" disabled={busy||!reply.trim()} onClick={send}><Send size={15}/> Envoyer</button></div>}
+        <button className="text-link back-search" onClick={()=>setData(null)}>Rechercher un autre dossier</button>
+      </div>}
+  </div></div>
 }
 
-function LogisticsForm({close,notify}){
-  const [done,setDone]=React.useState(null),[busy,setBusy]=React.useState(false)
-  async function submit(e){e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget),ref=shortRef('LOG');const {error}=await insertPublic('logistics_requests',{client_ref:ref,contact_name:f.get('name'),company_name:f.get('company'),phone:f.get('phone'),request_type:f.get('type'),pickup_location:f.get('pickup'),delivery_location:f.get('delivery'),cargo:f.get('cargo'),volume:f.get('volume'),requested_at:f.get('date')||null,is_urgent:f.get('urgent')==='on',needs_security:f.get('security')==='on',notes:f.get('notes'),status:'new'});setBusy(false);if(error)return notify(error.message,'error');setDone(ref)}
-  if(done)return <FormSuccess reference={done} close={close}/>
-  return <form onSubmit={submit} className="form"><div className="form-grid"><Field label="Nom du demandeur"><Input name="name" required/></Field><Field label="Entreprise"><Input name="company" placeholder="Optionnel"/></Field></div><div className="form-grid"><Field label="Téléphone"><Input name="phone" required/></Field><Field label="Type de mission"><select name="type" required><option value="business_supply">Ravitaillement entreprise</option><option value="urgent_delivery">Livraison urgente</option><option value="special_transport">Transport spécial</option><option value="secure_convoy">Convoi sécurisé</option></select></Field></div><div className="form-grid"><Field label="Lieu d’enlèvement"><Input name="pickup"/></Field><Field label="Lieu de livraison"><Input name="delivery" required/></Field></div><div className="form-grid"><Field label="Nature de la marchandise"><Input name="cargo" required placeholder="Alcool, matières, colis…"/></Field><Field label="Volume approximatif"><Input name="volume" placeholder="Ex. 20 cartons / palette…"/></Field></div><Field label="Date & heure souhaitées"><Input type="datetime-local" name="date"/></Field><div className="check-row"><label><input type="checkbox" name="urgent"/><AlertTriangle/> Prioritaire / urgent</label><label><input type="checkbox" name="security"/><ShieldCheck/> Sécurisation nécessaire</label></div><Field label="Informations complémentaires"><Textarea name="notes" rows="4" placeholder="Précisions de chargement, accès, contraintes, fréquence souhaitée…"/></Field><button className="primary wide" disabled={busy}>{busy?'Transmission…':'Créer la demande logistique'} <Truck size={16}/></button></form>
-}
+function MessageBubble({m}){const staff=m.author_type==='staff'||m.author_type==='system';return <div className={cls('message-bubble',staff?'staff':'client')}><div><b>{m.author_name|| (staff?'Nairi':'Client')}</b><span>{dt(m.created_at)}</span></div><p>{m.body}</p></div>}
 
 function ApplicationForm({job,close,notify}){
-  const [done,setDone]=React.useState(null),[busy,setBusy]=React.useState(false)
-  async function submit(e){e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget),ref=shortRef('JOB');const {error}=await insertPublic('applications',{client_ref:ref,full_name:f.get('name'),phone:f.get('phone'),position:f.get('position'),experience:f.get('experience'),availability:f.get('availability'),motivation:f.get('motivation'),notes:f.get('notes'),status:'new'});setBusy(false);if(error)return notify(error.message,'error');setDone(ref)}
-  if(done)return <FormSuccess reference={done} close={close}/>
-  return <form onSubmit={submit} className="form"><Field label="Nom & prénom"><Input name="name" required/></Field><div className="form-grid"><Field label="Téléphone"><Input name="phone" required/></Field><Field label="Poste"><select name="position" defaultValue={job?.id||'heavy_driver'}>{JOBS.map(x=><option value={x.id} key={x.id}>{x.title}</option>)}</select></Field></div><Field label="Expérience"><Textarea name="experience" rows="3" placeholder="Transport, conduite, relation client, commerce…"/></Field><Field label="Disponibilités"><Input name="availability" placeholder="Jours / créneaux habituels"/></Field><Field label="Motivation"><Textarea name="motivation" rows="4" required placeholder="Pourquoi souhaitez-vous rejoindre Nairi ?"/></Field><Field label="Informations complémentaires"><Textarea name="notes" rows="2"/></Field><button className="primary wide" disabled={busy}>{busy?'Transmission…':'Déposer ma candidature'} <Send size={16}/></button></form>
+  const [form,setForm]=React.useState({full_name:'',phone:'',position:job||'heavy_driver',experience:'',availability:'',motivation:''})
+  const [busy,setBusy]=React.useState(false),[ref,setRef]=React.useState(null)
+  async function submit(e){e.preventDefault();setBusy(true);try{
+    const reference=`JOB-${new Date().toISOString().slice(2,10).replaceAll('-','')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`
+    if(!supabase){const row={id:uuid(),client_ref:reference,status:'new',created_at:new Date().toISOString(),...form};demoSet('applications',[row,...demoGet('applications')])}
+    else {const {error}=await supabase.from('applications').insert({client_ref:reference,...form,status:'new'});if(error)throw error}
+    setRef(reference)
+  }catch(err){notify(err.message||'Candidature impossible.','error')}finally{setBusy(false)}}
+  if(ref)return <div className="modal-panel success-panel"><ModalHeader kicker="CANDIDATURE" title="Candidature transmise" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Bienvenue dans le processus Nairi.</h3><p>Votre candidature est enregistrée. L’équipe reviendra vers vous par téléphone.</p><CopyRef value={ref}/><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
+  return <div className="modal-panel"><ModalHeader kicker="RECRUTEMENT" title="Rejoindre Nairi" close={close}/><form className="modal-body" onSubmit={submit}><div className="form-grid"><Field label="Nom & prénom"><Input required value={form.full_name} onChange={e=>setForm({...form,full_name:e.target.value})}/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div><Field label="Poste" full><select value={form.position} onChange={e=>setForm({...form,position:e.target.value})}>{JOBS.map(j=><option value={j.id} key={j.id}>{j.title}</option>)}</select></Field><Field label="Expérience" full><Textarea rows="3" value={form.experience} onChange={e=>setForm({...form,experience:e.target.value})}/></Field><Field label="Disponibilités" full><Input value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})}/></Field><Field label="Motivation" full><Textarea required rows="4" value={form.motivation} onChange={e=>setForm({...form,motivation:e.target.value})}/></Field><button className="btn btn-dark wide" disabled={busy}>Envoyer ma candidature <ArrowRight size={16}/></button></form></div>
 }
 
-function TrackForm(){
-  const [result,setResult]=React.useState(null),[error,setError]=React.useState(null),[busy,setBusy]=React.useState(false)
-  async function submit(e){e.preventDefault();setBusy(true);setError(null);setResult(null);const f=new FormData(e.currentTarget),ref=f.get('ref').trim().toUpperCase(),phone=f.get('phone').trim(); if(DEMO){const all=JSON.parse(localStorage.getItem('nairi_demo_requests')||'[]'); const found=all.find(x=>x.client_ref===ref&&x.phone===phone); setResult(found?{reference:ref,category:found.table,status:found.status||'new',created_at:found.created_at,summary:found.vehicle_name||found.request_text||found.cargo||found.position}:null); if(!found)setError('Aucun dossier correspondant.'); setBusy(false);return}
-    const {data,error:err}=await supabase.rpc('track_request',{p_reference:ref,p_phone:phone});setBusy(false); if(err)return setError(err.message); const found=Array.isArray(data)?data[0]:data; if(!found)return setError('Aucun dossier correspondant.');setResult(found)}
-  return <div className="track-wrap"><form onSubmit={submit} className="form"><p className="form-intro">Saisissez la référence reçue lors de votre demande et le même numéro de téléphone.</p><Field label="Référence"><Input name="ref" placeholder="AUTO-XXXX0000" required/></Field><Field label="Téléphone"><Input name="phone" required/></Field><button className="primary wide" disabled={busy}>{busy?'Recherche…':'Consulter le statut'} <Search size={16}/></button></form>{error&&<div className="inline-error">{error}</div>}{result&&<div className="track-result"><BadgeCheck/><span>DOSSIER {result.reference}</span><h3>{statusLabel(result.status)}</h3><p>{result.summary||'Votre demande est bien enregistrée dans le système Nairi.'}</p><small>Ouvert le {dt(result.created_at)}</small></div>}</div>
+function StaffApp({session,profile,notify,loadPublic,demo}){
+  const [demoAccess,setDemoAccess]=React.useState(false)
+  if(!session&&!demoAccess)return <StaffLogin notify={notify} demo={demo} onDemo={()=>setDemoAccess(true)}/>
+  if(session&&!profile)return <StaffGate session={session}/>
+  return <StaffDashboard profile={profile||{display_name:'Mode Démo',role:'admin',branch:'Corporate & Logistics'}} notify={notify} loadPublic={loadPublic} demo={demo||demoAccess} onDemoExit={()=>setDemoAccess(false)}/>
 }
 
-function StaffApp({session,staffProfile,notify,vehicles,fleet,reloadPublic,demo}){
-  const [demoLogged,setDemoLogged]=React.useState(()=>sessionStorage.getItem('nairi_demo_staff')==='1')
-  if((!session&&!demoLogged) || (session && !staffProfile)) return <StaffLogin session={session} staffProfile={staffProfile} demo={demo} onDemo={()=>{sessionStorage.setItem('nairi_demo_staff','1');setDemoLogged(true)}} notify={notify}/>
-  return <StaffDashboard notify={notify} vehicles={vehicles} fleet={fleet} reloadPublic={reloadPublic} profile={staffProfile||{display_name:'Mode démonstration',role:'admin'}} demo={demo} onDemoLogout={()=>{sessionStorage.removeItem('nairi_demo_staff');setDemoLogged(false)}} />
+function StaffLogin({notify,demo,onDemo}){
+  const [email,setEmail]=React.useState(''),[password,setPassword]=React.useState(''),[busy,setBusy]=React.useState(false)
+  async function login(e){e.preventDefault();if(!supabase)return onDemo();setBusy(true);const {error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);if(error)notify(error.message,'error')}
+  return <div className="staff-login"><a className="login-brand" href="#home"><img src="/assets/nairi-logo.png"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>NAIRI / OPERATIONS</span><h1>Espace staff</h1><p>Dossiers, réponses clients, planning Logistics, partenaires et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
 }
+function StaffGate({session}){return <div className="staff-login"><div className="login-card"><AlertTriangle/><h1>Compte non autorisé</h1><p>{session.user.email} est connecté mais n’a pas de profil dans <code>staff_profiles</code>.</p><button className="btn btn-light" onClick={()=>supabase.auth.signOut()}>Déconnexion</button></div></div>}
 
-function StaffLogin({session,staffProfile,demo,onDemo,notify}){
+function StaffDashboard({profile,notify,loadPublic,demo,onDemoExit}){
+  const [tab,setTab]=React.useState('overview')
+  const [mobileNav,setMobileNav]=React.useState(false)
+  const [data,setData]=React.useState({cases:[],messages:[],partners:[],fleet:[],finance:[],applications:[],staff:[]})
   const [busy,setBusy]=React.useState(false)
-  async function login(e){e.preventDefault(); if(!supabase)return onDemo(); setBusy(true);const f=new FormData(e.currentTarget);const {error}=await supabase.auth.signInWithPassword({email:f.get('email'),password:f.get('password')});setBusy(false);if(error)notify(error.message,'error')}
-  return <div className="staff-login"><a className="brand login-brand" href="#home"><img src="/assets/nairi-logo.png"/><span><strong>NAIRI</strong><small>OPERATIONS CENTER</small></span></a><div className="login-card"><div className="security-mark"><LockKeyhole/></div><span>ACCÈS INTERNE</span><h1>Operations Center</h1>{session&&!staffProfile?<div className="inline-error">Ce compte est authentifié mais ne possède pas de profil staff autorisé.</div>:<p>Gestion des opérations Automotive, Logistics, Advisory et des flux financiers.</p>} {!session&&<form onSubmit={login} className="form"><Field label="E-mail"><Input type="email" name="email" required/></Field><Field label="Mot de passe"><Input type="password" name="password" required/></Field><button className="primary wide" disabled={busy}>{busy?'Connexion…':'Accéder au centre'} <LogIn size={16}/></button></form>}{demo&&<><div className="demo-separator"><span>MODE LOCAL</span></div><button className="secondary wide" onClick={onDemo}>Ouvrir la démo staff</button><small className="demo-help">Supabase n’est pas encore configuré : les données de test seront conservées uniquement dans ce navigateur.</small></>}<a className="back-site" href="#home">← Retour au site public</a></div></div>
+
+  const load=React.useCallback(async()=>{
+    setBusy(true)
+    if(demo){setData({cases:demoGet('cases'),messages:demoGet('messages'),partners:demoGet('partners'),fleet:demoGet('fleet',FLEET_SEEDS),finance:demoGet('finance'),applications:demoGet('applications'),staff:[{id:'demo-staff',display_name:'T. Markoussian',role:'admin'}]});setBusy(false);return}
+    const [c,m,p,f,fin,a,s]=await Promise.all([
+      supabase.from('cases').select('*').order('updated_at',{ascending:false}),
+      supabase.from('case_messages').select('*').order('created_at',{ascending:true}),
+      supabase.from('partners').select('*').order('sort_order'),
+      supabase.from('fleet_vehicles').select('*').order('sort_order'),
+      supabase.from('financial_transactions').select('*').order('transaction_date',{ascending:false}),
+      supabase.from('applications').select('*').order('created_at',{ascending:false}),
+      supabase.from('staff_profiles').select('*').order('display_name')
+    ])
+    const err=[c,m,p,f,fin,a,s].find(x=>x.error)?.error;if(err)notify(err.message,'error')
+    setData({cases:c.data||[],messages:m.data||[],partners:p.data||[],fleet:f.data||[],finance:fin.data||[],applications:a.data||[],staff:s.data||[]});setBusy(false)
+  },[demo,notify])
+  React.useEffect(()=>{load()},[load])
+
+  const nav=[
+    ['overview',LayoutDashboard,'Vue d’ensemble'],['cases',Inbox,'Dossiers'],['logistics',Truck,'Logistics'],
+    ['partners',Handshake,'Partenaires'],['fleet',HardHat,'Flotte'],['finance',CircleDollarSign,'Finance'],['careers',UsersRound,'Recrutement']
+  ]
+  const logout=async()=>{if(demo)return onDemoExit();await supabase.auth.signOut();location.hash='#home'}
+  return <div className="staff-shell">
+    <aside className={mobileNav?'open':''}><div className="staff-brand"><img src="/assets/nairi-logo.png"/><div><b>NAIRI</b><span>OPERATIONS</span></div></div><nav>{nav.map(([id,Icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setMobileNav(false)}}><Icon size={18}/>{label}</button>)}</nav><div className="staff-side-bottom"><a href="#home"><ExternalLink size={15}/> Site public</a><button onClick={logout}><LogOut size={15}/> Déconnexion</button></div></aside>
+    <div className="staff-main"><header><button className="staff-menu" onClick={()=>setMobileNav(v=>!v)}><Menu/></button><div><small>NAIRI / OPERATIONS</small><h1>{nav.find(x=>x[0]===tab)?.[2]}</h1></div><div className="staff-user"><span>{profile.display_name}</span><b>{profile.role}</b></div><button className="icon-btn" onClick={load} title="Actualiser"><RefreshCw className={busy?'spin':''}/></button></header>
+      <div className="staff-content">
+        {tab==='overview'&&<Overview data={data} setTab={setTab}/>} 
+        {tab==='cases'&&<CasesPanel data={data} reload={load} notify={notify} demo={demo}/>} 
+        {tab==='logistics'&&<CasesPanel data={data} reload={load} notify={notify} demo={demo} forcedKind="logistics"/>}
+        {tab==='partners'&&<PartnersPanel items={data.partners} reload={load} loadPublic={loadPublic} notify={notify} demo={demo}/>} 
+        {tab==='fleet'&&<FleetPanel items={data.fleet} reload={load} loadPublic={loadPublic} notify={notify} demo={demo}/>} 
+        {tab==='finance'&&<FinancePanel items={data.finance} cases={data.cases} reload={load} notify={notify} demo={demo}/>} 
+        {tab==='careers'&&<CareersPanel items={data.applications} reload={load} notify={notify} demo={demo}/>} 
+      </div>
+    </div>
+  </div>
 }
 
-function StaffDashboard({notify,vehicles,fleet,reloadPublic,profile,demo,onDemoLogout}){
-  const [tab,setTab]=React.useState('overview'); const [mobileNav,setMobileNav]=React.useState(false); const [data,setData]=React.useState({advisory:[],bookings:[],logistics:[],applications:[],finance:[]}); const [loading,setLoading]=React.useState(false)
-  async function load(){ setLoading(true); if(DEMO){const all=JSON.parse(localStorage.getItem('nairi_demo_requests')||'[]'); setData({advisory:all.filter(x=>x.table==='advisory_requests'),bookings:all.filter(x=>x.table==='automotive_bookings'),logistics:all.filter(x=>x.table==='logistics_requests'),applications:all.filter(x=>x.table==='applications'),finance:JSON.parse(localStorage.getItem('nairi_demo_finance')||'[]')});setLoading(false);return}
-    const [a,b,l,j,f]=await Promise.all([supabase.from('advisory_requests').select('*').order('created_at',{ascending:false}),supabase.from('automotive_bookings').select('*').order('created_at',{ascending:false}),supabase.from('logistics_requests').select('*').order('created_at',{ascending:false}),supabase.from('applications').select('*').order('created_at',{ascending:false}),supabase.from('financial_transactions').select('*').order('transaction_date',{ascending:false})]);
-    setData({advisory:a.data||[],bookings:b.data||[],logistics:l.data||[],applications:j.data||[],finance:f.data||[]});setLoading(false)
-  }
-  React.useEffect(()=>{load()},[])
-  const nav=[['overview',LayoutDashboard,'Vue générale'],['requests',ClipboardList,'Demandes'],['automotive',CarFront,'Automotive'],['logistics',Truck,'Logistics'],['finance',WalletCards,'Finance'],['careers',UsersRound,'Recrutement']]
-  async function logout(){if(supabase)await supabase.auth.signOut();else onDemoLogout();location.hash='#home'}
-  return <div className="staff-shell"><aside className={mobileNav?'open':''}><div className="staff-brand"><img src="/assets/nairi-logo.png"/><div><b>NAIRI</b><span>OPERATIONS</span></div></div><nav>{nav.map(([id,Icon,label])=><button className={tab===id?'active':''} key={id} onClick={()=>{setTab(id);setMobileNav(false)}}><Icon/>{label}</button>)}</nav><div className="staff-user"><div className="avatar">{(profile.display_name||'N').slice(0,1)}</div><div><b>{profile.display_name||'Staff Nairi'}</b><span>{profile.role||'staff'}</span></div><button onClick={logout}><LogOut/></button></div></aside><div className="staff-main"><header><button className="staff-menu" onClick={()=>setMobileNav(!mobileNav)}><Menu/></button><div><span>NAIRI CORPORATION / INTERNAL</span><h1>{nav.find(x=>x[0]===tab)?.[2]}</h1></div><div className="header-tools">{demo&&<span className="demo-badge"><Database/> DEMO</span>}<button className="icon-btn" onClick={()=>{load();reloadPublic()}}><RefreshCw className={loading?'spin':''}/></button><a className="icon-btn" href="#home"><ExternalLink/></a></div></header><section className="staff-content">{tab==='overview'&&<Overview data={data}/>} {tab==='requests'&&<RequestsPanel data={data} reload={load} notify={notify}/>} {tab==='automotive'&&<VehiclesPanel vehicles={vehicles} reload={reloadPublic} notify={notify}/>} {tab==='logistics'&&<LogisticsPanel fleet={fleet} requests={data.logistics} reload={()=>{reloadPublic();load()}} notify={notify}/>} {tab==='finance'&&<FinancePanel items={data.finance} reload={load} notify={notify}/>} {tab==='careers'&&<CareersPanel items={data.applications} reload={load} notify={notify}/>}</section></div></div>
-}
-
-function Overview({data}){
-  const open=[...data.advisory,...data.bookings,...data.logistics].filter(x=>!['completed','delivered','cancelled','rejected'].includes(x.status)).length
-  const income=data.finance.filter(x=>x.direction==='income').reduce((s,x)=>s+Number(x.amount),0), expense=data.finance.filter(x=>x.direction==='expense').reduce((s,x)=>s+Number(x.amount),0)
-  const recent=[...data.advisory.map(x=>({...x,kind:'Advisory'})),...data.bookings.map(x=>({...x,kind:'Automotive'})),...data.logistics.map(x=>({...x,kind:'Logistics'}))].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,6)
-  return <><div className="metric-grid"><Metric icon={ClipboardList} label="Dossiers actifs" value={open}/><Metric icon={CarFront} label="Réservations" value={data.bookings.length}/><Metric icon={Truck} label="Missions logistiques" value={data.logistics.length}/><Metric icon={CircleDollarSign} label="Solde enregistré" value={money(income-expense)}/></div><div className="staff-card"><div className="card-title"><div><span>ACTIVITÉ</span><h2>Dernières demandes</h2></div></div>{recent.length?<div className="table-wrap"><table><thead><tr><th>Référence</th><th>Branche</th><th>Client</th><th>Créée</th><th>Statut</th></tr></thead><tbody>{recent.map(x=><tr key={x.id}><td><b>{x.client_ref}</b></td><td>{x.kind}</td><td>{x.contact_name||x.company_name}</td><td>{dt(x.created_at)}</td><td><Status value={x.status}/></td></tr>)}</tbody></table></div>:<Empty icon={ClipboardList} text="Aucune demande pour le moment."/>}</div></>
+function Overview({data,setTab}){
+  const open=data.cases.filter(c=>!['completed','declined','cancelled'].includes(c.status))
+  const logistics=open.filter(c=>c.kind==='logistics')
+  const waiting=open.filter(c=>c.status==='waiting_client')
+  const income=data.finance.filter(x=>x.direction==='income').reduce((a,b)=>a+Number(b.amount||0),0)
+  const expense=data.finance.filter(x=>x.direction==='expense').reduce((a,b)=>a+Number(b.amount||0),0)
+  return <>
+    <div className="metric-grid"><Metric icon={Inbox} label="Dossiers ouverts" value={open.length}/><Metric icon={Truck} label="Missions Logistics" value={logistics.length}/><Metric icon={Clock3} label="En attente client" value={waiting.length}/><Metric icon={Banknote} label="Solde enregistré" value={money(income-expense)}/></div>
+    <div className="staff-grid two"><section className="staff-card"><CardTitle kicker="ACTIVITÉ" title="Derniers dossiers" action={<button className="text-link" onClick={()=>setTab('cases')}>Tout voir</button>}/>{data.cases.slice(0,6).map(c=><MiniCase key={c.id} c={c}/>) }{!data.cases.length&&<Empty icon={Inbox} text="Aucun dossier pour le moment."/>}</section><section className="staff-card"><CardTitle kicker="LOGISTICS" title="À piloter" action={<button className="text-link" onClick={()=>setTab('logistics')}>Ouvrir</button>}/>{data.cases.filter(c=>c.kind==='logistics'&&!['completed','cancelled','declined'].includes(c.status)).slice(0,6).map(c=><MiniCase key={c.id} c={c}/>) }{!logistics.length&&<Empty icon={Truck} text="Aucune mission active."/>}</section></div>
+  </>
 }
 function Metric({icon:Icon,label,value}){return <div className="metric"><div><Icon/></div><span>{label}</span><b>{value}</b></div>}
-function Status({value}){return <span className={`status ${value}`}>{statusLabel(value)}</span>}
-function Empty({icon:Icon,text}){return <div className="empty"><Icon/><p>{text}</p></div>}
+function CardTitle({kicker,title,action}){return <div className="card-title"><div><span>{kicker}</span><h2>{title}</h2></div>{action}</div>}
+function MiniCase({c}){return <div className="mini-case"><div><small>{c.reference} · {c.kind==='logistics'?'LOGISTICS':'CORPORATE'}</small><b>{c.title}</b><span>{c.company_name||c.contact_name}</span></div><CaseStatus value={c.status}/></div>}
+function CaseStatus({value}){return <span className={cls('case-status',value)}><i/>{statusLabel(value)}</span>}
+function Empty({icon:Icon,text}){return <div className="empty-admin"><Icon/><p>{text}</p></div>}
 
-function RequestsPanel({data,reload,notify}){
-  const [kind,setKind]=React.useState('bookings'); const [selected,setSelected]=React.useState(null); const items=data[kind]||[]
-  const map={bookings:'automotive_bookings',advisory:'advisory_requests',logistics:'logistics_requests'}
-  async function changeStatus(row,status){ if(DEMO){const all=JSON.parse(localStorage.getItem('nairi_demo_requests')||'[]');const i=all.findIndex(x=>x.id===row.id);if(i>=0)all[i].status=status;localStorage.setItem('nairi_demo_requests',JSON.stringify(all));notify('Statut mis à jour');reload();return} const {error}=await supabase.from(map[kind]).update({status}).eq('id',row.id);if(error)notify(error.message,'error');else{notify('Statut mis à jour');reload();setSelected(null)}}
-  return <div className="staff-card"><div className="card-title"><div><span>OPERATIONS</span><h2>Gestion des demandes</h2></div><div className="segmented"><button className={kind==='bookings'?'active':''} onClick={()=>setKind('bookings')}>Automotive</button><button className={kind==='logistics'?'active':''} onClick={()=>setKind('logistics')}>Logistics</button><button className={kind==='advisory'?'active':''} onClick={()=>setKind('advisory')}>Advisory</button></div></div>{items.length?<div className="request-list">{items.map(x=><button key={x.id} className="request-row" onClick={()=>setSelected(x)}><div><span>{x.client_ref}</span><h3>{x.contact_name||x.company_name}</h3><p>{kind==='bookings'?`${x.vehicle_name||'Véhicule'} · ${x.duration_hours||'?'}h`:kind==='logistics'?`${x.cargo||'Marchandise'} · ${x.delivery_location||'Destination à définir'}`:(x.request_text||'').slice(0,90)}</p></div><div><small>{dt(x.created_at)}</small><Status value={x.status}/></div><ChevronRight/></button>)}</div>:<Empty icon={ClipboardList} text="Aucune demande dans cette catégorie."/>}{selected&&<RequestDrawer row={selected} kind={kind} close={()=>setSelected(null)} changeStatus={changeStatus}/>}</div>
+function CasesPanel({data,reload,notify,demo,forcedKind}){
+  const [filter,setFilter]=React.useState(forcedKind||'all'),[q,setQ]=React.useState(''),[selected,setSelected]=React.useState(null)
+  React.useEffect(()=>{if(forcedKind)setFilter(forcedKind)},[forcedKind])
+  const rows=data.cases.filter(c=>(filter==='all'||c.kind===filter)&&(!q||`${c.reference} ${c.title} ${c.contact_name} ${c.company_name||''} ${c.phone}`.toLowerCase().includes(q.toLowerCase())))
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>{forcedKind?'NAIRI LOGISTICS':'GESTION CENTRALISÉE'}</span><h2>{forcedKind?'Dossiers Logistics':'Tous les dossiers'}</h2></div><div className="panel-tools"><label className="searchbox"><Search/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Réf, client, entreprise..."/></label>{!forcedKind&&<div className="segmented"><button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>Tous</button><button className={filter==='corporate'?'active':''} onClick={()=>setFilter('corporate')}>Corp</button><button className={filter==='logistics'?'active':''} onClick={()=>setFilter('logistics')}>Logistics</button></div>}</div></div>
+    <div className="case-table-head"><span>Dossier</span><span>Client</span><span>Statut</span><span>Activité</span><span/></div>
+    <div className="case-list">{rows.map(c=><button className="case-row" key={c.id} onClick={()=>setSelected(c)}><div><small>{c.reference}</small><b>{c.title}</b><span>{serviceLabel(c.service)}</span></div><div><b>{c.company_name||c.contact_name}</b><span>{c.phone}</span></div><CaseStatus value={c.status}/><span>{dt(c.updated_at)}</span><ChevronRight/></button>)}{!rows.length&&<Empty icon={Inbox} text="Aucun dossier ne correspond au filtre."/>}</div>
+    {selected&&<CaseDrawer row={data.cases.find(c=>c.id===selected.id)||selected} messages={data.messages.filter(m=>m.case_id===selected.id)} staff={data.staff} close={()=>setSelected(null)} reload={reload} notify={notify} demo={demo}/>} 
+  </section>
 }
-function RequestDrawer({row,kind,close,changeStatus}){
- const opts=kind==='bookings'?['new','accepted','deposit_pending','confirmed','in_progress','completed','cancelled']:kind==='logistics'?['new','review','accepted','assigned','in_transit','delivered','cancelled']:['new','review','contacted','negotiation','completed','rejected']
- return <div className="drawer-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}><div className="request-drawer"><div className="modal-head"><div><span>DOSSIER {row.client_ref}</span><h2>{row.contact_name||row.company_name}</h2></div><button onClick={close}><X/></button></div><div className="drawer-body"><div className="detail-grid"><Detail label="Téléphone" value={row.phone}/><Detail label="Création" value={dt(row.created_at)}/>{kind==='bookings'&&<><Detail label="Véhicule" value={row.vehicle_name}/><Detail label="Durée" value={`${row.duration_hours}h`}/><Detail label="Chauffeur" value={row.with_driver?'Oui':'Non'}/><Detail label="Prise en charge" value={row.pickup_location}/><Detail label="Date souhaitée" value={dt(row.requested_at)}/><Detail label="Estimation" value={money(row.estimated_price)}/></>}{kind==='logistics'&&<><Detail label="Entreprise" value={row.company_name}/><Detail label="Type" value={row.request_type}/><Detail label="Marchandise" value={row.cargo}/><Detail label="Enlèvement" value={row.pickup_location}/><Detail label="Livraison" value={row.delivery_location}/><Detail label="Prioritaire" value={row.is_urgent?'Oui':'Non'}/></>}{kind==='advisory'&&<div className="detail-full"><span>Demande</span><p>{row.request_text}</p></div>}{row.notes&&<div className="detail-full"><span>Notes client</span><p>{row.notes}</p></div>}</div><div className="status-editor"><span>FAIRE ÉVOLUER LE DOSSIER</span><div>{opts.map(s=><button key={s} className={row.status===s?'active':''} onClick={()=>changeStatus(row,s)}>{statusLabel(s)}</button>)}</div></div></div></div></div>
+
+function CaseDrawer({row,messages,staff,close,reload,notify,demo}){
+  const [reply,setReply]=React.useState(''),[visibility,setVisibility]=React.useState('public'),[busy,setBusy]=React.useState(false)
+  async function update(patch){setBusy(true);try{
+    if(demo){const rows=demoGet('cases').map(c=>c.id===row.id?{...c,...patch,updated_at:new Date().toISOString()}:c);demoSet('cases',rows)}
+    else {const {error}=await supabase.from('cases').update(patch).eq('id',row.id);if(error)throw error}
+    await reload();notify('Dossier mis à jour.')
+  }catch(e){notify(e.message,'error')}finally{setBusy(false)}}
+  async function send(){if(!reply.trim())return;setBusy(true);try{
+    const name=visibility==='internal'?'Note interne':'Nairi'
+    if(demo){const m={id:uuid(),case_id:row.id,author_type:'staff',author_name:name,visibility,body:reply.trim(),created_at:new Date().toISOString()};demoSet('messages',[...demoGet('messages'),m]);demoSet('cases',demoGet('cases').map(c=>c.id===row.id?{...c,updated_at:new Date().toISOString()}:c))}
+    else {const {error}=await supabase.from('case_messages').insert({case_id:row.id,author_type:'staff',author_name:name,visibility,body:reply.trim()});if(error)throw error}
+    setReply('');await reload();notify(visibility==='public'?'Réponse client envoyée.':'Note interne ajoutée.')
+  }catch(e){notify(e.message,'error')}finally{setBusy(false)}}
+  return <div className="drawer-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}><aside className="drawer"><ModalHeader kicker={`${row.kind==='logistics'?'LOGISTICS':'CORPORATE'} · ${row.reference}`} title={row.title} close={close}/><div className="drawer-body">
+    <div className="drawer-block"><div className="drawer-section-title"><span>ÉTAT DU DOSSIER</span><CaseStatus value={row.status}/></div><div className="status-grid">{STATUS_FLOW.map(s=><button key={s} disabled={busy} className={row.status===s?'active':''} onClick={()=>update({status:s})}>{statusLabel(s)}</button>)}</div><Field label="Responsable du dossier"><select value={row.assigned_to||''} onChange={e=>update({assigned_to:e.target.value||null})}><option value="">Non affecté</option>{staff.map(s=><option value={s.id} key={s.id}>{s.display_name}</option>)}</select></Field></div>
+    <div className="drawer-block"><div className="drawer-section-title"><span>CLIENT & DEMANDE</span></div><div className="detail-grid"><Detail label="Contact" value={row.contact_name}/><Detail label="Entreprise" value={row.company_name}/><Detail label="Téléphone" value={row.phone}/><Detail label="Service" value={serviceLabel(row.service)}/><Detail label="Ouvert" value={dt(row.created_at)}/><Detail label="Souhaité" value={dt(row.requested_at)}/>{row.kind==='logistics'&&<><Detail label="Départ" value={row.origin}/><Detail label="Destination" value={row.destination}/><Detail label="Marchandise" value={row.cargo}/><Detail label="Volume" value={row.quantity}/><Detail label="Fréquence" value={row.frequency}/><Detail label="Priorité" value={row.urgency}/></>}</div><div className="description-box"><span>DEMANDE</span><p>{row.description}</p></div></div>
+    <div className="drawer-block"><div className="drawer-section-title"><span>FIL DU DOSSIER</span><b>{messages.length} message{messages.length>1?'s':''}</b></div><div className="staff-conversation">{messages.map(m=><div className={cls('staff-message',m.visibility==='internal'&&'internal',m.author_type==='client'&&'from-client')} key={m.id}><div><b>{m.author_name||m.author_type}</b><span>{m.visibility==='internal'?'NOTE INTERNE':dt(m.created_at)}</span></div><p>{m.body}</p></div>)}{!messages.length&&<Empty icon={MessageSquareText} text="Aucun échange sur ce dossier."/>}</div><div className="reply-box"><div className="reply-mode"><button className={visibility==='public'?'active':''} onClick={()=>setVisibility('public')}><MessageCircle/> Réponse client</button><button className={visibility==='internal'?'active':''} onClick={()=>setVisibility('internal')}><LockKeyhole/> Note interne</button></div><Textarea rows="4" value={reply} onChange={e=>setReply(e.target.value)} placeholder={visibility==='public'?'Écrire une réponse visible par le client...':'Ajouter une note réservée au staff...'}/><button className="btn btn-dark" onClick={send} disabled={busy||!reply.trim()}><Send size={15}/> Envoyer</button></div></div>
+  </div></aside></div>
 }
 function Detail({label,value}){return <div className="detail"><span>{label}</span><b>{value||'—'}</b></div>}
 
-function VehiclesPanel({vehicles,reload,notify}){
+function PartnersPanel({items,reload,loadPublic,notify,demo}){
   const [edit,setEdit]=React.useState(null)
-  async function save(row){ if(DEMO){notify('En mode démo, le catalogue SQL reste inchangé.','error');return} const payload={name:row.name,brand:row.brand,category:row.category,hourly_rate:Number(row.hourly_rate),deposit:Number(row.deposit),status:row.status,image_url:row.image_url,description:row.description,active:row.active!==false,sort_order:Number(row.sort_order||0)}; const q=row.id?supabase.from('vehicles').update(payload).eq('id',row.id):supabase.from('vehicles').insert(payload);const {error}=await q;if(error)notify(error.message,'error');else{notify('Catalogue mis à jour');setEdit(null);reload()}}
-  async function remove(id){if(!confirm('Supprimer ce véhicule du catalogue ?'))return;if(DEMO)return notify('Suppression désactivée en démo.','error');const {error}=await supabase.from('vehicles').delete().eq('id',id);if(error)notify(error.message,'error');else{notify('Véhicule supprimé');reload()}}
-  return <div className="staff-card"><div className="card-title"><div><span>FLEET MANAGEMENT</span><h2>Catalogue Automotive</h2></div><button className="primary small" onClick={()=>setEdit({status:'available',active:true,sort_order:vehicles.length+1})}><Plus/> Ajouter</button></div><div className="admin-cards">{vehicles.map(v=><div className="admin-vehicle" key={v.id}><img src={v.image_url}/><div><Status value={v.status}/><h3>{v.brand} {v.name}</h3><p>{money(v.hourly_rate)}/h · Caution {money(v.deposit)}</p></div><div className="row-actions"><button onClick={()=>setEdit(v)}><Pencil/></button><button onClick={()=>remove(v.id)}><Trash2/></button></div></div>)}</div>{edit&&<VehicleEditor item={edit} close={()=>setEdit(null)} save={save}/>}</div>
-}
-function VehicleEditor({item,close,save}){const [v,setV]=React.useState({...item});return <div className="drawer-overlay"><div className="request-drawer"><div className="modal-head"><div><span>AUTOMOTIVE</span><h2>{v.id?'Modifier le véhicule':'Ajouter un véhicule'}</h2></div><button onClick={close}><X/></button></div><div className="drawer-body form"><div className="form-grid"><Field label="Marque"><Input value={v.brand||''} onChange={e=>setV({...v,brand:e.target.value})}/></Field><Field label="Modèle"><Input value={v.name||''} onChange={e=>setV({...v,name:e.target.value})}/></Field></div><Field label="Catégorie"><Input value={v.category||''} onChange={e=>setV({...v,category:e.target.value})}/></Field><div className="form-grid"><Field label="Prix / heure"><Input type="number" value={v.hourly_rate||0} onChange={e=>setV({...v,hourly_rate:e.target.value})}/></Field><Field label="Caution"><Input type="number" value={v.deposit||0} onChange={e=>setV({...v,deposit:e.target.value})}/></Field></div><Field label="Statut"><select value={v.status||'available'} onChange={e=>setV({...v,status:e.target.value})}><option value="available">Disponible</option><option value="reserved">Réservé</option><option value="service">En service</option><option value="unavailable">Indisponible</option></select></Field><Field label="URL de l’image"><Input value={v.image_url||''} onChange={e=>setV({...v,image_url:e.target.value})}/></Field><Field label="Description"><Textarea rows="4" value={v.description||''} onChange={e=>setV({...v,description:e.target.value})}/></Field><button className="primary wide" onClick={()=>save(v)}>Enregistrer</button></div></div></div>}
-
-function LogisticsPanel({fleet,requests,reload,notify}){
-  const active=requests.filter(x=>!['delivered','cancelled'].includes(x.status));
-  return <><div className="metric-grid"><Metric icon={Truck} label="Missions actives" value={active.length}/><Metric icon={AlertTriangle} label="Urgences" value={active.filter(x=>x.is_urgent).length}/><Metric icon={ShieldCheck} label="Convois sécurisés" value={active.filter(x=>x.needs_security).length}/><Metric icon={Boxes} label="Véhicules fret" value={fleet.length}/></div><div className="staff-card"><div className="card-title"><div><span>FLEET LOGISTICS</span><h2>Parc de fret</h2></div></div><div className="admin-cards">{fleet.map(v=><div className="admin-vehicle" key={v.id}><img src={v.image_url}/><div><Status value={v.status}/><h3>{v.brand} {v.name}</h3><p>{v.category}</p></div></div>)}</div><p className="muted-block">Le CRUD complet du parc logistique utilise la même structure que l’Automotive dans Supabase. Pour la V1, les demandes sont gérées depuis l’onglet « Demandes » et la flotte sert de référentiel.</p></div></>
+  async function save(v){try{
+    const payload={name:v.name,eyebrow:v.eyebrow||'PARTENAIRE NAIRI',description:v.description,image_url:v.image_url||null,link_url:v.link_url||null,active:v.active??true,sort_order:Number(v.sort_order||0)}
+    if(demo){let rows=demoGet('partners');if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x);else rows=[...rows,{id:uuid(),...payload}];demoSet('partners',rows)}else{const q=v.id?supabase.from('partners').update(payload).eq('id',v.id):supabase.from('partners').insert(payload);const {error}=await q;if(error)throw error}
+    setEdit(null);await reload();await loadPublic();notify('Partenaire enregistré.')
+  }catch(e){notify(e.message,'error')}}
+  async function remove(id){if(!confirm('Supprimer ce partenaire ?'))return;try{if(demo)demoSet('partners',demoGet('partners').filter(x=>x.id!==id));else{const {error}=await supabase.from('partners').delete().eq('id',id);if(error)throw error}await reload();await loadPublic();notify('Partenaire supprimé.')}catch(e){notify(e.message,'error')}}
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>RÉSEAU PUBLIC</span><h2>Partenaires</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,sort_order:items.length+1})}><Plus size={15}/> Ajouter</button></div><div className="admin-grid">{items.map(p=><article className="admin-item" key={p.id}><div className="admin-thumb">{p.image_url?<img src={p.image_url}/>:<Handshake/>}</div><div><small>{p.eyebrow}</small><h3>{p.name}</h3><p>{p.description}</p></div><div className="admin-actions"><button onClick={()=>setEdit(p)}><Pencil/></button><button onClick={()=>remove(p.id)}><Trash2/></button></div></article>)}{!items.length&&<Empty icon={Handshake} text="Ajoute le premier partenaire du réseau."/>}</div>{edit&&<EntityEditor title="Partenaire" item={edit} close={()=>setEdit(null)} save={save} fields="partner"/>}</section>
 }
 
-function FinancePanel({items,reload,notify}){
- const [open,setOpen]=React.useState(false); const income=items.filter(x=>x.direction==='income').reduce((a,x)=>a+Number(x.amount),0),expense=items.filter(x=>x.direction==='expense').reduce((a,x)=>a+Number(x.amount),0)
- async function add(e){e.preventDefault();const f=new FormData(e.currentTarget),row={direction:f.get('direction'),amount:Number(f.get('amount')),branch:f.get('branch'),category:f.get('category'),description:f.get('description'),transaction_date:f.get('date')||new Date().toISOString().slice(0,10)};if(DEMO){const all=JSON.parse(localStorage.getItem('nairi_demo_finance')||'[]');all.unshift({...row,id:crypto.randomUUID(),created_at:new Date().toISOString()});localStorage.setItem('nairi_demo_finance',JSON.stringify(all));notify('Transaction enregistrée');setOpen(false);reload();return}const {error}=await supabase.from('financial_transactions').insert(row);if(error)notify(error.message,'error');else{notify('Transaction enregistrée');setOpen(false);reload()}}
- return <><div className="metric-grid"><Metric icon={CircleDollarSign} label="Entrées" value={money(income)}/><Metric icon={DollarSign} label="Sorties" value={money(expense)}/><Metric icon={WalletCards} label="Solde" value={money(income-expense)}/></div><div className="staff-card"><div className="card-title"><div><span>FINANCE LEDGER</span><h2>Journal financier</h2></div><button className="primary small" onClick={()=>setOpen(true)}><Plus/> Nouvelle écriture</button></div>{items.length?<div className="table-wrap"><table><thead><tr><th>Date</th><th>Branche</th><th>Catégorie</th><th>Description</th><th>Montant</th></tr></thead><tbody>{items.map(x=><tr key={x.id}><td>{new Date(x.transaction_date).toLocaleDateString('fr-FR')}</td><td>{x.branch}</td><td>{x.category}</td><td>{x.description}</td><td className={x.direction==='income'?'money-in':'money-out'}>{x.direction==='income'?'+':'−'} {money(x.amount)}</td></tr>)}</tbody></table></div>:<Empty icon={WalletCards} text="Aucune écriture financière."/>}</div>{open&&<div className="drawer-overlay"><form className="request-drawer" onSubmit={add}><div className="modal-head"><div><span>FINANCE</span><h2>Nouvelle écriture</h2></div><button type="button" onClick={()=>setOpen(false)}><X/></button></div><div className="drawer-body form"><div className="form-grid"><Field label="Type"><select name="direction"><option value="income">Entrée</option><option value="expense">Sortie</option></select></Field><Field label="Montant"><Input name="amount" type="number" min="0" required/></Field></div><div className="form-grid"><Field label="Branche"><select name="branch"><option>Automotive</option><option>Logistics</option><option>Advisory</option><option>Corporate</option></select></Field><Field label="Catégorie"><Input name="category" required placeholder="Location, carburant…"/></Field></div><Field label="Description"><Input name="description" required/></Field><Field label="Date"><Input name="date" type="date" defaultValue={new Date().toISOString().slice(0,10)}/></Field><button className="primary wide">Enregistrer</button></div></form></div>}</>
+function FleetPanel({items,reload,loadPublic,notify,demo}){
+  const [edit,setEdit]=React.useState(null)
+  async function save(v){try{const payload={name:v.name,brand:v.brand,category:v.category,description:v.description,image_url:v.image_url||null,status:v.status||'available',active:v.active??true,sort_order:Number(v.sort_order||0)};if(demo){let rows=demoGet('fleet',FLEET_SEEDS);if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x);else rows=[...rows,{id:uuid(),...payload}];demoSet('fleet',rows)}else{const q=v.id?supabase.from('fleet_vehicles').update(payload).eq('id',v.id):supabase.from('fleet_vehicles').insert(payload);const {error}=await q;if(error)throw error}setEdit(null);await reload();await loadPublic();notify('Flotte mise à jour.')}catch(e){notify(e.message,'error')}}
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>NAIRI LOGISTICS</span><h2>Flotte terrain</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,status:'available',sort_order:items.length+1})}><Plus size={15}/> Ajouter</button></div><div className="admin-grid">{items.map(v=><article className="admin-item" key={v.id}><div className="admin-thumb">{v.image_url?<img src={v.image_url}/>:<Truck/>}</div><div><small>{v.brand} · {v.category}</small><h3>{v.name}</h3><p>{v.description}</p><CaseStatus value={v.status}/></div><div className="admin-actions"><button onClick={()=>setEdit(v)}><Pencil/></button></div></article>)}</div>{edit&&<EntityEditor title="Véhicule Logistics" item={edit} close={()=>setEdit(null)} save={save} fields="fleet"/>}</section>
 }
 
-function CareersPanel({items,reload,notify}){
- async function setStatus(row,status){if(DEMO){const all=JSON.parse(localStorage.getItem('nairi_demo_requests')||'[]');const i=all.findIndex(x=>x.id===row.id);if(i>=0)all[i].status=status;localStorage.setItem('nairi_demo_requests',JSON.stringify(all));reload();return}const {error}=await supabase.from('applications').update({status}).eq('id',row.id);if(error)notify(error.message,'error');else reload()}
- return <div className="staff-card"><div className="card-title"><div><span>HUMAN CAPITAL</span><h2>Candidatures</h2></div></div>{items.length?<div className="candidate-grid">{items.map(x=><div className="candidate" key={x.id}><div><span>{x.client_ref}</span><Status value={x.status}/></div><h3>{x.full_name}</h3><p>{JOBS.find(j=>j.id===x.position)?.title||x.position} · {x.phone}</p><blockquote>{x.motivation}</blockquote><div className="candidate-actions"><button onClick={()=>setStatus(x,'interview')}>Entretien</button><button onClick={()=>setStatus(x,'accepted')}>Accepter</button><button onClick={()=>setStatus(x,'rejected')}>Refuser</button></div></div>)}</div>:<Empty icon={UsersRound} text="Aucune candidature reçue."/>}</div>
+function EntityEditor({title,item,close,save,fields}){
+  const [v,setV]=React.useState({...item})
+  return <div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="GESTION" title={title} close={close}/><div className="drawer-body"><div className="form-grid"><Field label="Nom"><Input required value={v.name||''} onChange={e=>setV({...v,name:e.target.value})}/></Field>{fields==='fleet'?<Field label="Marque"><Input value={v.brand||''} onChange={e=>setV({...v,brand:e.target.value})}/></Field>:<Field label="Label"><Input value={v.eyebrow||''} onChange={e=>setV({...v,eyebrow:e.target.value})} placeholder="PARTENAIRE NAIRI"/></Field>}</div>{fields==='fleet'&&<Field label="Catégorie" full><Input value={v.category||''} onChange={e=>setV({...v,category:e.target.value})}/></Field>}<Field label="Image (URL)" full><Input value={v.image_url||''} onChange={e=>setV({...v,image_url:e.target.value})}/></Field>{fields==='partner'&&<Field label="Lien externe (optionnel)" full><Input value={v.link_url||''} onChange={e=>setV({...v,link_url:e.target.value})}/></Field>}<Field label="Texte" full><Textarea rows="5" value={v.description||''} onChange={e=>setV({...v,description:e.target.value})}/></Field><div className="form-grid">{fields==='fleet'&&<Field label="Statut"><select value={v.status||'available'} onChange={e=>setV({...v,status:e.target.value})}><option value="available">Disponible</option><option value="service">En mission</option><option value="maintenance">Maintenance</option><option value="unavailable">Indisponible</option></select></Field>}<Field label="Ordre"><Input type="number" value={v.sort_order||0} onChange={e=>setV({...v,sort_order:e.target.value})}/></Field></div><label className="toggle"><input type="checkbox" checked={v.active??true} onChange={e=>setV({...v,active:e.target.checked})}/><span>Visible sur le site public</span></label><button className="btn btn-dark wide" onClick={()=>save(v)}>Enregistrer</button></div></aside></div>
 }
 
-function Toast({text,type}){return <div className={`toast ${type}`}>{type==='ok'?<Check/>:<AlertTriangle/>}{text}</div>}
+function FinancePanel({items,cases,reload,notify,demo}){
+  const [show,setShow]=React.useState(false),[form,setForm]=React.useState({direction:'income',amount:'',branch:'Logistics',category:'Prestation',description:'',transaction_date:new Date().toISOString().slice(0,10),case_id:''})
+  const income=items.filter(x=>x.direction==='income').reduce((a,b)=>a+Number(b.amount||0),0), expense=items.filter(x=>x.direction==='expense').reduce((a,b)=>a+Number(b.amount||0),0)
+  async function save(e){e.preventDefault();try{const payload={...form,amount:Number(form.amount),case_id:form.case_id||null};if(demo)demoSet('finance',[{id:uuid(),created_at:new Date().toISOString(),...payload},...demoGet('finance')]);else{const {error}=await supabase.from('financial_transactions').insert(payload);if(error)throw error}setShow(false);await reload();notify('Opération enregistrée.')}catch(e){notify(e.message,'error')}}
+  return <><div className="metric-grid finance-metrics"><Metric icon={Banknote} label="Entrées" value={money(income)}/><Metric icon={CircleDollarSign} label="Sorties" value={money(expense)}/><Metric icon={Gauge} label="Solde" value={money(income-expense)}/></div><section className="staff-card no-pad"><div className="panel-toolbar"><div><span>JOURNAL</span><h2>Finance</h2></div><button className="btn btn-dark" onClick={()=>setShow(true)}><Plus size={15}/> Opération</button></div><div className="finance-list">{items.map(x=><div className="finance-row" key={x.id}><span className={x.direction}>{x.direction==='income'?'+':'−'} {money(x.amount)}</span><div><b>{x.description}</b><small>{x.branch} · {x.category}</small></div><span>{d(x.transaction_date)}</span></div>)}{!items.length&&<Empty icon={Banknote} text="Aucune opération enregistrée."/>}</div></section>{show&&<div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="FINANCE" title="Nouvelle opération" close={()=>setShow(false)}/><form className="drawer-body" onSubmit={save}><div className="form-grid"><Field label="Sens"><select value={form.direction} onChange={e=>setForm({...form,direction:e.target.value})}><option value="income">Entrée</option><option value="expense">Sortie</option></select></Field><Field label="Montant"><Input type="number" min="0" required value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})}/></Field></div><div className="form-grid"><Field label="Branche"><select value={form.branch} onChange={e=>setForm({...form,branch:e.target.value})}><option>Logistics</option><option>Advisory</option><option>Corporate</option></select></Field><Field label="Catégorie"><Input required value={form.category} onChange={e=>setForm({...form,category:e.target.value})}/></Field></div><Field label="Dossier lié (optionnel)" full><select value={form.case_id} onChange={e=>setForm({...form,case_id:e.target.value})}><option value="">Aucun</option>{cases.map(c=><option key={c.id} value={c.id}>{c.reference} · {c.title}</option>)}</select></Field><Field label="Description" full><Input required value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></Field><Field label="Date" full><Input type="date" value={form.transaction_date} onChange={e=>setForm({...form,transaction_date:e.target.value})}/></Field><button className="btn btn-dark wide">Enregistrer</button></form></aside></div>}</>
+}
+
+function CareersPanel({items,reload,notify,demo}){
+  async function status(id,value){try{if(demo)demoSet('applications',demoGet('applications').map(x=>x.id===id?{...x,status:value}:x));else{const {error}=await supabase.from('applications').update({status:value}).eq('id',id);if(error)throw error}await reload();notify('Candidature mise à jour.')}catch(e){notify(e.message,'error')}}
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>RESSOURCES HUMAINES</span><h2>Candidatures</h2></div></div><div className="candidate-grid">{items.map(a=><article className="candidate" key={a.id}><div><small>{a.client_ref}</small><h3>{a.full_name}</h3><span>{JOBS.find(j=>j.id===a.position)?.title||a.position} · {a.phone}</span></div><blockquote>{a.motivation}</blockquote><p>{a.experience}</p><select value={a.status} onChange={e=>status(a.id,e.target.value)}><option value="new">Nouvelle</option><option value="review">À étudier</option><option value="interview">Entretien</option><option value="accepted">Acceptée</option><option value="rejected">Refusée</option></select></article>)}{!items.length&&<Empty icon={UsersRound} text="Aucune candidature."/>}</div></section>
+}
+
+function Toast({text,type}){return <div className={cls('toast',type)}>{type==='error'?<AlertTriangle/>:<Check/>}<span>{text}</span></div>}
 
 ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><App/></React.StrictMode>)

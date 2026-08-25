@@ -1,115 +1,158 @@
-# Nairi Corporation — V1 Platform
+# Nairi Corporation V3 — Corporate & Logistics
 
-Plateforme RP GTA V / FiveM : site public + formulaires + suivi de dossier + back-office staff + Automotive + Logistics + recrutement + finances.
+Cette version retire temporairement **Automotive** et concentre le projet sur :
 
-## Ce qui est déjà codé
+- **Nairi Corporation** : mise en relation, sourcing, négociation et gestion de dossiers.
+- **Nairi Logistics** : ravitaillement entreprise, desserte récurrente, urgence, fret hors-script, transfert inter-sites et convois sensibles.
+- **Dossiers clients** : ouverture rapide sans compte, référence unique, suivi par référence + téléphone, réponses client/staff.
+- **Back-office staff** : qualification, affectation, statuts, réponses publiques, notes internes, partenaires, flotte, finance, recrutement.
+- **Partenaires** : ajout / modification depuis le back-office avec image, texte, label et lien externe optionnel.
+- **FiveM** : interface responsive et base NUI conservée.
 
-- Homepage Nairi Corporation (Advisory, Automotive, Logistics)
-- Demande de mise en relation / Advisory
-- Catalogue Automotive dynamique
-- Réservation véhicule + chauffeur + durée + estimation + caution
-- Demande Logistics : ravitaillement, urgence, transport spécial, convoi sécurisé
-- Recrutement : poids lourd, chauffeur privé, conseiller/commercial
-- Référence de dossier générée côté client
-- Suivi d'un dossier avec référence + téléphone
-- Login staff Supabase Auth
-- Dashboard staff
-- Gestion des statuts des demandes
-- CRUD catalogue Automotive
-- Journal Finance entrée / sortie
-- Gestion des candidatures
-- Base de flotte Logistics
-- Mode démo automatique sans Supabase
-- Responsive mobile / WebView
-- Resource FiveM NUI générique fourni dans `/fivem`
+## 1. Tester sans Supabase
 
----
-
-# Installation la plus simple
-
-## 1. Supabase
-
-1. Crée un projet sur Supabase.
-2. Ouvre **SQL Editor** → **New query**.
-3. Copie-colle **tout le fichier `supabase.sql`** et exécute-le.
-4. Ouvre **Authentication → Users → Add user** et crée ton compte staff avec e-mail + mot de passe.
-5. Retourne dans SQL Editor et exécute les 4 lignes tout en bas de `supabase.sql` après avoir remplacé l'e-mail. Cela transforme ce compte en staff Nairi.
-
-Aucune autre table n'est à créer à la main.
-
-## 2. Variables Supabase
-
-Copie `.env.example` en `.env` :
-
-```bash
-VITE_SUPABASE_URL=https://TON-PROJET.supabase.co
-VITE_SUPABASE_ANON_KEY=TA_CLE_ANON_OU_PUBLISHABLE
-```
-
-Dans Supabase tu trouves ces valeurs dans les réglages API du projet.
-
-**Ne mets jamais la clé `service_role` / secret dans ce frontend.** La clé navigateur + les règles RLS du SQL suffisent.
-
-## 3. Lancer en local
+Le projet fonctionne en **mode démo** si aucune variable Supabase n'est définie.
+Les données sont alors enregistrées dans le `localStorage` du navigateur.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Vite te donnera une URL locale.
+Ouvre ensuite l'URL indiquée par Vite. Le bouton Staff permet d'ouvrir le back-office en mode démo.
 
-Si tu ne mets aucune variable Supabase, le site démarre quand même en **mode démo** : pratique pour tester l'interface sans rien configurer.
+## 2. Installer Supabase
 
-## 4. Vercel
+Dans ton projet Supabase :
 
-Tu peux remplacer le contenu de ton repo actuel par ce projet, puis push Git.
+1. Va dans **SQL Editor**.
+2. Colle le contenu de `supabase-v3.sql`.
+3. Clique sur **Run**.
 
-Dans Vercel :
+Le script est prévu pour être exécuté sur une base neuve **ou par-dessus l'ancienne V1/V2**. Les anciennes tables Automotive ne sont pas supprimées : elles ne sont simplement plus utilisées par la V3.
 
-- Framework : normalement détecté automatiquement comme **Vite**
+### Créer le compte staff
+
+1. Supabase > **Authentication > Users** > ajoute ton compte.
+2. Ouvre `STAFF-BOOTSTRAP.sql`.
+3. Remplace `TON-EMAIL@EXEMPLE.COM`.
+4. Exécute le bloc dans SQL Editor.
+
+Pour un autre membre du staff, duplique simplement l'INSERT avec son e-mail et son nom.
+
+## 3. Variables Vercel
+
+Copie `.env.example` en `.env.local` pour le développement local, ou ajoute ces variables dans Vercel :
+
+```env
+VITE_SUPABASE_URL=https://TON-PROJET.supabase.co
+VITE_SUPABASE_ANON_KEY=TA_CLE_PUBLIQUE_ANON
+VITE_DISCORD_URL=https://discord.gg/TONDISCORD
+```
+
+N'utilise **jamais** la clé `service_role` dans Vercel côté frontend.
+
+## 4. Déploiement Vercel
+
+Le projet est un Vite standard.
+
 - Build command : `npm run build`
 - Output directory : `dist`
-- Ajoute `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` dans **Project Settings → Environment Variables**
-- Redéploie
 
-`vercel.json` est déjà présent pour éviter les problèmes de routes / refresh.
+Le fichier `vercel.json` gère déjà le fallback SPA.
 
----
+## 5. Fonctionnement des dossiers
 
-# Accès staff
+### Côté client
 
-Sur le site : bouton **Staff** en haut, ou `/#staff`.
+Le client clique sur **Ouvrir un dossier** puis choisit :
 
-Le dashboard possède actuellement :
+- **Nairi Corporation** : mise en relation, sourcing, négociation, gestion.
+- **Nairi Logistics** : ravitaillement, desserte, urgence, fret spécial, transfert ou convoi.
 
-- Vue générale
-- Demandes Automotive / Logistics / Advisory
-- Automotive : ajout / modification / suppression des véhicules
-- Logistics : aperçu missions + flotte
-- Finance : entrées / sorties
-- Recrutement : entretien / acceptation / refus
+Après validation, il reçoit une référence du type :
 
----
+- `NC-260825-AB12` pour Corporation
+- `NL-260825-CD34` pour Logistics
 
-# Images
+Il peut ensuite ouvrir **Suivre un dossier**, saisir cette référence + le téléphone de la demande, consulter le statut et répondre au staff.
 
-Le logo fourni est local dans `public/assets/nairi-logo.png`.
-Les images des véhicules utilisent pour l'instant les URLs que tu as données. Pour une version définitive, le plus propre sera de mettre les images dans `public/assets` ou dans Supabase Storage afin de ne plus dépendre des sites externes.
+### Côté staff
 
----
+Dans **Nairi / Operations** :
 
-# FiveM
+- ouvrir un dossier ;
+- affecter un responsable ;
+- changer son statut ;
+- répondre au client ;
+- ajouter une **note interne** invisible du client ;
+- voir l'historique complet.
 
-Le dossier `/fivem` contient un resource générique avec `/nairi` + F6 et support de fermeture Échap.
-Pour l'intégrer **dans le téléphone du serveur**, il faudra seulement connaître le script de téléphone utilisé afin d'écrire son fichier d'enregistrement d'app spécifique.
+Statuts disponibles :
 
-L'URL normale est adaptée au téléphone. Le mode NUI plein écran utilise :
+`Nouveau → Qualifié → Accepté → Planifié → En cours → Terminé`
 
-`https://TON-DOMAINE.vercel.app/?fivem=1`
+Avec en plus : `Attente client`, `Refusé`, `Annulé`.
 
----
+## 6. Site vs Discord
 
-# Idées V1.1 déjà prévues par la BDD
+La V3 évite volontairement de remplacer Discord à 100 %.
 
-Le SQL contient déjà de quoi poursuivre avec : affectation d'un staff, affectation chauffeur/véhicule fret, caution encaissée/restituée, dégâts, notes internes et liaison des écritures Finance aux opérations.
+**Site Nairi** : tout ce qui mérite un numéro de dossier, un responsable, un statut, un historique ou une clôture.
+
+**Discord** : discussions rapides, communauté, vocal, échanges qui ne nécessitent pas de suivi structuré.
+
+Cela évite d'avoir deux outils qui font exactement la même chose.
+
+## 7. Partenaires
+
+Back-office > **Partenaires** > Ajouter :
+
+- Nom
+- Label
+- Image URL
+- Texte
+- Lien externe optionnel
+- Ordre d'affichage
+- Visible / masqué
+
+Le bloc apparaît automatiquement sur le site public.
+
+## 8. Logistics — logique RP prévue
+
+La branche a été pensée comme une vraie entreprise de transport autour du script camionneur :
+
+- contrats de desserte avec les entreprises ;
+- ravitaillements réguliers ;
+- ruptures de stock urgentes ;
+- missions hors-script ;
+- transport de marchandises RP ;
+- transferts inter-sites ;
+- convois sensibles ;
+- affectation interne et suivi des missions.
+
+Le client ne réserve pas un Pounder : il réserve **une prestation**. Nairi choisit ensuite le véhicule adéquat.
+
+## 9. FiveM
+
+Le dossier `fivem/` contient un lanceur NUI générique.
+
+Pour une intégration comme application native dans un téléphone FiveM (LB Phone, NPWD, QS, etc.), il faudra adapter seulement la déclaration spécifique au téléphone utilisé.
+
+## 10. Direction artistique V3
+
+La DA abandonne :
+
+- le noir/or générique ;
+- le rouge/noir de la V2 ;
+- les coordonnées, HUD et éléments pseudo-militaires de l'ancien design.
+
+La nouvelle identité utilise :
+
+- graphite profond ;
+- ivoire chaud ;
+- gris minéral ;
+- accent acier/pétrole très discret ;
+- grands blocs éditoriaux ;
+- visuels Logistics plus importants ;
+- interface staff volontairement plus fonctionnelle que le site public.

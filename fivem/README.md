@@ -1,6 +1,6 @@
 # Intégration FiveM
 
-Cette V1 contient deux modes :
+Cette V3 contient deux modes :
 
 1. **Site / téléphone web** : ouvre directement `https://TON-DOMAINE.vercel.app/`.
 2. **NUI plein écran** : utilise `?fivem=1`, puis le resource Lua envoie le message `open`.

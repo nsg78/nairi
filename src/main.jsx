@@ -14,7 +14,6 @@ import './styles.css'
 
 const SB_URL = import.meta.env.VITE_SUPABASE_URL
 const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
-const DISCORD_URL = import.meta.env.VITE_DISCORD_URL || 'https://discord.gg/uxtzfStWsF'
 const supabase = SB_URL && SB_KEY ? createClient(SB_URL, SB_KEY) : null
 const DEMO = !supabase
 
@@ -22,8 +21,8 @@ const LOGISTICS_IMAGE = 'https://static.wikia.nocookie.net/gtawiki/images/8/85/P
 const SPEEDO_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRXnzWrFCD-gykInC86VszO2o5mRsMtoO8UEQX2VCyRw&s=10'
 
 const FLEET_SEEDS = [
-  { id:'demo-pounder', name:'Pounder', brand:'MTL', category:'Poids lourd', status:'available', active:true, sort_order:1, image_url:LOGISTICS_IMAGE, description:'Porteur lourd pour ravitaillements, tournées régulières et cargaisons volumineuses.' },
-  { id:'demo-speedo', name:'Speedo Express', brand:'Vapid', category:'Utilitaire', status:'available', active:true, sort_order:2, image_url:SPEEDO_IMAGE, description:'Utilitaire agile pour les urgences, petits volumes et livraisons rapides en zone urbaine.' },
+  { id:'demo-pounder', name:'Pounder', brand:'MTL', category:'Poids lourd', capacity:'Fret lourd', registration:'', status:'available', active:true, sort_order:1, image_url:LOGISTICS_IMAGE, description:'Porteur lourd pour ravitaillements, tournées régulières et cargaisons volumineuses.' },
+  { id:'demo-speedo', name:'Speedo Express', brand:'Vapid', category:'Utilitaire', capacity:'Fret léger', registration:'', status:'available', active:true, sort_order:2, image_url:SPEEDO_IMAGE, description:'Utilitaire agile pour les urgences, petits volumes et livraisons rapides en zone urbaine.' },
 ]
 
 const CORP_SERVICES = [
@@ -34,18 +33,18 @@ const CORP_SERVICES = [
 ]
 
 const LOG_SERVICES = [
-  { id:'business_supply', icon:Warehouse, title:'Ravitaillement entreprise', tag:'FLUX MÉTIER', text:'Prise en charge des tournées de ravitaillement nécessaires au fonctionnement quotidien de votre établissement.' },
-  { id:'dedicated_route', icon:Route, title:'Desserte dédiée', tag:'RÉCURRENT', text:'Nairi devient votre transporteur référent avec des passages planifiés et une organisation stable.' },
-  { id:'urgent_resupply', icon:Gauge, title:'Réapprovisionnement urgent', tag:'PRIORITAIRE', text:'Stock critique, besoin immédiat ou imprévu : une demande prioritaire est injectée dans notre planning.' },
-  { id:'special_freight', icon:Boxes, title:'Fret sur mesure', tag:'HORS SCRIPT', text:'Alcool, matériel, objets RP ou marchandise particulière : nous organisons un transport dédié hors des flux automatiques.' },
-  { id:'intersite_transfer', icon:Truck, title:'Transport inter-sites', tag:'B2B', text:'Transfert de marchandises entre entrepôts, commerces, garages, points de vente ou sites partenaires.' },
-  { id:'secure_convoy', icon:ShieldCheck, title:'Convoi sensible', tag:'SUR DEMANDE', text:'Pour les cargaisons qui exigent davantage de coordination, de discrétion ou de sécurisation opérationnelle.' },
+  { id:'business_supply', icon:Warehouse, title:'Ravitaillement entreprise', tag:'RAVITAILLEMENT', text:'Prise en charge de vos besoins de réapprovisionnement afin d’assurer la continuité de votre activité.' },
+  { id:'dedicated_route', icon:Route, title:'Desserte dédiée', tag:'RÉCURRENT', text:'Mise en place de passages réguliers, d’horaires convenus et d’un interlocuteur unique pour vos flux.' },
+  { id:'urgent_resupply', icon:Gauge, title:'Réapprovisionnement urgent', tag:'PRIORITAIRE', text:'Une réponse rapide pour les ruptures de stock, besoins immédiats et demandes qui ne peuvent attendre la prochaine tournée.' },
+  { id:'special_freight', icon:Boxes, title:'Fret sur mesure', tag:'SUR MESURE', text:'Transport dédié de marchandises particulières, matériel, boissons ou cargaisons nécessitant une organisation spécifique.' },
+  { id:'intersite_transfer', icon:Truck, title:'Transport inter-sites', tag:'INTER-SITES', text:'Transfert de marchandises entre entrepôts, commerces, garages, points de vente et sites partenaires.' },
+  { id:'secure_convoy', icon:ShieldCheck, title:'Transport sensible', tag:'SÉCURISÉ', text:'Organisation renforcée pour les cargaisons qui exigent davantage de discrétion, de coordination ou de sécurité.' },
 ]
 
 const JOBS = [
   { id:'heavy_driver', icon:Truck, title:'Conducteur poids lourd', text:'Tournées, chargement, livraison et représentation Nairi auprès des entreprises clientes.' },
   { id:'dispatcher', icon:ClipboardList, title:'Dispatcher / Exploitant', text:'Planification des dossiers, affectation des chauffeurs et suivi opérationnel des flux.' },
-  { id:'advisor', icon:BriefcaseBusiness, title:'Conseiller / Commercial', text:'Prospection, mise en relation, développement du réseau partenaires et suivi des dossiers Corporate.' },
+  { id:'advisor', icon:BriefcaseBusiness, title:'Conseiller / Commercial', text:'Prospection, mise en relation, développement du réseau partenaires et suivi des dossiers Corporation.' },
 ]
 
 const CASE_STATUS = {
@@ -64,8 +63,8 @@ const money = n => new Intl.NumberFormat('fr-FR').format(Number(n || 0)) + ' $'
 const cls = (...xs) => xs.filter(Boolean).join(' ')
 
 const DEMO_KEYS = {
-  cases:'nairi_v3_cases', messages:'nairi_v3_messages', partners:'nairi_v3_partners',
-  fleet:'nairi_v3_fleet', finance:'nairi_v3_finance', applications:'nairi_v3_applications'
+  cases:'nairi_v4_cases', messages:'nairi_v4_messages', partners:'nairi_v4_partners',
+  fleet:'nairi_v4_fleet', finance:'nairi_v4_finance', applications:'nairi_v4_applications'
 }
 const demoGet = (key, fallback=[]) => { try { const v=JSON.parse(localStorage.getItem(DEMO_KEYS[key])); return Array.isArray(v)?v:fallback } catch { return fallback } }
 const demoSet = (key, value) => localStorage.setItem(DEMO_KEYS[key], JSON.stringify(value))
@@ -75,7 +74,7 @@ const uuid = () => crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toSt
 function ensureDemo(){
   if(!localStorage.getItem(DEMO_KEYS.fleet)) demoSet('fleet',FLEET_SEEDS)
   if(!localStorage.getItem(DEMO_KEYS.partners)) demoSet('partners',[
-    {id:'demo-partner',name:'Votre partenaire',eyebrow:'RÉSEAU NAIRI',description:'Les entreprises partenaires publiées depuis le back-office apparaîtront ici avec leur image et leur présentation.',image_url:'',active:true,sort_order:1}
+    {id:'demo-partner',name:'Votre partenaire',eyebrow:'RÉSEAU NAIRI',description:'Les entreprises partenaires du réseau Nairi apparaîtront ici avec leur identité et leur présentation.',image_url:'',active:true,sort_order:1}
   ])
 }
 if(DEMO && typeof localStorage!=='undefined') ensureDemo()
@@ -100,32 +99,41 @@ async function publicOpenCase(payload){
   return data
 }
 
-async function publicTrack(reference,phone){
+const normalizePhone = value => String(value || '').replace(/\D/g,'')
+
+async function publicTrack(phone){
   if(!supabase){
-    const row=demoGet('cases').find(c=>c.reference.toUpperCase()===reference.trim().toUpperCase() && c.phone.trim()===phone.trim())
-    if(!row) return null
-    const messages=demoGet('messages').filter(m=>m.case_id===row.id && m.visibility==='public').sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
-    return {case:row,messages}
+    const normalized=normalizePhone(phone)
+    return demoGet('cases')
+      .filter(c=>normalizePhone(c.phone)===normalized)
+      .sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at))
   }
-  const [{data:caseRows,error:e1},{data:messages,error:e2}] = await Promise.all([
-    supabase.rpc('track_case',{p_reference:reference,p_phone:phone}),
-    supabase.rpc('case_public_messages',{p_reference:reference,p_phone:phone})
-  ])
-  if(e1) throw e1; if(e2) throw e2
-  if(!caseRows?.length) return null
-  return {case:caseRows[0],messages:messages||[]}
+  const {data,error}=await supabase.rpc('track_cases_by_phone',{p_phone:phone})
+  if(error) throw error
+  return data||[]
 }
 
-async function publicReply(reference,phone,body){
+async function publicCaseMessages(caseId,phone){
   if(!supabase){
-    const cases=demoGet('cases'); const row=cases.find(c=>c.reference.toUpperCase()===reference.trim().toUpperCase() && c.phone.trim()===phone.trim())
+    const row=demoGet('cases').find(c=>c.id===caseId && normalizePhone(c.phone)===normalizePhone(phone))
+    if(!row) throw new Error('Dossier introuvable')
+    return demoGet('messages').filter(m=>m.case_id===row.id && m.visibility==='public').sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
+  }
+  const {data,error}=await supabase.rpc('case_public_messages_by_phone',{p_case_id:caseId,p_phone:phone})
+  if(error) throw error
+  return data||[]
+}
+
+async function publicReply(caseId,phone,body){
+  if(!supabase){
+    const cases=demoGet('cases'); const row=cases.find(c=>c.id===caseId && normalizePhone(c.phone)===normalizePhone(phone))
     if(!row) throw new Error('Dossier introuvable')
     const now=new Date().toISOString()
     demoSet('messages',[...demoGet('messages'),{id:uuid(),case_id:row.id,author_type:'client',author_name:row.contact_name,visibility:'public',body,created_at:now}])
     demoSet('cases',cases.map(c=>c.id===row.id?{...c,updated_at:now}:c))
     return true
   }
-  const {error}=await supabase.rpc('reply_case',{p_reference:reference,p_phone:phone,p_body:body})
+  const {error}=await supabase.rpc('reply_case_by_phone',{p_case_id:caseId,p_phone:phone,p_body:body})
   if(error) throw error
   return true
 }
@@ -198,7 +206,7 @@ function PublicSite({partners,fleet,setModal,embedded}){
         <a href="#partners" onClick={()=>setMenu(false)}>Partenaires</a>
         <a href="#careers" onClick={()=>setMenu(false)}>Recrutement</a>
         <button className="nav-track" onClick={()=>{setModal({type:'track'});setMenu(false)}}><Search size={14}/> Suivre un dossier</button>
-        <a className="staff-link" href="#staff"><LockKeyhole size={13}/> Staff</a>
+        <a className="staff-link" href="#staff"><LockKeyhole size={13}/> Accès interne</a>
       </nav>
       <button className="menu-btn" onClick={()=>setMenu(v=>!v)}>{menu?<X/>:<Menu/>}</button>
     </header>
@@ -207,9 +215,9 @@ function PublicSite({partners,fleet,setModal,embedded}){
       <section id="home" className="hero">
         <div className="hero-wordmark" aria-hidden="true">NAIRI</div>
         <div className="hero-main">
-          <div className="microline"><span>LOS SANTOS</span><i/> CORPORATE SERVICES <i/> ROAD LOGISTICS</div>
+          <div className="microline"><span>LOS SANTOS</span><i/> NÉGOCE & COORDINATION <i/> TRANSPORT ROUTIER</div>
           <h1>Faire avancer<br/><em>vos affaires.</em></h1>
-          <p className="hero-lead">Un point d’entrée unique pour trouver le bon partenaire, structurer une demande et faire circuler ce qui compte.</p>
+          <p className="hero-lead">Un partenaire unique pour structurer vos demandes, mobiliser les bons interlocuteurs et assurer vos flux professionnels à travers Los Santos.</p>
           <div className="hero-actions">
             <button className="btn btn-light" onClick={()=>setModal({type:'case'})}>Ouvrir un dossier <ArrowRight size={17}/></button>
             <button className="btn btn-ghost" onClick={()=>setModal({type:'track'})}>Suivre ma demande</button>
@@ -218,9 +226,11 @@ function PublicSite({partners,fleet,setModal,embedded}){
         <div className="hero-side">
           <div className="hero-mark"><img src="/assets/nairi-logo.png"/></div>
           <div className="hero-side-copy"><small>NAIRI CORPORATION</small><p>Maison de négoce, mise en relation & coordination.</p><a href="#corporation">Découvrir <ArrowUpRight size={15}/></a></div>
-          <div className="hero-side-copy"><small>NAIRI LOGISTICS</small><p>Ravitaillement, fret routier & opérations B2B.</p><a href="#logistics">Découvrir <ArrowUpRight size={15}/></a></div>
+          <div className="hero-side-copy"><small>NAIRI LOGISTICS</small><p>Ravitaillement, fret routier & transport d’entreprise.</p><a href="#logistics">Découvrir <ArrowUpRight size={15}/></a></div>
         </div>
       </section>
+
+      <div className="nairi-ribbon" aria-hidden="true"><span>NÉGOCE</span><i/> <span>MISE EN RELATION</span><i/> <span>TRANSPORT</span><i/> <span>LOGISTIQUE</span><i/> <span>LOS SANTOS</span></div>
 
       <section className="entry-strip">
         <div><span>01</span><b>Exprimez le besoin</b><p>Un formulaire court, adapté à votre demande.</p></div>
@@ -239,14 +249,14 @@ function PublicSite({partners,fleet,setModal,embedded}){
         <div className="corp-services">
           {CORP_SERVICES.map(s=><button key={s.id} className="corp-service" onClick={()=>openCase('corporate',s.id)}><span>{s.n}</span><div><h3>{s.title}</h3><p>{s.text}</p></div><ArrowUpRight/></button>)}
         </div>
-        <div className="corp-promise"><Handshake/><div><small>NOTRE POSITION</small><h3>Ni annuaire, ni simple intermédiaire.</h3><p>Chaque dossier est suivi par Nairi : compréhension du besoin, recherche des parties, prise de contact, coordination et retour au client. Notre valeur est dans l’exécution et le réseau.</p></div></div>
+        <div className="corp-promise"><Handshake/><div><small>NOTRE POSITION</small><h3>Un interlocuteur qui reste responsable du dossier.</h3><p>De la compréhension du besoin jusqu’à la mise en relation ou à la conclusion de l’affaire, Nairi centralise les échanges et reste votre point de contact. Notre valeur repose sur la qualité du réseau, la discrétion et le suivi.</p></div></div>
       </section>
 
       <section id="logistics" className="logistics-section">
         <div className="section-number light">02 / LOGISTICS</div>
         <div className="logistics-head">
-          <div><span className="eyebrow light">NAIRI LOGISTICS</span><h2>Le fret devient<br/><em>un vrai métier RP.</em></h2></div>
-          <p>Le script camionneur fait circuler les cartons. Nairi Logistics construit tout ce qu’il y a autour : contrats de desserte, urgences, planification, relation entreprise, transports hors-script et traçabilité des missions.</p>
+          <div><span className="eyebrow light">NAIRI LOGISTICS</span><h2>Vos marchandises.<br/><em>Notre responsabilité.</em></h2></div>
+          <p>Nairi Logistics prend en charge l’organisation de vos transports : ravitaillement régulier, urgence, fret sur mesure, desserte d’entreprise et suivi de chaque opération jusqu’à la livraison.</p>
         </div>
 
         <div className="log-service-grid">
@@ -254,16 +264,16 @@ function PublicSite({partners,fleet,setModal,embedded}){
         </div>
 
         <div className="contract-feature">
-          <div className="contract-copy"><small>CONTRAT DE DESSERTE</small><h3>Votre entreprise peut faire de Nairi son transporteur référent.</h3><p>Au lieu d’appeler un camionneur au hasard à chaque rupture de stock, ouvrez un dossier de desserte. Nous définissons ensemble la fréquence, les horaires privilégiés, les marchandises et les points à servir. Les missions peuvent ensuite être planifiées et suivies dans le back-office Nairi.</p><button className="btn btn-light" onClick={()=>openCase('logistics','dedicated_route')}>Demander une desserte <ArrowRight size={16}/></button></div>
+          <div className="contract-copy"><small>CONTRAT DE DESSERTE</small><h3>Votre entreprise peut faire de Nairi son transporteur référent.</h3><p>Pour vos besoins réguliers, nous définissons ensemble la fréquence, les horaires privilégiés, les marchandises et les points à desservir. Vous bénéficiez ensuite d’un interlocuteur unique et d’un suivi continu de vos opérations.</p><button className="btn btn-light" onClick={()=>openCase('logistics','dedicated_route')}>Demander une desserte <ArrowRight size={16}/></button></div>
           <div className="contract-flow">
             {['Entreprise cliente','Planning Nairi','Chauffeur affecté','Chargement','Livraison & clôture'].map((x,i)=><div key={x}><span>{String(i+1).padStart(2,'0')}</span><b>{x}</b></div>)}
           </div>
         </div>
 
         <div className="fleet-block">
-          <div className="fleet-title"><div><small>OUTILS DE TERRAIN</small><h3>Flotte Logistics</h3></div><p>La flotte est un moyen, pas le produit. Le client réserve une opération ; Nairi choisit le véhicule adapté.</p></div>
+          <div className="fleet-title"><div><small>OUTILS DE TERRAIN</small><h3>Flotte Logistics</h3></div><p>Chaque demande est étudiée selon son volume, son trajet et son niveau de priorité. Nairi affecte ensuite le véhicule le plus adapté à l’opération.</p></div>
           <div className="fleet-grid">
-            {fleet.map((v,i)=><article className="fleet-card" key={v.id}><div className="fleet-image"><img src={v.image_url} alt={v.name}/><span>FLEET / {String(i+1).padStart(2,'0')}</span></div><div className="fleet-copy"><div><small>{v.brand} · {v.category}</small><h4>{v.name}</h4></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}
+            {fleet.map((v,i)=><article className="fleet-card" key={v.id}><div className="fleet-image"><img src={v.image_url} alt={v.name}/><span>FLEET / {String(i+1).padStart(2,'0')}</span></div><div className="fleet-copy"><div><small>{v.brand} · {v.category}{v.capacity?' · '+v.capacity:''}</small><h4>{v.name}</h4></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}
           </div>
         </div>
       </section>
@@ -274,16 +284,15 @@ function PublicSite({partners,fleet,setModal,embedded}){
         {partners.length ? <div className="partner-grid">{partners.map(p=><article className="partner-card" key={p.id}>
           <div className={cls('partner-visual',!p.image_url&&'empty')}>{p.image_url?<img src={p.image_url} alt={p.name}/>:<Building2/>}<span>{p.eyebrow||'PARTENAIRE NAIRI'}</span></div>
           <div className="partner-copy"><h3>{p.name}</h3><p>{p.description}</p>{p.link_url&&<a href={p.link_url} target="_blank" rel="noreferrer">Voir le partenaire <ArrowUpRight size={14}/></a>}</div>
-        </article>)}</div> : <div className="empty-public"><Handshake/><h3>Le réseau est en cours de constitution.</h3><p>Les partenaires publiés depuis l’espace staff apparaîtront ici.</p></div>}
+        </article>)}</div> : <div className="empty-public"><Handshake/><h3>Le réseau est en cours de constitution.</h3><p>Les entreprises qui rejoignent officiellement le réseau Nairi sont présentées dans cet espace.</p></div>}
       </section>
 
       <section className="case-center">
         <div className="case-center-inner">
-          <div><span className="eyebrow light">DOSSIERS NAIRI</span><h2>Le site garde la trace.<br/><em>Discord garde la discussion.</em></h2><p>Pour éviter le doublon : utilisez le site pour toute demande qui doit être suivie, affectée ou clôturée. Discord reste parfait pour les échanges rapides, la communauté et le vocal.</p></div>
+          <div><span className="eyebrow light">ESPACE CLIENT</span><h2>Une demande claire.<br/><em>Un suivi simple.</em></h2><p>Ouvrez votre dossier en quelques instants. Nous centralisons ensuite les informations, les réponses et l’avancement de votre demande au même endroit.</p></div>
           <div className="case-actions">
-            <button className="case-action" onClick={()=>setModal({type:'case'})}><FileText/><div><b>Ouvrir un dossier</b><span>Corporate ou Logistics</span></div><ArrowRight/></button>
-            <button className="case-action" onClick={()=>setModal({type:'track'})}><Search/><div><b>Suivre un dossier</b><span>Référence + téléphone</span></div><ArrowRight/></button>
-            <a className="case-action" href={DISCORD_URL} target="_blank" rel="noreferrer"><MessageCircle/><div><b>Discussion rapide</b><span>Ouvrir Discord</span></div><ExternalLink/></a>
+            <button className="case-action" onClick={()=>setModal({type:'case'})}><FileText/><div><b>Ouvrir une demande</b><span>Corporation ou Logistics</span></div><ArrowRight/></button>
+            <button className="case-action" onClick={()=>setModal({type:'track'})}><Phone/><div><b>Retrouver mes dossiers</b><span>Avec votre numéro de téléphone</span></div><ArrowRight/></button>
           </div>
         </div>
       </section>
@@ -300,7 +309,7 @@ function PublicSite({partners,fleet,setModal,embedded}){
         <button className="btn btn-dark" onClick={()=>setModal({type:'case'})}>Nous contacter <ArrowRight size={17}/></button>
       </section>
     </main>
-    <footer><div className="brand compact"><img src="/assets/nairi-logo.png"/><div><strong>NAIRI</strong><span>CORPORATION</span></div></div><p>Maison de Négoce, Gestion Administrative & Transport</p><div>Corporate · Logistics · Los Santos</div></footer>
+    <footer><div className="brand compact"><img src="/assets/nairi-logo.png"/><div><strong>NAIRI</strong><span>CORPORATION</span></div></div><p>Maison de Négoce, Gestion Administrative & Transport</p><div>Négoce · Logistics · Los Santos</div></footer>
   </div>
 }
 
@@ -334,7 +343,7 @@ function CaseForm({initialKind,initialService,close,notify}){
     setBusy(true)
     try{const ref=await publicOpenCase({...form,kind});setReference(ref)}catch(err){notify(err.message||'Impossible d’ouvrir le dossier.','error')}finally{setBusy(false)}
   }
-  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DOSSIER CRÉÉ" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre dossier est ouvert.</h3><p>Gardez cette référence. Avec votre numéro de téléphone, elle permet de suivre le statut, lire les réponses Nairi et répondre directement depuis le site.</p><CopyRef value={reference}/><div className="success-actions"><button className="btn btn-dark" onClick={close}>Terminer</button></div></div></div>
+  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DOSSIER CRÉÉ" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre dossier est ouvert.</h3><p>Vous pourrez le retrouver à tout moment depuis « Suivre un dossier » avec le numéro de téléphone renseigné dans votre demande.</p><div className="success-note"><Phone/><span>Numéro utilisé : <b>{form.phone}</b></span></div><div className="success-actions"><button className="btn btn-dark" onClick={close}>Terminer</button></div></div></div>
 
   return <div className="modal-panel case-modal">
     <ModalHeader kicker="CONTACT NAIRI" title="Ouvrir un dossier" close={close}/>
@@ -355,33 +364,50 @@ function CaseForm({initialKind,initialService,close,notify}){
           <div className="form-grid"><Field label="Date / heure souhaitée"><Input type="datetime-local" value={form.requested_at} onChange={e=>setForm({...form,requested_at:e.target.value})}/></Field><Field label="Fréquence"><select value={form.frequency} onChange={e=>setForm({...form,frequency:e.target.value})}><option value="">Ponctuel</option><option value="daily">Quotidien</option><option value="several_week">Plusieurs fois / semaine</option><option value="weekly">Hebdomadaire</option><option value="on_demand">À la demande</option></select></Field></div>
           <Field label="Priorité" full><select value={form.urgency} onChange={e=>setForm({...form,urgency:e.target.value})}><option value="standard">Standard</option><option value="urgent">Urgent / stock critique</option><option value="planned">Planifiable</option></select></Field>
         </>}
-        <Field label="Décrivez votre demande" full hint="Le staff pourra vous poser des questions complémentaires dans le suivi du dossier."><Textarea required rows="5" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></Field>
+        <Field label="Décrivez votre demande" full hint="Notre équipe pourra vous demander des précisions directement dans le suivi du dossier."><Textarea required rows="5" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></Field>
         <button className="btn btn-dark wide" disabled={busy}>{busy?'Ouverture...':'Ouvrir le dossier'} <ArrowRight size={16}/></button>
       </>}
     </form>
   </div>
 }
 
-function CopyRef({value}){const [done,setDone]=React.useState(false);return <button className="copy-ref" onClick={()=>{navigator.clipboard?.writeText(value);setDone(true)}}><span>{value}</span>{done?<Check/>:<Copy/>}</button>}
-
 function TrackPortal({close,notify}){
-  const [reference,setReference]=React.useState('')
   const [phone,setPhone]=React.useState('')
-  const [data,setData]=React.useState(null)
+  const [cases,setCases]=React.useState([])
+  const [selected,setSelected]=React.useState(null)
+  const [messages,setMessages]=React.useState([])
   const [busy,setBusy]=React.useState(false)
   const [reply,setReply]=React.useState('')
 
-  async function search(e){e?.preventDefault();setBusy(true);try{const r=await publicTrack(reference,phone);setData(r);if(!r)notify('Aucun dossier trouvé avec ces informations.','error')}catch(err){notify(err.message||'Erreur de suivi.','error')}finally{setBusy(false)}}
-  async function send(){if(!reply.trim())return;setBusy(true);try{await publicReply(reference,phone,reply.trim());setReply('');setData(await publicTrack(reference,phone));notify('Réponse envoyée.')}catch(err){notify(err.message||'Envoi impossible.','error')}finally{setBusy(false)}}
+  async function openCase(row){
+    setBusy(true)
+    try{setSelected(row);setMessages(await publicCaseMessages(row.id,phone))}
+    catch(err){notify(err.message||'Impossible de charger le dossier.','error')}
+    finally{setBusy(false)}
+  }
+  async function search(e){
+    e?.preventDefault();setBusy(true);setSelected(null);setMessages([])
+    try{
+      const rows=await publicTrack(phone);setCases(rows)
+      if(!rows.length)notify('Aucun dossier trouvé pour ce numéro.','error')
+      else if(rows.length===1){setSelected(rows[0]);setMessages(await publicCaseMessages(rows[0].id,phone))}
+    }catch(err){notify(err.message||'Erreur de suivi.','error')}finally{setBusy(false)}
+  }
+  async function send(){
+    if(!reply.trim()||!selected)return;setBusy(true)
+    try{await publicReply(selected.id,phone,reply.trim());setReply('');setMessages(await publicCaseMessages(selected.id,phone));notify('Réponse envoyée.')}
+    catch(err){notify(err.message||'Envoi impossible.','error')}finally{setBusy(false)}
+  }
 
-  return <div className="modal-panel track-modal"><ModalHeader kicker="PORTAIL CLIENT" title="Suivre un dossier" close={close}/><div className="modal-body">
-    {!data?<form onSubmit={search} className="track-search"><p>Pas de compte à créer. Saisissez simplement la référence remise à l’ouverture et le téléphone utilisé dans la demande.</p><Field label="Référence du dossier"><Input required value={reference} onChange={e=>setReference(e.target.value.toUpperCase())} placeholder="NL-260825-AB12"/></Field><Field label="Téléphone"><Input required value={phone} onChange={e=>setPhone(e.target.value)}/></Field><button className="btn btn-dark wide" disabled={busy}><Search size={16}/>{busy?'Recherche...':'Afficher le dossier'}</button></form>:
+  return <div className="modal-panel track-modal"><ModalHeader kicker="ESPACE CLIENT" title="Suivre un dossier" close={close}/><div className="modal-body">
+    {!cases.length&&!selected?<form onSubmit={search} className="track-search"><div className="track-phone-mark"><Phone/></div><h3>Retrouvez vos demandes.</h3><p>Saisissez uniquement le numéro de téléphone utilisé lors de votre prise de contact. Aucun compte ni numéro de dossier n’est nécessaire.</p><Field label="Téléphone"><Input required autoFocus value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Votre numéro de téléphone"/></Field><button className="btn btn-dark wide" disabled={busy}><Search size={16}/>{busy?'Recherche...':'Afficher mes dossiers'}</button></form>:
+      !selected?<div className="case-picker"><div className="case-picker-head"><div><small>DOSSIERS RETROUVÉS</small><h3>{cases.length} demande{cases.length>1?'s':''}</h3></div><button className="text-link" onClick={()=>{setCases([]);setPhone('')}}>Changer de numéro</button></div><div className="case-picker-list">{cases.map(c=><button key={c.id} onClick={()=>openCase(c)}><div><small>{c.kind==='logistics'?'NAIRI LOGISTICS':'NAIRI CORPORATION'} · {dt(c.created_at)}</small><b>{c.title}</b><span>{serviceLabel(c.service)}</span></div><CaseStatus value={c.status}/><ChevronRight/></button>)}</div></div>:
       <div className="client-case">
-        <div className="client-case-head"><div><small>{data.case.kind==='logistics'?'NAIRI LOGISTICS':'NAIRI CORPORATION'}</small><h3>{data.case.title}</h3><span>{data.case.reference}</span></div><CaseStatus value={data.case.status}/></div>
-        <div className="client-summary"><div><span>Service</span><b>{serviceLabel(data.case.service)}</b></div><div><span>Ouvert le</span><b>{dt(data.case.created_at)}</b></div>{data.case.requested_at&&<div><span>Échéance souhaitée</span><b>{dt(data.case.requested_at)}</b></div>}</div>
-        <div className="conversation"><div className="conversation-title"><MessageSquareText/><div><b>Échanges du dossier</b><span>Les notes internes du staff ne sont jamais visibles ici.</span></div></div>{data.messages?.length?data.messages.map(m=><MessageBubble key={m.id} m={m}/>):<div className="empty-line">Aucun message pour le moment.</div>}</div>
-        {!['completed','declined','cancelled'].includes(data.case.status)&&<div className="client-reply"><Textarea rows="3" value={reply} onChange={e=>setReply(e.target.value)} placeholder="Répondre à Nairi..."/><button className="btn btn-dark" disabled={busy||!reply.trim()} onClick={send}><Send size={15}/> Envoyer</button></div>}
-        <button className="text-link back-search" onClick={()=>setData(null)}>Rechercher un autre dossier</button>
+        <div className="client-case-head"><div><small>{selected.kind==='logistics'?'NAIRI LOGISTICS':'NAIRI CORPORATION'}</small><h3>{selected.title}</h3><span>{serviceLabel(selected.service)}</span></div><CaseStatus value={selected.status}/></div>
+        <div className="client-summary"><div><span>Ouvert le</span><b>{dt(selected.created_at)}</b></div><div><span>Dernière mise à jour</span><b>{dt(selected.updated_at)}</b></div>{selected.requested_at&&<div><span>Date souhaitée</span><b>{dt(selected.requested_at)}</b></div>}</div>
+        <div className="conversation"><div className="conversation-title"><MessageSquareText/><div><b>Échanges avec Nairi</b><span>Retrouvez ici les réponses et demandes de précision concernant votre dossier.</span></div></div>{messages?.length?messages.map(m=><MessageBubble key={m.id} m={m}/>):<div className="empty-line">Aucun message pour le moment.</div>}</div>
+        {!['completed','declined','cancelled'].includes(selected.status)&&<div className="client-reply"><Textarea rows="3" value={reply} onChange={e=>setReply(e.target.value)} placeholder="Écrire à Nairi..."/><button className="btn btn-dark" disabled={busy||!reply.trim()} onClick={send}><Send size={15}/> Envoyer</button></div>}
+        <button className="text-link back-search" onClick={()=>setSelected(null)}>Voir mes autres dossiers</button>
       </div>}
   </div></div>
 }
@@ -397,7 +423,7 @@ function ApplicationForm({job,close,notify}){
     else {const {error}=await supabase.from('applications').insert({client_ref:reference,...form,status:'new'});if(error)throw error}
     setRef(reference)
   }catch(err){notify(err.message||'Candidature impossible.','error')}finally{setBusy(false)}}
-  if(ref)return <div className="modal-panel success-panel"><ModalHeader kicker="CANDIDATURE" title="Candidature transmise" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Bienvenue dans le processus Nairi.</h3><p>Votre candidature est enregistrée. L’équipe reviendra vers vous par téléphone.</p><CopyRef value={ref}/><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
+  if(ref)return <div className="modal-panel success-panel"><ModalHeader kicker="CANDIDATURE" title="Candidature transmise" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre candidature est enregistrée.</h3><p>Notre équipe reviendra vers vous par téléphone après étude de votre demande.</p><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
   return <div className="modal-panel"><ModalHeader kicker="RECRUTEMENT" title="Rejoindre Nairi" close={close}/><form className="modal-body" onSubmit={submit}><div className="form-grid"><Field label="Nom & prénom"><Input required value={form.full_name} onChange={e=>setForm({...form,full_name:e.target.value})}/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div><Field label="Poste" full><select value={form.position} onChange={e=>setForm({...form,position:e.target.value})}>{JOBS.map(j=><option value={j.id} key={j.id}>{j.title}</option>)}</select></Field><Field label="Expérience" full><Textarea rows="3" value={form.experience} onChange={e=>setForm({...form,experience:e.target.value})}/></Field><Field label="Disponibilités" full><Input value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})}/></Field><Field label="Motivation" full><Textarea required rows="4" value={form.motivation} onChange={e=>setForm({...form,motivation:e.target.value})}/></Field><button className="btn btn-dark wide" disabled={busy}>Envoyer ma candidature <ArrowRight size={16}/></button></form></div>
 }
 
@@ -411,7 +437,7 @@ function StaffApp({session,profile,notify,loadPublic,demo}){
 function StaffLogin({notify,demo,onDemo}){
   const [email,setEmail]=React.useState(''),[password,setPassword]=React.useState(''),[busy,setBusy]=React.useState(false)
   async function login(e){e.preventDefault();if(!supabase)return onDemo();setBusy(true);const {error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);if(error)notify(error.message,'error')}
-  return <div className="staff-login"><a className="login-brand" href="#home"><img src="/assets/nairi-logo.png"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>NAIRI / OPERATIONS</span><h1>Espace staff</h1><p>Dossiers, réponses clients, planning Logistics, partenaires et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
+  return <div className="staff-login"><a className="login-brand" href="#home"><img src="/assets/nairi-logo.png"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>NAIRI / OPERATIONS</span><h1>Espace opérations</h1><p>Dossiers, réponses clients, planning Logistics, partenaires et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
 }
 function StaffGate({session}){return <div className="staff-login"><div className="login-card"><AlertTriangle/><h1>Compte non autorisé</h1><p>{session.user.email} est connecté mais n’a pas de profil dans <code>staff_profiles</code>.</p><button className="btn btn-light" onClick={()=>supabase.auth.signOut()}>Déconnexion</button></div></div>}
 
@@ -521,13 +547,19 @@ function PartnersPanel({items,reload,loadPublic,notify,demo}){
 
 function FleetPanel({items,reload,loadPublic,notify,demo}){
   const [edit,setEdit]=React.useState(null)
-  async function save(v){try{const payload={name:v.name,brand:v.brand,category:v.category,description:v.description,image_url:v.image_url||null,status:v.status||'available',active:v.active??true,sort_order:Number(v.sort_order||0)};if(demo){let rows=demoGet('fleet',FLEET_SEEDS);if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x);else rows=[...rows,{id:uuid(),...payload}];demoSet('fleet',rows)}else{const q=v.id?supabase.from('fleet_vehicles').update(payload).eq('id',v.id):supabase.from('fleet_vehicles').insert(payload);const {error}=await q;if(error)throw error}setEdit(null);await reload();await loadPublic();notify('Flotte mise à jour.')}catch(e){notify(e.message,'error')}}
-  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>NAIRI LOGISTICS</span><h2>Flotte terrain</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,status:'available',sort_order:items.length+1})}><Plus size={15}/> Ajouter</button></div><div className="admin-grid">{items.map(v=><article className="admin-item" key={v.id}><div className="admin-thumb">{v.image_url?<img src={v.image_url}/>:<Truck/>}</div><div><small>{v.brand} · {v.category}</small><h3>{v.name}</h3><p>{v.description}</p><CaseStatus value={v.status}/></div><div className="admin-actions"><button onClick={()=>setEdit(v)}><Pencil/></button></div></article>)}</div>{edit&&<EntityEditor title="Véhicule Logistics" item={edit} close={()=>setEdit(null)} save={save} fields="fleet"/>}</section>
+  async function save(v){try{
+    const payload={name:v.name,brand:v.brand,category:v.category,registration:v.registration||null,capacity:v.capacity||null,description:v.description,image_url:v.image_url||null,status:v.status||'available',active:v.active??true,sort_order:Number(v.sort_order||0)}
+    if(demo){let rows=demoGet('fleet',FLEET_SEEDS);if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x);else rows=[...rows,{id:uuid(),...payload}];demoSet('fleet',rows)}
+    else{const q=v.id?supabase.from('fleet_vehicles').update(payload).eq('id',v.id):supabase.from('fleet_vehicles').insert(payload);const {error}=await q;if(error)throw error}
+    setEdit(null);await reload();await loadPublic();notify('Flotte mise à jour.')
+  }catch(e){notify(e.message,'error')}}
+  async function remove(id){if(!confirm('Retirer ce véhicule de la flotte ?'))return;try{if(demo)demoSet('fleet',demoGet('fleet',FLEET_SEEDS).filter(x=>x.id!==id));else{const {error}=await supabase.from('fleet_vehicles').delete().eq('id',id);if(error)throw error}await reload();await loadPublic();notify('Véhicule retiré.')}catch(e){notify(e.message,'error')}}
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>NAIRI LOGISTICS</span><h2>Flotte</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,status:'available',sort_order:items.length+1})}><Plus size={15}/> Ajouter un véhicule</button></div><div className="admin-grid">{items.map(v=><article className="admin-item" key={v.id}><div className="admin-thumb">{v.image_url?<img src={v.image_url}/>:<Truck/>}</div><div><small>{v.brand} · {v.category}{v.registration?' · '+v.registration:''}</small><h3>{v.name}</h3><p>{v.capacity&&<b>{v.capacity} — </b>}{v.description}</p><CaseStatus value={v.status}/></div><div className="admin-actions"><button onClick={()=>setEdit(v)} title="Modifier"><Pencil/></button><button onClick={()=>remove(v.id)} title="Supprimer"><Trash2/></button></div></article>)}{!items.length&&<Empty icon={Truck} text="Aucun véhicule dans la flotte."/>}</div>{edit&&<EntityEditor title="Véhicule Logistics" item={edit} close={()=>setEdit(null)} save={save} fields="fleet"/>}</section>
 }
 
 function EntityEditor({title,item,close,save,fields}){
   const [v,setV]=React.useState({...item})
-  return <div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="GESTION" title={title} close={close}/><div className="drawer-body"><div className="form-grid"><Field label="Nom"><Input required value={v.name||''} onChange={e=>setV({...v,name:e.target.value})}/></Field>{fields==='fleet'?<Field label="Marque"><Input value={v.brand||''} onChange={e=>setV({...v,brand:e.target.value})}/></Field>:<Field label="Label"><Input value={v.eyebrow||''} onChange={e=>setV({...v,eyebrow:e.target.value})} placeholder="PARTENAIRE NAIRI"/></Field>}</div>{fields==='fleet'&&<Field label="Catégorie" full><Input value={v.category||''} onChange={e=>setV({...v,category:e.target.value})}/></Field>}<Field label="Image (URL)" full><Input value={v.image_url||''} onChange={e=>setV({...v,image_url:e.target.value})}/></Field>{fields==='partner'&&<Field label="Lien externe (optionnel)" full><Input value={v.link_url||''} onChange={e=>setV({...v,link_url:e.target.value})}/></Field>}<Field label="Texte" full><Textarea rows="5" value={v.description||''} onChange={e=>setV({...v,description:e.target.value})}/></Field><div className="form-grid">{fields==='fleet'&&<Field label="Statut"><select value={v.status||'available'} onChange={e=>setV({...v,status:e.target.value})}><option value="available">Disponible</option><option value="service">En mission</option><option value="maintenance">Maintenance</option><option value="unavailable">Indisponible</option></select></Field>}<Field label="Ordre"><Input type="number" value={v.sort_order||0} onChange={e=>setV({...v,sort_order:e.target.value})}/></Field></div><label className="toggle"><input type="checkbox" checked={v.active??true} onChange={e=>setV({...v,active:e.target.checked})}/><span>Visible sur le site public</span></label><button className="btn btn-dark wide" onClick={()=>save(v)}>Enregistrer</button></div></aside></div>
+  return <div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="GESTION" title={title} close={close}/><div className="drawer-body"><div className="form-grid"><Field label="Nom"><Input required value={v.name||''} onChange={e=>setV({...v,name:e.target.value})}/></Field>{fields==='fleet'?<Field label="Marque"><Input value={v.brand||''} onChange={e=>setV({...v,brand:e.target.value})}/></Field>:<Field label="Label"><Input value={v.eyebrow||''} onChange={e=>setV({...v,eyebrow:e.target.value})} placeholder="PARTENAIRE NAIRI"/></Field>}</div>{fields==='fleet'&&<><div className="form-grid"><Field label="Catégorie"><Input value={v.category||''} onChange={e=>setV({...v,category:e.target.value})} placeholder="Poids lourd, utilitaire..."/></Field><Field label="Immatriculation"><Input value={v.registration||''} onChange={e=>setV({...v,registration:e.target.value})} placeholder="Optionnel"/></Field></div><Field label="Capacité / usage" full><Input value={v.capacity||''} onChange={e=>setV({...v,capacity:e.target.value})} placeholder="Ex. Fret lourd · longues tournées"/></Field></>}<Field label="Image (URL)" full><Input value={v.image_url||''} onChange={e=>setV({...v,image_url:e.target.value})}/></Field>{fields==='partner'&&<Field label="Lien externe (optionnel)" full><Input value={v.link_url||''} onChange={e=>setV({...v,link_url:e.target.value})}/></Field>}<Field label="Texte" full><Textarea rows="5" value={v.description||''} onChange={e=>setV({...v,description:e.target.value})}/></Field><div className="form-grid">{fields==='fleet'&&<Field label="Statut"><select value={v.status||'available'} onChange={e=>setV({...v,status:e.target.value})}><option value="available">Disponible</option><option value="service">En mission</option><option value="maintenance">Maintenance</option><option value="unavailable">Indisponible</option></select></Field>}<Field label="Ordre"><Input type="number" value={v.sort_order||0} onChange={e=>setV({...v,sort_order:e.target.value})}/></Field></div><label className="toggle"><input type="checkbox" checked={v.active??true} onChange={e=>setV({...v,active:e.target.checked})}/><span>Visible sur le site public</span></label><button className="btn btn-dark wide" onClick={()=>save(v)}>Enregistrer</button></div></aside></div>
 }
 
 function FinancePanel({items,cases,reload,notify,demo}){

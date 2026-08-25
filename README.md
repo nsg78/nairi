@@ -1,158 +1,73 @@
-# Nairi Corporation V3 — Corporate & Logistics
+# Nairi Corporation V4 — Corporation & Logistics
 
-Cette version retire temporairement **Automotive** et concentre le projet sur :
+Cette version recentre complètement la plateforme sur **Nairi Corporation** et **Nairi Logistics**.
 
-- **Nairi Corporation** : mise en relation, sourcing, négociation et gestion de dossiers.
-- **Nairi Logistics** : ravitaillement entreprise, desserte récurrente, urgence, fret hors-script, transfert inter-sites et convois sensibles.
-- **Dossiers clients** : ouverture rapide sans compte, référence unique, suivi par référence + téléphone, réponses client/staff.
-- **Back-office staff** : qualification, affectation, statuts, réponses publiques, notes internes, partenaires, flotte, finance, recrutement.
-- **Partenaires** : ajout / modification depuis le back-office avec image, texte, label et lien externe optionnel.
-- **FiveM** : interface responsive et base NUI conservée.
+## Changements V4
 
-## 1. Tester sans Supabase
+- Suppression de toute formulation OOC dans le site public.
+- Refonte de la présentation Logistics : ravitaillement, desserte dédiée, urgence, fret sur mesure, inter-sites et transport sensible.
+- Nairi Corporation conserve une place centrale : mise en relation, sourcing, négociation et gestion de dossier.
+- Suivi client **uniquement avec le numéro de téléphone** : aucune référence à mémoriser.
+- Si un numéro possède plusieurs demandes, le client retrouve une liste de ses dossiers puis ouvre celui qu'il souhaite suivre.
+- Réponses client / Nairi directement dans le dossier.
+- Notes internes invisibles du client côté opérations.
+- Flotte Logistics administrable : ajout, modification, suppression, image, marque, catégorie, immatriculation, capacité/usage, statut et visibilité publique.
+- Partenaires administrables avec image + texte + lien optionnel.
+- Nouvelle identité visuelle **Basalte / Tuf / Ivoire** : plus chaude, plus éditoriale et moins générique que la V3, sans revenir au noir/or.
 
-Le projet fonctionne en **mode démo** si aucune variable Supabase n'est définie.
-Les données sont alors enregistrées dans le `localStorage` du navigateur.
+## Installation locale
 
 ```bash
 npm install
 npm run dev
 ```
 
-Ouvre ensuite l'URL indiquée par Vite. Le bouton Staff permet d'ouvrir le back-office en mode démo.
+Sans variables Supabase, le site démarre en **mode démo local** avec `localStorage`.
 
-## 2. Installer Supabase
+## Supabase
 
-Dans ton projet Supabase :
+Dans Supabase > SQL Editor, exécuter :
 
-1. Va dans **SQL Editor**.
-2. Colle le contenu de `supabase-v3.sql`.
-3. Clique sur **Run**.
+`supabase-v4.sql`
 
-Le script est prévu pour être exécuté sur une base neuve **ou par-dessus l'ancienne V1/V2**. Les anciennes tables Automotive ne sont pas supprimées : elles ne sont simplement plus utilisées par la V3.
+Le script fonctionne sur une base neuve ou sur la base des versions précédentes. Il conserve les anciennes tables Automotive mais elles ne sont pas utilisées par cette version.
 
-### Créer le compte staff
+Créer ensuite un utilisateur dans **Authentication > Users**, puis adapter et exécuter :
 
-1. Supabase > **Authentication > Users** > ajoute ton compte.
-2. Ouvre `STAFF-BOOTSTRAP.sql`.
-3. Remplace `TON-EMAIL@EXEMPLE.COM`.
-4. Exécute le bloc dans SQL Editor.
+`STAFF-BOOTSTRAP.sql`
 
-Pour un autre membre du staff, duplique simplement l'INSERT avec son e-mail et son nom.
-
-## 3. Variables Vercel
-
-Copie `.env.example` en `.env.local` pour le développement local, ou ajoute ces variables dans Vercel :
+Variables Vercel / `.env` :
 
 ```env
 VITE_SUPABASE_URL=https://TON-PROJET.supabase.co
-VITE_SUPABASE_ANON_KEY=TA_CLE_PUBLIQUE_ANON
-VITE_DISCORD_URL=https://discord.gg/TONDISCORD
+VITE_SUPABASE_ANON_KEY=TA_CLE_ANON
 ```
 
-N'utilise **jamais** la clé `service_role` dans Vercel côté frontend.
+## Suivi par téléphone
 
-## 4. Déploiement Vercel
+Le client n'a plus besoin de conserver une référence.
 
-Le projet est un Vite standard.
+Le numéro renseigné lors de l'ouverture du dossier permet de retrouver ses demandes. Les références internes (`NC-...` / `NL-...`) restent visibles uniquement dans l'espace opérations afin de faciliter le travail de l'équipe.
 
-- Build command : `npm run build`
-- Output directory : `dist`
+Les RPC utilisées sont :
 
-Le fichier `vercel.json` gère déjà le fallback SPA.
+- `track_cases_by_phone(phone)`
+- `case_public_messages_by_phone(case_id, phone)`
+- `reply_case_by_phone(case_id, phone, body)`
 
-## 5. Fonctionnement des dossiers
+## Flotte
 
-### Côté client
+Le menu **Flotte** de l'espace opérations permet de gérer le catalogue sans modifier le code :
 
-Le client clique sur **Ouvrir un dossier** puis choisit :
-
-- **Nairi Corporation** : mise en relation, sourcing, négociation, gestion.
-- **Nairi Logistics** : ravitaillement, desserte, urgence, fret spécial, transfert ou convoi.
-
-Après validation, il reçoit une référence du type :
-
-- `NC-260825-AB12` pour Corporation
-- `NL-260825-CD34` pour Logistics
-
-Il peut ensuite ouvrir **Suivre un dossier**, saisir cette référence + le téléphone de la demande, consulter le statut et répondre au staff.
-
-### Côté staff
-
-Dans **Nairi / Operations** :
-
-- ouvrir un dossier ;
-- affecter un responsable ;
+- ajouter un véhicule ;
+- modifier son image et sa description ;
+- définir marque / catégorie / immatriculation / capacité ;
 - changer son statut ;
-- répondre au client ;
-- ajouter une **note interne** invisible du client ;
-- voir l'historique complet.
+- masquer temporairement un véhicule ;
+- supprimer un véhicule.
 
-Statuts disponibles :
+La grille publique s'adapte automatiquement à 1, 2, 3, 4 véhicules ou davantage.
 
-`Nouveau → Qualifié → Accepté → Planifié → En cours → Terminé`
+## FiveM
 
-Avec en plus : `Attente client`, `Refusé`, `Annulé`.
-
-## 6. Site vs Discord
-
-La V3 évite volontairement de remplacer Discord à 100 %.
-
-**Site Nairi** : tout ce qui mérite un numéro de dossier, un responsable, un statut, un historique ou une clôture.
-
-**Discord** : discussions rapides, communauté, vocal, échanges qui ne nécessitent pas de suivi structuré.
-
-Cela évite d'avoir deux outils qui font exactement la même chose.
-
-## 7. Partenaires
-
-Back-office > **Partenaires** > Ajouter :
-
-- Nom
-- Label
-- Image URL
-- Texte
-- Lien externe optionnel
-- Ordre d'affichage
-- Visible / masqué
-
-Le bloc apparaît automatiquement sur le site public.
-
-## 8. Logistics — logique RP prévue
-
-La branche a été pensée comme une vraie entreprise de transport autour du script camionneur :
-
-- contrats de desserte avec les entreprises ;
-- ravitaillements réguliers ;
-- ruptures de stock urgentes ;
-- missions hors-script ;
-- transport de marchandises RP ;
-- transferts inter-sites ;
-- convois sensibles ;
-- affectation interne et suivi des missions.
-
-Le client ne réserve pas un Pounder : il réserve **une prestation**. Nairi choisit ensuite le véhicule adéquat.
-
-## 9. FiveM
-
-Le dossier `fivem/` contient un lanceur NUI générique.
-
-Pour une intégration comme application native dans un téléphone FiveM (LB Phone, NPWD, QS, etc.), il faudra adapter seulement la déclaration spécifique au téléphone utilisé.
-
-## 10. Direction artistique V3
-
-La DA abandonne :
-
-- le noir/or générique ;
-- le rouge/noir de la V2 ;
-- les coordonnées, HUD et éléments pseudo-militaires de l'ancien design.
-
-La nouvelle identité utilise :
-
-- graphite profond ;
-- ivoire chaud ;
-- gris minéral ;
-- accent acier/pétrole très discret ;
-- grands blocs éditoriaux ;
-- visuels Logistics plus importants ;
-- interface staff volontairement plus fonctionnelle que le site public.
+Le dossier `fivem/` reste disponible pour l'intégration NUI. Le frontend public est responsive et peut également être utilisé comme base pour une application téléphone FiveM.

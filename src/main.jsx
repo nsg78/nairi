@@ -197,119 +197,103 @@ function App(){
 function PublicSite({partners,fleet,setModal,embedded}){
   const [menu,setMenu]=React.useState(false)
   const openCase=(kind,service=null)=>setModal({type:'case',kind,service})
-  return <div className={cls('site',embedded&&'embedded')}>
-    <header className="topbar">
+  return <div className={cls('site','v53-site',embedded&&'embedded')}>
+    <header className="topbar v53-topbar">
       <a className="brand" href="#home" onClick={()=>setMenu(false)}><img src="/assets/nairi-logo.png"/><div><strong>NAIRI</strong><span>CORPORATION</span></div></a>
       <nav className={menu?'open':''}>
         <a href="#corporation" onClick={()=>setMenu(false)}>Corporation</a>
         <a href="#logistics" onClick={()=>setMenu(false)}>Logistics</a>
         <a href="#partners" onClick={()=>setMenu(false)}>Partenaires</a>
-        <a href="#careers" onClick={()=>setMenu(false)}>Recrutement</a>
-        <button className="nav-track" onClick={()=>{setModal({type:'track'});setMenu(false)}}><Search size={14}/> Suivre un dossier</button>
-        <a className="staff-link" href="#staff"><LockKeyhole size={13}/> Accès interne</a>
+        <a href="#careers" onClick={()=>setMenu(false)}>Carrières</a>
+        <button className="nav-track" onClick={()=>{setModal({type:'track'});setMenu(false)}}><Search size={14}/> Suivre</button>
+        <a className="staff-link" href="#staff"><LockKeyhole size={13}/> Interne</a>
       </nav>
-      <button className="menu-btn" onClick={()=>setMenu(v=>!v)}>{menu?<X/>:<Menu/>}</button>
+      <button className="menu-btn" onClick={()=>setMenu(v=>!v)} aria-label="Menu">{menu?<X/>:<Menu/>}</button>
     </header>
 
     <main>
-      <section id="home" className="hero">
-        <div className="hero-wordmark" aria-hidden="true">NAIRI</div>
-        <div className="hero-main">
-          <div className="microline"><span>LOS SANTOS</span><i/> NÉGOCE & COORDINATION <i/> TRANSPORT ROUTIER</div>
+      <section id="home" className="v53-hero">
+        <div className="v53-hero-copy">
+          <div className="v53-kicker">LOS SANTOS · NÉGOCE · LOGISTIQUE</div>
           <h1>Faire avancer<br/><em>vos affaires.</em></h1>
-          <p className="hero-lead">Un partenaire unique pour structurer vos demandes, mobiliser les bons interlocuteurs et assurer vos flux professionnels à travers Los Santos.</p>
-          <div className="hero-actions">
-            <button className="btn btn-light" onClick={()=>setModal({type:'case'})}>Ouvrir un dossier <ArrowRight size={17}/></button>
-            <button className="btn btn-ghost" onClick={()=>setModal({type:'track'})}>Suivre ma demande</button>
+          <p>Un interlocuteur unique pour vos besoins d’entreprise, vos mises en relation et vos transports professionnels.</p>
+          <div className="v53-hero-actions">
+            <button className="btn btn-light" onClick={()=>setModal({type:'case'})}>Ouvrir une demande <ArrowRight size={16}/></button>
+            <button className="btn btn-ghost" onClick={()=>setModal({type:'track'})}>Suivre mes dossiers</button>
           </div>
         </div>
-        <div className="hero-side">
-          <div className="hero-mark"><img src="/assets/nairi-logo.png"/></div>
-          <div className="hero-side-copy"><small>NAIRI CORPORATION</small><p>Maison de négoce, mise en relation & coordination.</p><a href="#corporation">Découvrir <ArrowUpRight size={15}/></a></div>
-          <div className="hero-side-copy"><small>NAIRI LOGISTICS</small><p>Ravitaillement, fret routier & transport d’entreprise.</p><a href="#logistics">Découvrir <ArrowUpRight size={15}/></a></div>
+        <div className="v53-hero-brand">
+          <img src="/assets/nairi-logo.png"/>
+          <div><span>NAIRI CORPORATION</span><b>Négoce, coordination & transport.</b></div>
         </div>
       </section>
 
-      <div className="nairi-ribbon" aria-hidden="true"><span>NÉGOCE</span><i/> <span>MISE EN RELATION</span><i/> <span>TRANSPORT</span><i/> <span>LOGISTIQUE</span><i/> <span>LOS SANTOS</span></div>
-
-      <section className="entry-strip">
-        <div><span>01</span><b>Exprimez le besoin</b><p>Un formulaire court, adapté à votre demande.</p></div>
-        <ChevronRight/>
-        <div><span>02</span><b>Nairi qualifie le dossier</b><p>Un interlocuteur reprend votre demande.</p></div>
-        <ChevronRight/>
-        <div><span>03</span><b>Suivez l’exécution</b><p>Statut, réponses et historique au même endroit.</p></div>
+      <section className="v53-quickbar" aria-label="Accès rapides">
+        <button onClick={()=>openCase('corporate')}><BriefcaseBusiness/><div><b>Besoin d’un intermédiaire ?</b><span>Confiez-nous votre demande</span></div><ArrowRight/></button>
+        <button onClick={()=>openCase('logistics')}><Truck/><div><b>Besoin d’un transport ?</b><span>Organisez une opération Logistics</span></div><ArrowRight/></button>
+        <button onClick={()=>setModal({type:'track'})}><Phone/><div><b>Déjà client ?</b><span>Retrouvez vos dossiers par téléphone</span></div><ArrowRight/></button>
       </section>
 
-      <section id="corporation" className="corp-section">
-        <div className="section-number">01 / CORPORATION</div>
-        <div className="corp-intro">
-          <div><span className="eyebrow">NAIRI CORPORATION</span><h2>Le bon interlocuteur.<br/><em>Au bon moment.</em></h2></div>
-          <div className="corp-statement"><p>Nairi agit comme un relais opérationnel entre votre besoin et le marché de Los Santos. Vous nous confiez le problème ; nous cherchons, qualifions, mettons en relation et suivons l’affaire jusqu’à sa résolution.</p><button className="text-link" onClick={()=>openCase('corporate')}>Confier une demande <ArrowRight size={16}/></button></div>
+      <section id="corporation" className="v53-section v53-corp">
+        <div className="v53-section-head">
+          <div><span className="v53-index">01 · CORPORATION</span><h2>Un besoin.<br/><em>Le bon interlocuteur.</em></h2></div>
+          <div><p>Nairi prend votre besoin en charge, identifie les bons partenaires, centralise les échanges et reste votre point de contact jusqu’à la résolution du dossier.</p><button className="text-link" onClick={()=>openCase('corporate')}>Nous confier une demande <ArrowRight size={15}/></button></div>
         </div>
-        <div className="corp-services">
-          {CORP_SERVICES.map(s=><button key={s.id} className="corp-service" onClick={()=>openCase('corporate',s.id)}><span>{s.n}</span><div><h3>{s.title}</h3><p>{s.text}</p></div><ArrowUpRight/></button>)}
-        </div>
-        <div className="corp-promise"><Handshake/><div><small>NOTRE POSITION</small><h3>Un interlocuteur qui reste responsable du dossier.</h3><p>De la compréhension du besoin jusqu’à la mise en relation ou à la conclusion de l’affaire, Nairi centralise les échanges et reste votre point de contact. Notre valeur repose sur la qualité du réseau, la discrétion et le suivi.</p></div></div>
-      </section>
-
-      <section id="logistics" className="logistics-section">
-        <div className="section-number light">02 / LOGISTICS</div>
-        <div className="logistics-head">
-          <div><span className="eyebrow light">NAIRI LOGISTICS</span><h2>Vos marchandises.<br/><em>Notre responsabilité.</em></h2></div>
-          <p>Nairi Logistics prend en charge l’organisation de vos transports : ravitaillement régulier, urgence, fret sur mesure, desserte d’entreprise et suivi de chaque opération jusqu’à la livraison.</p>
-        </div>
-
-        <div className="log-service-grid">
-          {LOG_SERVICES.map((s,i)=>{const Icon=s.icon;return <button className="log-service-card" key={s.id} onClick={()=>openCase('logistics',s.id)}><div className="log-card-top"><span>0{i+1}</span><Icon/></div><small>{s.tag}</small><h3>{s.title}</h3><p>{s.text}</p><div>Créer une demande <ArrowRight size={15}/></div></button>})}
-        </div>
-
-        <div className="contract-feature">
-          <div className="contract-copy"><small>CONTRAT DE DESSERTE</small><h3>Votre entreprise peut faire de Nairi son transporteur référent.</h3><p>Pour vos besoins réguliers, nous définissons ensemble la fréquence, les horaires privilégiés, les marchandises et les points à desservir. Vous bénéficiez ensuite d’un interlocuteur unique et d’un suivi continu de vos opérations.</p><button className="btn btn-light" onClick={()=>openCase('logistics','dedicated_route')}>Demander une desserte <ArrowRight size={16}/></button></div>
-          <div className="contract-flow">
-            {['Entreprise cliente','Planning Nairi','Chauffeur affecté','Chargement','Livraison & clôture'].map((x,i)=><div key={x}><span>{String(i+1).padStart(2,'0')}</span><b>{x}</b></div>)}
-          </div>
-        </div>
-
-        <div className="fleet-block">
-          <div className="fleet-title"><div><small>OUTILS DE TERRAIN</small><h3>Flotte Logistics</h3></div><p>Chaque demande est étudiée selon son volume, son trajet et son niveau de priorité. Nairi affecte ensuite le véhicule le plus adapté à l’opération.</p></div>
-          <div className="fleet-grid">
-            {fleet.map((v,i)=><article className="fleet-card" key={v.id}><div className="fleet-image"><img src={v.image_url} alt={v.name}/><span>FLEET / {String(i+1).padStart(2,'0')}</span></div><div className="fleet-copy"><div><small>{v.brand} · {v.category}{v.capacity?' · '+v.capacity:''}</small><h4>{v.name}</h4></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}
-          </div>
+        <div className="v53-corp-grid">
+          {CORP_SERVICES.map(s=><button key={s.id} className="v53-corp-card" onClick={()=>openCase('corporate',s.id)}><span>{s.n}</span><div><h3>{s.title}</h3><p>{s.text}</p></div><ArrowUpRight/></button>)}
         </div>
       </section>
 
-      <section id="partners" className="partners-section">
-        <div className="section-number">03 / RÉSEAU</div>
-        <div className="partners-head"><div><span className="eyebrow">PARTENAIRES</span><h2>Un réseau qui<br/><em>travaille vraiment.</em></h2></div><p>Les partenaires Nairi sont visibles ici parce qu’ils font partie du réseau actif : fournisseurs, commerces, prestataires et entreprises avec lesquelles nous pouvons construire une solution.</p></div>
-        {partners.length ? <div className="partner-grid">{partners.map(p=><article className="partner-card" key={p.id}>
-          <div className={cls('partner-visual',!p.image_url&&'empty')}>{p.image_url?<img src={p.image_url} alt={p.name}/>:<Building2/>}<span>{p.eyebrow||'PARTENAIRE NAIRI'}</span></div>
-          <div className="partner-copy"><h3>{p.name}</h3><p>{p.description}</p>{p.link_url&&<a href={p.link_url} target="_blank" rel="noreferrer">Voir le partenaire <ArrowUpRight size={14}/></a>}</div>
-        </article>)}</div> : <div className="empty-public"><Handshake/><h3>Le réseau est en cours de constitution.</h3><p>Les entreprises qui rejoignent officiellement le réseau Nairi sont présentées dans cet espace.</p></div>}
-      </section>
+      <section id="logistics" className="v53-section v53-logistics">
+        <div className="v53-section-head light">
+          <div><span className="v53-index">02 · LOGISTICS</span><h2>Vos flux.<br/><em>Notre responsabilité.</em></h2></div>
+          <div><p>Ravitaillement, tournées régulières, urgences ou fret spécifique : nous organisons l’opération et assurons son suivi jusqu’à la livraison.</p><button className="text-link" onClick={()=>openCase('logistics')}>Organiser un transport <ArrowRight size={15}/></button></div>
+        </div>
 
-      <section className="case-center">
-        <div className="case-center-inner">
-          <div><span className="eyebrow light">ESPACE CLIENT</span><h2>Une demande claire.<br/><em>Un suivi simple.</em></h2><p>Ouvrez votre dossier en quelques instants. Nous centralisons ensuite les informations, les réponses et l’avancement de votre demande au même endroit.</p></div>
-          <div className="case-actions">
-            <button className="case-action" onClick={()=>setModal({type:'case'})}><FileText/><div><b>Ouvrir une demande</b><span>Corporation ou Logistics</span></div><ArrowRight/></button>
-            <button className="case-action" onClick={()=>setModal({type:'track'})}><Phone/><div><b>Retrouver mes dossiers</b><span>Avec votre numéro de téléphone</span></div><ArrowRight/></button>
-          </div>
+        <div className="v53-log-scroll">
+          {LOG_SERVICES.map((s,i)=>{const Icon=s.icon;return <button className="v53-log-card" key={s.id} onClick={()=>openCase('logistics',s.id)}><div><span>0{i+1}</span><Icon/></div><small>{s.tag}</small><h3>{s.title}</h3><p>{s.text}</p><b>Demander <ArrowRight size={14}/></b></button>})}
+        </div>
+
+        <div className="v53-contract">
+          <div><small>DESSERTE D’ENTREPRISE</small><h3>Faites de Nairi votre transporteur référent.</h3></div>
+          <p>Pour les besoins réguliers, nous définissons ensemble la fréquence et les modalités de desserte. Vous gardez un interlocuteur unique, nous gérons l’exécution.</p>
+          <button className="btn btn-light" onClick={()=>openCase('logistics','dedicated_route')}>Nous contacter <ArrowRight size={15}/></button>
+        </div>
+
+        <div className="v53-fleet-head"><div><span className="v53-index">FLOTTE</span><h3>Nos véhicules de transport</h3></div><p>La flotte évolue avec l’activité. Chaque véhicule est affecté selon la nature de l’opération.</p></div>
+        <div className="v53-fleet-row">
+          {fleet.map((v,i)=><article className="v53-fleet-card" key={v.id}><div className="v53-fleet-image"><img src={v.image_url} alt={v.name}/><span>{String(i+1).padStart(2,'0')}</span></div><div className="v53-fleet-copy"><div><small>{v.brand} · {v.category}{v.capacity?' · '+v.capacity:''}</small><h4>{v.name}</h4></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}
         </div>
       </section>
 
-      <section id="careers" className="careers-section">
-        <div className="section-number">04 / RECRUTEMENT</div>
-        <div className="careers-head"><div><span className="eyebrow">REJOINDRE NAIRI</span><h2>Construire l’activité.<br/><em>Pas seulement la conduire.</em></h2></div><p>La croissance de Nairi repose autant sur les conducteurs terrain que sur ceux qui organisent les flux et développent les relations entreprises.</p></div>
-        <div className="jobs-grid">{JOBS.map(j=>{const Icon=j.icon;return <button key={j.id} className="job-card" onClick={()=>setModal({type:'apply',job:j.id})}><Icon/><small>POSTE OUVERT</small><h3>{j.title}</h3><p>{j.text}</p><span>Postuler <ArrowRight size={14}/></span></button>})}</div>
+      <section id="partners" className="v53-section v53-partners">
+        <div className="v53-section-head compact">
+          <div><span className="v53-index">03 · RÉSEAU</span><h2>Nos partenaires.</h2></div>
+          <p>Des entreprises et professionnels avec lesquels Nairi peut construire une réponse adaptée à votre besoin.</p>
+        </div>
+        {partners.length ? <div className="v53-partner-row">{partners.map(p=><article className="v53-partner-card" key={p.id}><div className={cls('v53-partner-visual',!p.image_url&&'empty')}>{p.image_url?<img src={p.image_url} alt={p.name}/>:<Building2/>}</div><div><small>{p.eyebrow||'PARTENAIRE NAIRI'}</small><h3>{p.name}</h3><p>{p.description}</p>{p.link_url&&<a href={p.link_url} target="_blank" rel="noreferrer">Découvrir <ArrowUpRight size={13}/></a>}</div></article>)}</div> : <div className="v53-empty"><Handshake/><div><b>Réseau en cours de constitution</b><span>Les partenaires officiels de Nairi apparaîtront ici.</span></div></div>}
       </section>
 
-      <section className="final-cta">
-        <img src="/assets/nairi-logo.png"/>
-        <div><small>NAIRI CORPORATION · LOS SANTOS</small><h2>Une demande.<br/>Un dossier. <em>Un suivi.</em></h2></div>
-        <button className="btn btn-dark" onClick={()=>setModal({type:'case'})}>Nous contacter <ArrowRight size={17}/></button>
+      <section id="careers" className="v53-section v53-careers">
+        <div className="v53-section-head compact">
+          <div><span className="v53-index">04 · CARRIÈRES</span><h2>Rejoindre Nairi.</h2></div>
+          <p>Conduite, exploitation ou relation client : choisissez le rôle qui correspond à votre profil et candidatez en quelques instants.</p>
+        </div>
+        <div className="v53-jobs-row">{JOBS.map(j=>{const Icon=j.icon;return <button key={j.id} className="v53-job-card" onClick={()=>setModal({type:'apply',job:j.id})}><Icon/><div><small>POSTE OUVERT</small><h3>{j.title}</h3><p>{j.text}</p></div><span>Postuler <ArrowRight size={14}/></span></button>})}</div>
+      </section>
+
+      <section className="v53-contact">
+        <div><span>NAIRI CORPORATION · LOS SANTOS</span><h2>Parlez-nous simplement<br/>de votre besoin.</h2><p>Quelques informations suffisent. Nous vous recontactons si le dossier nécessite des précisions.</p></div>
+        <div><button className="btn btn-light" onClick={()=>setModal({type:'case'})}>Ouvrir une demande <ArrowRight size={16}/></button><button className="btn btn-ghost" onClick={()=>setModal({type:'track'})}>Suivre mes dossiers</button></div>
       </section>
     </main>
-    <footer><div className="brand compact"><img src="/assets/nairi-logo.png"/><div><strong>NAIRI</strong><span>CORPORATION</span></div></div><p>Maison de Négoce, Gestion Administrative & Transport</p><div>Négoce · Logistics · Los Santos</div></footer>
+
+    <div className="v53-mobile-actions">
+      <button onClick={()=>setModal({type:'case'})}><FileText/><span>Demande</span></button>
+      <button onClick={()=>setModal({type:'track'})}><Search/><span>Suivi</span></button>
+    </div>
+
+    <footer className="v53-footer"><div className="brand compact"><img src="/assets/nairi-logo.png"/><div><strong>NAIRI</strong><span>CORPORATION</span></div></div><p>Maison de Négoce, Gestion Administrative & Transport</p><div>Los Santos</div></footer>
   </div>
 }
 
@@ -331,41 +315,68 @@ const Textarea=props=><textarea {...props}/>
 
 function CaseForm({initialKind,initialService,close,notify}){
   const [kind,setKind]=React.useState(initialKind||'')
-  const [form,setForm]=React.useState({service:initialService||'',contact_name:'',company_name:'',phone:'',title:'',description:'',origin:'',destination:'',cargo:'',quantity:'',requested_at:'',frequency:'',urgency:'standard'})
+  const [form,setForm]=React.useState({service:initialService||'',contact_name:'',company_name:'',phone:'',description:'',requested_at:'',frequency:'',urgency:''})
   const [busy,setBusy]=React.useState(false)
   const [reference,setReference]=React.useState(null)
   const services=kind==='logistics'?LOG_SERVICES:CORP_SERVICES
   React.useEffect(()=>{if(initialService)setForm(v=>({...v,service:initialService}))},[initialService])
 
   async function submit(e){
-    e.preventDefault(); if(!kind||!form.service)return notify('Choisis le type de demande.','error')
-    if(!form.contact_name||!form.phone||!form.title||!form.description)return notify('Remplis les champs obligatoires.','error')
+    e.preventDefault()
+    if(!kind||!form.service)return notify('Choisissez le type de demande.','error')
+    if(!form.contact_name||!form.phone||!form.description)return notify('Nom, téléphone et description sont nécessaires.','error')
     setBusy(true)
-    try{const ref=await publicOpenCase({...form,kind});setReference(ref)}catch(err){notify(err.message||'Impossible d’ouvrir le dossier.','error')}finally{setBusy(false)}
+    try{
+      const payload={
+        ...form,
+        kind,
+        title:serviceLabel(form.service),
+        origin:null,
+        destination:null,
+        cargo:null,
+        quantity:null,
+        urgency:form.urgency||'standard',
+        frequency:kind==='logistics'?(form.frequency||null):null,
+        requested_at:kind==='logistics'?(form.requested_at||null):null,
+      }
+      const ref=await publicOpenCase(payload)
+      setReference(ref)
+    }catch(err){notify(err.message||'Impossible d’ouvrir le dossier.','error')}finally{setBusy(false)}
   }
-  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DOSSIER CRÉÉ" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre dossier est ouvert.</h3><p>Vous pourrez le retrouver à tout moment depuis « Suivre un dossier » avec le numéro de téléphone renseigné dans votre demande.</p><div className="success-note"><Phone/><span>Numéro utilisé : <b>{form.phone}</b></span></div><div className="success-actions"><button className="btn btn-dark" onClick={close}>Terminer</button></div></div></div>
 
-  return <div className="modal-panel case-modal">
-    <ModalHeader kicker="CONTACT NAIRI" title="Ouvrir un dossier" close={close}/>
-    <form className="modal-body" onSubmit={submit}>
-      <div className="form-intro"><span>01</span><div><b>Choisissez le pôle</b><p>Une seule porte d’entrée, deux métiers.</p></div></div>
-      <div className="kind-choice">
+  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DOSSIER CRÉÉ" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre demande est transmise.</h3><p>Retrouvez-la à tout moment avec le numéro de téléphone utilisé ci-dessous. Aucun numéro de dossier à conserver.</p><div className="success-note"><Phone/><span>Numéro utilisé : <b>{form.phone}</b></span></div><div className="success-actions"><button className="btn btn-dark" onClick={close}>Terminer</button></div></div></div>
+
+  return <div className="modal-panel case-modal v53-case-modal">
+    <ModalHeader kicker="CONTACT NAIRI" title="Ouvrir une demande" close={close}/>
+    <form className="modal-body v53-case-form" onSubmit={submit}>
+      <p className="v53-form-lead">Dites-nous simplement ce dont vous avez besoin. Si une précision manque, notre équipe vous la demandera directement dans le suivi du dossier.</p>
+
+      <div className="kind-choice v53-kind-choice">
         <button type="button" className={kind==='corporate'?'active':''} onClick={()=>{setKind('corporate');setForm(v=>({...v,service:''}))}}><BriefcaseBusiness/><div><b>Nairi Corporation</b><span>Mise en relation, sourcing, négociation, gestion.</span></div></button>
-        <button type="button" className={kind==='logistics'?'active':''} onClick={()=>{setKind('logistics');setForm(v=>({...v,service:''}))}}><Truck/><div><b>Nairi Logistics</b><span>Ravitaillement, fret, tournées et urgences.</span></div></button>
+        <button type="button" className={kind==='logistics'?'active':''} onClick={()=>{setKind('logistics');setForm(v=>({...v,service:''}))}}><Truck/><div><b>Nairi Logistics</b><span>Ravitaillement, fret, desserte et transport.</span></div></button>
       </div>
+
       {kind&&<>
-        <div className="form-intro"><span>02</span><div><b>Précisez la demande</b><p>On affiche uniquement ce qui est utile à votre dossier.</p></div></div>
         <Field label="Type de demande" full><select required value={form.service} onChange={e=>setForm({...form,service:e.target.value})}><option value="">Sélectionner...</option>{services.map(s=><option value={s.id} key={s.id}>{s.title}</option>)}</select></Field>
-        <div className="form-grid"><Field label="Nom & prénom"><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})}/></Field><Field label="Entreprise"><Input value={form.company_name} onChange={e=>setForm({...form,company_name:e.target.value})} placeholder="Facultatif"/></Field></div>
-        <div className="form-grid"><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field><Field label="Objet du dossier"><Input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="Ex. recherche fournisseur / rupture de stock"/></Field></div>
-        {kind==='logistics'&&<>
-          <div className="form-grid"><Field label="Point de départ"><Input value={form.origin} onChange={e=>setForm({...form,origin:e.target.value})}/></Field><Field label="Destination"><Input value={form.destination} onChange={e=>setForm({...form,destination:e.target.value})}/></Field></div>
-          <div className="form-grid"><Field label="Marchandise / besoin"><Input value={form.cargo} onChange={e=>setForm({...form,cargo:e.target.value})} placeholder="Cartons, alcool, matériel..."/></Field><Field label="Volume / quantité"><Input value={form.quantity} onChange={e=>setForm({...form,quantity:e.target.value})} placeholder="Estimation libre"/></Field></div>
-          <div className="form-grid"><Field label="Date / heure souhaitée"><Input type="datetime-local" value={form.requested_at} onChange={e=>setForm({...form,requested_at:e.target.value})}/></Field><Field label="Fréquence"><select value={form.frequency} onChange={e=>setForm({...form,frequency:e.target.value})}><option value="">Ponctuel</option><option value="daily">Quotidien</option><option value="several_week">Plusieurs fois / semaine</option><option value="weekly">Hebdomadaire</option><option value="on_demand">À la demande</option></select></Field></div>
-          <Field label="Priorité" full><select value={form.urgency} onChange={e=>setForm({...form,urgency:e.target.value})}><option value="standard">Standard</option><option value="urgent">Urgent / stock critique</option><option value="planned">Planifiable</option></select></Field>
-        </>}
-        <Field label="Décrivez votre demande" full hint="Notre équipe pourra vous demander des précisions directement dans le suivi du dossier."><Textarea required rows="5" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></Field>
-        <button className="btn btn-dark wide" disabled={busy}>{busy?'Ouverture...':'Ouvrir le dossier'} <ArrowRight size={16}/></button>
+        <div className="form-grid v53-contact-grid">
+          <Field label="Nom & prénom"><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})} placeholder="Votre nom"/></Field>
+          <Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="Votre numéro"/></Field>
+        </div>
+        <Field label="Entreprise · facultatif" full><Input value={form.company_name} onChange={e=>setForm({...form,company_name:e.target.value})} placeholder="Nom de votre entreprise"/></Field>
+
+        {kind==='logistics'&&<details className="v53-optional-block">
+          <summary><div><span>Ajouter des précisions</span><small>Date, fréquence ou priorité · facultatif</small></div><ChevronRight/></summary>
+          <div className="v53-optional-fields">
+            <div className="form-grid">
+              <Field label="Date souhaitée"><Input type="datetime-local" value={form.requested_at} onChange={e=>setForm({...form,requested_at:e.target.value})}/></Field>
+              <Field label="Fréquence"><select value={form.frequency} onChange={e=>setForm({...form,frequency:e.target.value})}><option value="">Pas de préférence</option><option value="once">Ponctuel</option><option value="daily">Quotidien</option><option value="several_week">Plusieurs fois / semaine</option><option value="weekly">Hebdomadaire</option><option value="on_demand">À la demande</option></select></Field>
+            </div>
+            <Field label="Priorité" full><select value={form.urgency} onChange={e=>setForm({...form,urgency:e.target.value})}><option value="">Standard / pas de préférence</option><option value="urgent">Urgent</option><option value="planned">Planifiable</option></select></Field>
+          </div>
+        </details>}
+
+        <Field label="Décrivez votre demande" full hint="Un message libre suffit : besoin, lieux, marchandise, quantité ou toute autre précision utile."><Textarea required rows="5" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder={kind==='logistics'?'Ex. Nous avons besoin d’un ravitaillement pour notre établissement vendredi soir...':'Expliquez-nous ce que vous recherchez ou souhaitez organiser...'}/></Field>
+        <button className="btn btn-dark wide" disabled={busy}>{busy?'Envoi...':'Envoyer ma demande'} <ArrowRight size={16}/></button>
       </>}
     </form>
   </div>
@@ -419,12 +430,20 @@ function ApplicationForm({job,close,notify}){
   const [busy,setBusy]=React.useState(false),[ref,setRef]=React.useState(null)
   async function submit(e){e.preventDefault();setBusy(true);try{
     const reference=`JOB-${new Date().toISOString().slice(2,10).replaceAll('-','')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`
-    if(!supabase){const row={id:uuid(),client_ref:reference,status:'new',created_at:new Date().toISOString(),...form};demoSet('applications',[row,...demoGet('applications')])}
+    if(!supabase){const row={id:uuid(),client_ref:reference,status:'new',created_at:new Date().toISOString(),notes:'',...form};demoSet('applications',[row,...demoGet('applications')])}
     else {const {error}=await supabase.from('applications').insert({client_ref:reference,...form,status:'new'});if(error)throw error}
     setRef(reference)
   }catch(err){notify(err.message||'Candidature impossible.','error')}finally{setBusy(false)}}
-  if(ref)return <div className="modal-panel success-panel"><ModalHeader kicker="CANDIDATURE" title="Candidature transmise" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre candidature est enregistrée.</h3><p>Notre équipe reviendra vers vous par téléphone après étude de votre demande.</p><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
-  return <div className="modal-panel"><ModalHeader kicker="RECRUTEMENT" title="Rejoindre Nairi" close={close}/><form className="modal-body" onSubmit={submit}><div className="form-grid"><Field label="Nom & prénom"><Input required value={form.full_name} onChange={e=>setForm({...form,full_name:e.target.value})}/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div><Field label="Poste" full><select value={form.position} onChange={e=>setForm({...form,position:e.target.value})}>{JOBS.map(j=><option value={j.id} key={j.id}>{j.title}</option>)}</select></Field><Field label="Expérience" full><Textarea rows="3" value={form.experience} onChange={e=>setForm({...form,experience:e.target.value})}/></Field><Field label="Disponibilités" full><Input value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})}/></Field><Field label="Motivation" full><Textarea required rows="4" value={form.motivation} onChange={e=>setForm({...form,motivation:e.target.value})}/></Field><button className="btn btn-dark wide" disabled={busy}>Envoyer ma candidature <ArrowRight size={16}/></button></form></div>
+  if(ref)return <div className="modal-panel success-panel"><ModalHeader kicker="CANDIDATURE" title="Candidature transmise" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Merci pour votre candidature.</h3><p>Notre équipe étudiera votre profil et reviendra vers vous par téléphone.</p><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
+  return <div className="modal-panel v53-apply-modal"><ModalHeader kicker="CARRIÈRES" title="Rejoindre Nairi" close={close}/><form className="modal-body v53-apply-form" onSubmit={submit}>
+    <p className="v53-form-lead">Un formulaire court suffit. Nous préférons échanger avec vous ensuite plutôt que vous demander un dossier interminable.</p>
+    <div className="form-grid"><Field label="Nom & prénom"><Input required value={form.full_name} onChange={e=>setForm({...form,full_name:e.target.value})}/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div>
+    <Field label="Poste" full><select value={form.position} onChange={e=>setForm({...form,position:e.target.value})}>{JOBS.map(j=><option value={j.id} key={j.id}>{j.title}</option>)}</select></Field>
+    <Field label="Disponibilités · facultatif" full><Input value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})} placeholder="Ex. soirs, week-end, plusieurs jours par semaine..."/></Field>
+    <Field label="Présentez-vous en quelques lignes" full hint="Expérience, motivation, ce que vous aimeriez faire chez Nairi."><Textarea required rows="5" value={form.motivation} onChange={e=>setForm({...form,motivation:e.target.value})}/></Field>
+    <Field label="Expérience complémentaire · facultatif" full><Textarea rows="2" value={form.experience} onChange={e=>setForm({...form,experience:e.target.value})}/></Field>
+    <button className="btn btn-dark wide" disabled={busy}>{busy?'Envoi...':'Envoyer ma candidature'} <ArrowRight size={16}/></button>
+  </form></div>
 }
 
 function StaffApp({session,profile,notify,loadPublic,demo}){
@@ -528,7 +547,7 @@ function CaseDrawer({row,messages,staff,close,reload,notify,demo}){
   }catch(e){notify(e.message,'error')}finally{setBusy(false)}}
   return <div className="drawer-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}><aside className="drawer"><ModalHeader kicker={`${row.kind==='logistics'?'LOGISTICS':'CORPORATE'} · ${row.reference}`} title={row.title} close={close}/><div className="drawer-body">
     <div className="drawer-block"><div className="drawer-section-title"><span>ÉTAT DU DOSSIER</span><CaseStatus value={row.status}/></div><div className="status-grid">{STATUS_FLOW.map(s=><button key={s} disabled={busy} className={row.status===s?'active':''} onClick={()=>update({status:s})}>{statusLabel(s)}</button>)}</div><Field label="Responsable du dossier"><select value={row.assigned_to||''} onChange={e=>update({assigned_to:e.target.value||null})}><option value="">Non affecté</option>{staff.map(s=><option value={s.id} key={s.id}>{s.display_name}</option>)}</select></Field></div>
-    <div className="drawer-block"><div className="drawer-section-title"><span>CLIENT & DEMANDE</span></div><div className="detail-grid"><Detail label="Contact" value={row.contact_name}/><Detail label="Entreprise" value={row.company_name}/><Detail label="Téléphone" value={row.phone}/><Detail label="Service" value={serviceLabel(row.service)}/><Detail label="Ouvert" value={dt(row.created_at)}/><Detail label="Souhaité" value={dt(row.requested_at)}/>{row.kind==='logistics'&&<><Detail label="Départ" value={row.origin}/><Detail label="Destination" value={row.destination}/><Detail label="Marchandise" value={row.cargo}/><Detail label="Volume" value={row.quantity}/><Detail label="Fréquence" value={row.frequency}/><Detail label="Priorité" value={row.urgency}/></>}</div><div className="description-box"><span>DEMANDE</span><p>{row.description}</p></div></div>
+    <div className="drawer-block"><div className="drawer-section-title"><span>CLIENT & DEMANDE</span></div><div className="detail-grid"><Detail label="Contact" value={row.contact_name}/>{row.company_name&&<Detail label="Entreprise" value={row.company_name}/>}<Detail label="Téléphone" value={row.phone}/><Detail label="Service" value={serviceLabel(row.service)}/><Detail label="Ouvert" value={dt(row.created_at)}/>{row.requested_at&&<Detail label="Date souhaitée" value={dt(row.requested_at)}/>} {row.kind==='logistics'&&row.frequency&&<Detail label="Fréquence" value={row.frequency}/>} {row.kind==='logistics'&&row.urgency&&row.urgency!=='standard'&&<Detail label="Priorité" value={row.urgency}/>}</div><div className="description-box"><span>DEMANDE</span><p>{row.description}</p></div></div>
     <div className="drawer-block"><div className="drawer-section-title"><span>FIL DU DOSSIER</span><b>{messages.length} message{messages.length>1?'s':''}</b></div><div className="staff-conversation">{messages.map(m=><div className={cls('staff-message',m.visibility==='internal'&&'internal',m.author_type==='client'&&'from-client')} key={m.id}><div><b>{m.author_name||m.author_type}</b><span>{m.visibility==='internal'?'NOTE INTERNE':dt(m.created_at)}</span></div><p>{m.body}</p></div>)}{!messages.length&&<Empty icon={MessageSquareText} text="Aucun échange sur ce dossier."/>}</div><div className="reply-box"><div className="reply-mode"><button className={visibility==='public'?'active':''} onClick={()=>setVisibility('public')}><MessageCircle/> Réponse client</button><button className={visibility==='internal'?'active':''} onClick={()=>setVisibility('internal')}><LockKeyhole/> Note interne</button></div><Textarea rows="4" value={reply} onChange={e=>setReply(e.target.value)} placeholder={visibility==='public'?'Écrire une réponse visible par le client...':'Ajouter une note réservée au staff...'}/><button className="btn btn-dark" onClick={send} disabled={busy||!reply.trim()}><Send size={15}/> Envoyer</button></div></div>
   </div></aside></div>
 }
@@ -570,8 +589,38 @@ function FinancePanel({items,cases,reload,notify,demo}){
 }
 
 function CareersPanel({items,reload,notify,demo}){
-  async function status(id,value){try{if(demo)demoSet('applications',demoGet('applications').map(x=>x.id===id?{...x,status:value}:x));else{const {error}=await supabase.from('applications').update({status:value}).eq('id',id);if(error)throw error}await reload();notify('Candidature mise à jour.')}catch(e){notify(e.message,'error')}}
-  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>RESSOURCES HUMAINES</span><h2>Candidatures</h2></div></div><div className="candidate-grid">{items.map(a=><article className="candidate" key={a.id}><div><small>{a.client_ref}</small><h3>{a.full_name}</h3><span>{JOBS.find(j=>j.id===a.position)?.title||a.position} · {a.phone}</span></div><blockquote>{a.motivation}</blockquote><p>{a.experience}</p><select value={a.status} onChange={e=>status(a.id,e.target.value)}><option value="new">Nouvelle</option><option value="review">À étudier</option><option value="interview">Entretien</option><option value="accepted">Acceptée</option><option value="rejected">Refusée</option></select></article>)}{!items.length&&<Empty icon={UsersRound} text="Aucune candidature."/>}</div></section>
+  const [filter,setFilter]=React.useState('all')
+  const [selected,setSelected]=React.useState(null)
+  const [notes,setNotes]=React.useState('')
+  const visible=filter==='all'?items:items.filter(x=>x.status===filter)
+  React.useEffect(()=>{setNotes(selected?.notes||'')},[selected])
+
+  async function update(id,patch){try{
+    if(demo)demoSet('applications',demoGet('applications').map(x=>x.id===id?{...x,...patch,updated_at:new Date().toISOString()}:x))
+    else {const {error}=await supabase.from('applications').update(patch).eq('id',id);if(error)throw error}
+    await reload();notify('Candidature mise à jour.')
+    setSelected(v=>v&&v.id===id?{...v,...patch}:v)
+  }catch(e){notify(e.message,'error')}}
+
+  return <>
+    <section className="staff-card no-pad">
+      <div className="panel-toolbar"><div><span>RESSOURCES HUMAINES</span><h2>Candidatures</h2></div><div className="segmented"><button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>Toutes · {items.length}</button><button className={filter==='new'?'active':''} onClick={()=>setFilter('new')}>Nouvelles · {items.filter(x=>x.status==='new').length}</button><button className={filter==='interview'?'active':''} onClick={()=>setFilter('interview')}>Entretien · {items.filter(x=>x.status==='interview').length}</button></div></div>
+      <div className="candidate-grid v53-candidate-grid">{visible.map(a=><article className="candidate v53-candidate" key={a.id}>
+        <div><small>{dt(a.created_at)}</small><h3>{a.full_name}</h3><span>{JOBS.find(j=>j.id===a.position)?.title||a.position}</span></div>
+        <p className="candidate-phone"><Phone size={13}/>{a.phone}</p>
+        <blockquote>{a.motivation}</blockquote>
+        <div className="candidate-footer"><span className={cls('case-status',a.status)}><i/>{APP_STATUS[a.status]||a.status}</span><button className="btn btn-dark" onClick={()=>setSelected(a)}>Gérer <ArrowRight size={14}/></button></div>
+      </article>)}{!visible.length&&<Empty icon={UsersRound} text="Aucune candidature dans cette vue."/>}</div>
+    </section>
+    {selected&&<div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="CANDIDATURE" title={selected.full_name} close={()=>setSelected(null)}/><div className="drawer-body">
+      <div className="detail-grid"><div><span>Poste</span><b>{JOBS.find(j=>j.id===selected.position)?.title||selected.position}</b></div><div><span>Téléphone</span><b>{selected.phone}</b></div><div><span>Disponibilités</span><b>{selected.availability||'Non renseignées'}</b></div><div><span>Reçue le</span><b>{dt(selected.created_at)}</b></div></div>
+      <Field label="Statut" full><select value={selected.status} onChange={e=>{const value=e.target.value;setSelected({...selected,status:value});update(selected.id,{status:value})}}><option value="new">Nouvelle</option><option value="review">À étudier</option><option value="interview">Entretien</option><option value="accepted">Acceptée</option><option value="rejected">Refusée</option></select></Field>
+      <div className="candidate-detail-block"><span>Présentation</span><p>{selected.motivation}</p></div>
+      {selected.experience&&<div className="candidate-detail-block"><span>Expérience complémentaire</span><p>{selected.experience}</p></div>}
+      <Field label="Notes internes" full hint="Visible uniquement par l’équipe Nairi."><Textarea rows="5" value={notes} onChange={e=>setNotes(e.target.value)}/></Field>
+      <button className="btn btn-dark wide" onClick={()=>update(selected.id,{notes})}>Enregistrer les notes</button>
+    </div></aside></div>}
+  </>
 }
 
 function Toast({text,type}){return <div className={cls('toast',type)}>{type==='error'?<AlertTriangle/>:<Check/>}<span>{text}</span></div>}

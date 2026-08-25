@@ -1,12 +1,8 @@
-# Nairi Corporation V5.1 — Corporation & Logistics
+# Nairi Corporation V4 — Corporation & Logistics
 
 Cette version recentre complètement la plateforme sur **Nairi Corporation** et **Nairi Logistics**.
 
-## Direction artistique V5.1
-
-La V5.1 conserve la direction **Steel Editorial** inspirée du thread forum Nairi — graphite, bleu acier, cadres fins, titres Cinzel et micro-typographie JetBrains Mono — avec une passe complète de lisibilité : corps de texte plus grands, contrastes renforcés, davantage d’air et une hiérarchie plus nette. Voir `DESIGN-V5.1.md`.
-
-## Changements V5
+## Changements V4
 
 - Suppression de toute formulation OOC dans le site public.
 - Refonte de la présentation Logistics : ravitaillement, desserte dédiée, urgence, fret sur mesure, inter-sites et transport sensible.
@@ -32,7 +28,7 @@ Sans variables Supabase, le site démarre en **mode démo local** avec `localSto
 
 Dans Supabase > SQL Editor, exécuter :
 
-`supabase-v5.sql`
+`supabase-v4.sql`
 
 Le script fonctionne sur une base neuve ou sur la base des versions précédentes. Il conserve les anciennes tables Automotive mais elles ne sont pas utilisées par cette version.
 
@@ -75,3 +71,13 @@ La grille publique s'adapte automatiquement à 1, 2, 3, 4 véhicules ou davantag
 ## FiveM
 
 Le dossier `fivem/` reste disponible pour l'intégration NUI. Le frontend public est responsive et peut également être utilisé comme base pour une application téléphone FiveM.
+
+---
+
+## V5.2 — Hybrid V4 / Steel & Slate
+
+Cette version utilise le **frontend et la mise en page V4** avec la nouvelle identité Steel & Slate.
+
+Aucune migration SQL supplémentaire n'est nécessaire si `supabase-v4.sql` a déjà été appliqué. Les changements V5.2 sont graphiques uniquement.
+
+Pour une mise à jour d'un dépôt V4/V5 existant, le fichier principal à remplacer est `src/styles.css`. Le `src/main.jsx` fourni est celui de la V4 fonctionnelle et reste compatible avec `supabase-v4.sql`.

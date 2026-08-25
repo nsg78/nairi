@@ -1227,3 +1227,27 @@ footer .brand strong{color:#eef1f5}
   .v53-kind-choice{grid-template-columns:1fr}
   .v53-kind-choice button{min-height:74px}
 }
+
+/* ========================================================================
+   V5.3.1 — HERO BRAND CENTERING HOTFIX
+   Force le monogramme et le bloc de marque au centre de la colonne droite.
+   ======================================================================== */
+@media (min-width: 821px){
+  .v53-hero-brand{
+    padding-left:0 !important;
+    align-items:center !important;
+    text-align:center !important;
+  }
+  .v53-hero-brand img{
+    display:block !important;
+    align-self:center !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+  .v53-hero-brand div{
+    width:100% !important;
+    text-align:center !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+}

@@ -1,8 +1,12 @@
-# Nairi Corporation V4 — Corporation & Logistics
+# Nairi Corporation V5 — Corporation & Logistics
 
 Cette version recentre complètement la plateforme sur **Nairi Corporation** et **Nairi Logistics**.
 
-## Changements V4
+## Direction artistique V5
+
+La V5 adopte la direction **Steel Editorial** inspirée du thread forum Nairi : graphite, bleu acier, cadres fins, titres Cinzel et micro-typographie JetBrains Mono. La structure reste volontairement débarrassée des codes cartographiques ou pseudo-militaires. Voir `DESIGN-V5.md`.
+
+## Changements V5
 
 - Suppression de toute formulation OOC dans le site public.
 - Refonte de la présentation Logistics : ravitaillement, desserte dédiée, urgence, fret sur mesure, inter-sites et transport sensible.
@@ -28,7 +32,7 @@ Sans variables Supabase, le site démarre en **mode démo local** avec `localSto
 
 Dans Supabase > SQL Editor, exécuter :
 
-`supabase-v4.sql`
+`supabase-v5.sql`
 
 Le script fonctionne sur une base neuve ou sur la base des versions précédentes. Il conserve les anciennes tables Automotive mais elles ne sont pas utilisées par cette version.
 

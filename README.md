@@ -1,10 +1,10 @@
-# Nairi Corporation V5 — Corporation & Logistics
+# Nairi Corporation V5.1 — Corporation & Logistics
 
 Cette version recentre complètement la plateforme sur **Nairi Corporation** et **Nairi Logistics**.
 
-## Direction artistique V5
+## Direction artistique V5.1
 
-La V5 adopte la direction **Steel Editorial** inspirée du thread forum Nairi : graphite, bleu acier, cadres fins, titres Cinzel et micro-typographie JetBrains Mono. La structure reste volontairement débarrassée des codes cartographiques ou pseudo-militaires. Voir `DESIGN-V5.md`.
+La V5.1 conserve la direction **Steel Editorial** inspirée du thread forum Nairi — graphite, bleu acier, cadres fins, titres Cinzel et micro-typographie JetBrains Mono — avec une passe complète de lisibilité : corps de texte plus grands, contrastes renforcés, davantage d’air et une hiérarchie plus nette. Voir `DESIGN-V5.1.md`.
 
 ## Changements V5
 

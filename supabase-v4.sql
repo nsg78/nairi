@@ -1,5 +1,5 @@
 -- ============================================================================
--- NAIRI CORPORATION V4 — CORPORATION + LOGISTICS
+-- IMEX LOGISTICS — BASE COMPATIBLE V6
 -- Compatible avec une base neuve OU les versions V1/V2/V3 précédentes.
 -- À exécuter dans Supabase > SQL Editor.
 -- ============================================================================
@@ -11,9 +11,9 @@ create extension if not exists pgcrypto;
 -- --------------------------------------------------------------------------
 create table if not exists public.staff_profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  display_name text not null default 'Staff Nairi',
+  display_name text not null default 'Staff IMEX',
   role text not null default 'staff',
-  branch text default 'Corporate & Logistics',
+  branch text default 'Logistics',
   created_at timestamptz not null default now()
 );
 
@@ -60,7 +60,7 @@ create table if not exists public.case_messages (
 create table if not exists public.partners (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  eyebrow text not null default 'PARTENAIRE NAIRI',
+  eyebrow text not null default 'PARTENAIRE IMEX',
   description text not null default '',
   image_url text,
   link_url text,
@@ -275,7 +275,7 @@ begin
   ) returning id into v_id;
 
   insert into public.case_messages(case_id,author_type,author_name,visibility,body)
-  values(v_id,'system','Nairi','public','Votre demande a bien été enregistrée. Notre équipe va l’étudier et vous répondra directement dans cet espace.');
+  values(v_id,'system','IMEX Logistics','public','Votre demande a bien été enregistrée. Notre équipe va l’étudier et vous répondra directement dans cet espace.');
 
   return v_ref;
 end;

@@ -2,7 +2,7 @@
 -- 2) Remplace l'e-mail et exécute ce bloc.
 
 insert into public.staff_profiles (id, display_name, role, branch)
-select id, 'T. Markoussian', 'admin', 'Corporate & Logistics'
+select id, 'T. Markoussian', 'admin', 'Logistics'
 from auth.users
 where email = 'TON-EMAIL@EXEMPLE.COM'
 on conflict (id) do update

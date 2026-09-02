@@ -477,11 +477,43 @@ function PartnersPanel({items,reload,loadPublic,notify,demo}){
 function FleetPanel({items,reload,loadPublic,notify,demo}){
   const [edit,setEdit]=React.useState(null)
   async function save(v){try{
-    const payload={name:v.name,brand:v.brand,category:v.category,registration:v.registration||null,capacity:v.capacity||null,description:v.description,image_url:v.image_url||null,status:v.status||'available',active:v.active??true,sort_order:Number(v.sort_order||0)}
-    if(demo){let rows=demoGet('fleet',FLEET_SEEDS);if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x);else rows=[...rows,{id:uuid(),...payload}];demoSet('fleet',rows)}
-    else{const q=v.id?supabase.from('fleet_vehicles').update(payload).eq('id',v.id):supabase.from('fleet_vehicles').insert(payload);const {error}=await q;if(error)throw error}
-    setEdit(null);await reload();await loadPublic();notify('Flotte mise à jour.')
-  }catch(e){notify(e.message,'error')}}
+    const payload={
+      name:(v.name||'').trim(),
+      brand:(v.brand||'').trim()||null,
+      category:(v.category||'').trim()||null,
+      registration:(v.registration||'').trim()||null,
+      capacity:(v.capacity||'').trim()||null,
+      description:(v.description||'').trim()||null,
+      image_url:(v.image_url||'').trim()||null,
+      status:v.status||'available',
+      active:v.active??true,
+      sort_order:Number(v.sort_order||0)
+    }
+    if(!payload.name)throw new Error('Le nom du véhicule est obligatoire.')
+    if(demo){
+      let rows=demoGet('fleet',FLEET_SEEDS)
+      if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x)
+      else rows=[...rows,{id:uuid(),...payload}]
+      demoSet('fleet',rows)
+    }else{
+      const q=v.id
+        ? supabase.from('fleet_vehicles').update(payload).eq('id',v.id).select().single()
+        : supabase.from('fleet_vehicles').insert(payload).select().single()
+      const {data,error}=await q
+      if(error){
+        console.error('IMEX fleet save error',error)
+        throw new Error([error.message,error.details,error.hint].filter(Boolean).join(' — '))
+      }
+      if(!data)throw new Error('Supabase n’a retourné aucun véhicule après enregistrement.')
+    }
+    setEdit(null)
+    await reload()
+    await loadPublic()
+    notify(v.id?'Véhicule modifié.':'Véhicule ajouté.')
+  }catch(e){
+    console.error('FleetPanel.save',e)
+    notify(e.message||'Impossible d’enregistrer le véhicule.','error')
+  }}
   async function remove(id){if(!confirm('Retirer ce véhicule de la flotte ?'))return;try{if(demo)demoSet('fleet',demoGet('fleet',FLEET_SEEDS).filter(x=>x.id!==id));else{const {error}=await supabase.from('fleet_vehicles').delete().eq('id',id);if(error)throw error}await reload();await loadPublic();notify('Véhicule retiré.')}catch(e){notify(e.message,'error')}}
   return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>IMEX LOGISTICS</span><h2>Flotte</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,status:'available',sort_order:items.length+1})}><Plus size={15}/> Ajouter un véhicule</button></div><div className="admin-grid">{items.map(v=><article className="admin-item" key={v.id}><div className="admin-thumb">{v.image_url?<img src={v.image_url}/>:<Truck/>}</div><div><small>{v.brand} · {v.category}{v.registration?' · '+v.registration:''}</small><h3>{v.name}</h3><p>{v.capacity&&<b>{v.capacity} — </b>}{v.description}</p><CaseStatus value={v.status}/></div><div className="admin-actions"><button onClick={()=>setEdit(v)} title="Modifier"><Pencil/></button><button onClick={()=>remove(v.id)} title="Supprimer"><Trash2/></button></div></article>)}{!items.length&&<Empty icon={Truck} text="Aucun véhicule dans la flotte."/>}</div>{edit&&<EntityEditor title="Véhicule Logistics" item={edit} close={()=>setEdit(null)} save={save} fields="fleet"/>}</section>
 }

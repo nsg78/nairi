@@ -190,7 +190,7 @@ function PublicSite({partners,fleet,setModal,embedded}){
   const openCase=(service=null)=>setModal({type:'case',kind:'logistics',service})
   return <div className={cls('site','postop-site',embedded&&'embedded')}>
     <header className="topbar postop-topbar">
-      <a className="brand postop-brand" href="#home" onClick={()=>setMenu(false)}><img src="/assets/postop-logo.jpg"/><div><strong>Post OP</strong><span>LOGISTICS</span></div></a>
+      <a className="brand postop-brand" href="#home" onClick={()=>setMenu(false)}><img src="https://i.imgur.com/60i4d70.png"/><div><strong>Post OP</strong><span>LOGISTICS</span></div></a>
       <nav className={menu?'open':''}>
         <a href="#services" onClick={()=>setMenu(false)}>Services</a>
         <a href="#fleet" onClick={()=>setMenu(false)}>Flotte</a>
@@ -213,7 +213,7 @@ function PublicSite({partners,fleet,setModal,embedded}){
           </div>
           <div className="postop-hero-points"><span><Check/> Simple</span><span><Check/> Suivi</span><span><Check/> Professionnel</span></div>
         </div>
-        <div className="postop-hero-visual"><div className="postop-logo-panel"><img src="/assets/postop-logo.jpg" alt="Post OP Logistics"/></div><img className="postop-hero-truck" src={PHANTOM_IMAGE} alt="Camion Post OP Logistics"/></div>
+        <div className="postop-hero-visual"><div className="postop-logo-panel"><img src="https://i.imgur.com/60i4d70.png" alt="Post OP Logistics"/></div><img className="postop-hero-truck" src={PHANTOM_IMAGE} alt="Camion Post OP Logistics"/></div>
       </section>
 
       <section className="postop-quickbar">
@@ -246,7 +246,7 @@ function PublicSite({partners,fleet,setModal,embedded}){
     </main>
 
     <div className="postop-mobile-actions"><button onClick={()=>openCase()}><FileText/><span>Demande</span></button><button onClick={()=>setModal({type:'track'})}><Search/><span>Suivi</span></button></div>
-    <footer className="postop-footer"><img src="/assets/postop-logo.jpg"/><p>Delivery & Logistics · Livraison · Ravitaillement · Fret</p><div>Los Santos</div></footer>
+    <footer className="postop-footer"><img src="https://i.imgur.com/60i4d70.png"/><p>Delivery & Logistics · Livraison · Ravitaillement · Fret</p><div>Los Santos</div></footer>
   </div>
 }
 
@@ -368,7 +368,7 @@ function StaffApp({session,profile,notify,loadPublic,demo}){
 function StaffLogin({notify,demo,onDemo}){
   const [email,setEmail]=React.useState(''),[password,setPassword]=React.useState(''),[busy,setBusy]=React.useState(false)
   async function login(e){e.preventDefault();if(!supabase)return onDemo();setBusy(true);const {error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);if(error)notify(error.message,'error')}
-  return <div className="staff-login"><a className="login-brand" href="#home"><img src="/assets/postop-logo.jpg"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>POST OP LOGISTICS / OPERATIONS</span><h1>Espace opérations</h1><p>Dossiers, réponses clients, missions, flotte, recrutement et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
+  return <div className="staff-login"><a className="login-brand" href="#home"><img src="https://i.imgur.com/60i4d70.png"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>POST OP LOGISTICS / OPERATIONS</span><h1>Espace opérations</h1><p>Dossiers, réponses clients, missions, flotte, recrutement et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
 }
 function StaffGate({session}){return <div className="staff-login"><div className="login-card"><AlertTriangle/><h1>Compte non autorisé</h1><p>{session.user.email} est connecté mais n’a pas de profil dans <code>staff_profiles</code>.</p><button className="btn btn-light" onClick={()=>supabase.auth.signOut()}>Déconnexion</button></div></div>}
 
@@ -400,7 +400,7 @@ function StaffDashboard({profile,notify,loadPublic,demo,onDemoExit}){
   ]
   const logout=async()=>{if(demo)return onDemoExit();await supabase.auth.signOut();location.hash='#home'}
   return <div className="staff-shell">
-    <aside className={mobileNav?'open':''}><div className="staff-brand"><img src="/assets/postop-logo.jpg"/><div><b>Post OP</b><span>OPERATIONS</span></div></div><nav>{nav.map(([id,Icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setMobileNav(false)}}><Icon size={18}/>{label}</button>)}</nav><div className="staff-side-bottom"><a href="#home"><ExternalLink size={15}/> Site public</a><button onClick={logout}><LogOut size={15}/> Déconnexion</button></div></aside>
+    <aside className={mobileNav?'open':''}><div className="staff-brand"><img src="https://i.imgur.com/60i4d70.png"/><div><b>Post OP</b><span>OPERATIONS</span></div></div><nav>{nav.map(([id,Icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setMobileNav(false)}}><Icon size={18}/>{label}</button>)}</nav><div className="staff-side-bottom"><a href="#home"><ExternalLink size={15}/> Site public</a><button onClick={logout}><LogOut size={15}/> Déconnexion</button></div></aside>
     <div className="staff-main"><header><button className="staff-menu" onClick={()=>setMobileNav(v=>!v)}><Menu/></button><div><small>POST OP LOGISTICS / OPERATIONS</small><h1>{nav.find(x=>x[0]===tab)?.[2]}</h1></div><div className="staff-user"><span>{profile.display_name}</span><b>{profile.role}</b></div><button className="icon-btn" onClick={load} title="Actualiser"><RefreshCw className={busy?'spin':''}/></button></header>
       <div className="staff-content">
         {tab==='overview'&&<Overview data={data} setTab={setTab}/>} 

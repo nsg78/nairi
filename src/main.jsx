@@ -22,9 +22,8 @@ const PHANTOM_IMAGE = 'https://static.wikia.nocookie.net/gtawiki/images/f/ff/Pha
 const BURRITO_IMAGE = 'https://static.wikia.nocookie.net/gtawiki/images/8/80/Burrito3-GTAV-front.png/revision/latest?cb=20160929164143'
 
 const FLEET_SEEDS = [
-  { id:'demo-pounder', name:'Pounder', brand:'MTL', category:'Poids lourd', capacity:'Fret lourd', registration:'', status:'available', active:true, sort_order:1, image_url:LOGISTICS_IMAGE, description:'Porteur lourd pour ravitaillements, tournées régulières et cargaisons volumineuses.' },
-  { id:'demo-phantom', name:'Phantom', brand:'JoBuilt', category:'Tracteur routier', capacity:'Semi-remorque', registration:'', status:'available', active:true, sort_order:2, image_url:PHANTOM_IMAGE, description:'Tracteur routier destiné au fret lourd et aux opérations nécessitant une semi-remorque.' },
-  { id:'demo-burrito', name:'Burrito', brand:'Declasse', category:'Utilitaire', capacity:'Distribution', registration:'', status:'available', active:true, sort_order:3, image_url:BURRITO_IMAGE, description:'Utilitaire polyvalent pour livraisons de proximité, petits volumes et interventions rapides.' },
+  { id:'demo-phantom', name:'Phantom', brand:'JoBuilt', category:'Tracteur routier', capacity:'Semi-remorque', registration:'', status:'available', active:true, sort_order:1, image_url:PHANTOM_IMAGE, description:'Tracteur routier affecté au fret lourd, aux dessertes régulières et aux longues tournées.' },
+  { id:'demo-burrito', name:'Burrito', brand:'Declasse', category:'Utilitaire', capacity:'Distribution', registration:'', status:'available', active:true, sort_order:2, image_url:BURRITO_IMAGE, description:'Utilitaire destiné aux livraisons urbaines, petits volumes et réapprovisionnements rapides.' },
 ]
 
 const LOG_SERVICES = [
@@ -35,7 +34,7 @@ const LOG_SERVICES = [
   { id:'intersite_transfer', icon:Truck, title:'Transport inter-sites', tag:'ENTREPRISE', text:'Transferts entre entrepôts, commerces, garages, points de vente et sites partenaires.' },
 ]
 const JOBS = [
-  { id:'heavy_driver', icon:Truck, title:'Chauffeur poids lourd', text:'Conduite, chargement, livraison et représentation IMEX auprès des entreprises clientes.' },
+  { id:'heavy_driver', icon:Truck, title:'Chauffeur poids lourd', text:'Conduite poids lourd, chargement, livraison et représentation de Post OP auprès de nos clients.' },
   { id:'dispatcher', icon:ClipboardList, title:'Dispatcher / Exploitant', text:'Planification des tournées, affectation des chauffeurs et suivi opérationnel des transports.' },
   { id:'advisor', icon:BriefcaseBusiness, title:'Commercial / Conseiller', text:'Prospection, relation client, développement des contrats et suivi commercial des prestations.' },
 ]
@@ -55,18 +54,18 @@ const money = n => new Intl.NumberFormat('fr-FR').format(Number(n || 0)) + ' $'
 const cls = (...xs) => xs.filter(Boolean).join(' ')
 
 const DEMO_KEYS = {
-  cases:'imex_v6_cases', messages:'imex_v6_messages', partners:'imex_v6_partners',
-  fleet:'imex_v6_fleet', finance:'imex_v6_finance', applications:'imex_v6_applications'
+  cases:'postop_v8_cases', messages:'postop_v8_messages', partners:'postop_v8_partners',
+  fleet:'postop_v8_fleet', finance:'postop_v8_finance', applications:'postop_v8_applications'
 }
 const demoGet = (key, fallback=[]) => { try { const v=JSON.parse(localStorage.getItem(DEMO_KEYS[key])); return Array.isArray(v)?v:fallback } catch { return fallback } }
 const demoSet = (key, value) => localStorage.setItem(DEMO_KEYS[key], JSON.stringify(value))
-const makeRef = kind => `IL-${new Date().toISOString().slice(2,10).replaceAll('-','')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`
+const makeRef = kind => `PO-${new Date().toISOString().slice(2,10).replaceAll('-','')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`
 const uuid = () => crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`
 
 function ensureDemo(){
   if(!localStorage.getItem(DEMO_KEYS.fleet)) demoSet('fleet',FLEET_SEEDS)
   if(!localStorage.getItem(DEMO_KEYS.partners)) demoSet('partners',[
-    {id:'demo-partner',name:'Votre partenaire',eyebrow:'RÉSEAU IMEX',description:'Les entreprises partenaires du réseau IMEX apparaîtront ici avec leur identité et leur présentation.',image_url:'',active:true,sort_order:1}
+    {id:'demo-partner',name:'Votre partenaire',eyebrow:'RÉSEAU Post OP',description:'Les entreprises partenaires du réseau Post OP apparaîtront ici avec leur identité et leur présentation.',image_url:'',active:true,sort_order:1}
   ])
 }
 if(DEMO && typeof localStorage!=='undefined') ensureDemo()
@@ -78,7 +77,7 @@ async function publicOpenCase(payload){
     const row={id:uuid(),reference,status:'new',created_at:now,updated_at:now,assigned_to:null,...payload}
     const cases=demoGet('cases'); demoSet('cases',[row,...cases])
     const messages=demoGet('messages');
-    demoSet('messages',[...messages,{id:uuid(),case_id:row.id,author_type:'system',author_name:'IMEX',visibility:'public',body:'Votre dossier a bien été ouvert. Notre équipe va le qualifier puis revenir vers vous ici.',created_at:now}])
+    demoSet('messages',[...messages,{id:uuid(),case_id:row.id,author_type:'system',author_name:'Post OP',visibility:'public',body:'Votre dossier a bien été ouvert. Notre équipe va le qualifier puis revenir vers vous ici.',created_at:now}])
     return reference
   }
   const {data,error}=await supabase.rpc('open_case',{
@@ -189,9 +188,9 @@ function App(){
 function PublicSite({partners,fleet,setModal,embedded}){
   const [menu,setMenu]=React.useState(false)
   const openCase=(service=null)=>setModal({type:'case',kind:'logistics',service})
-  return <div className={cls('site','imex-site',embedded&&'embedded')}>
-    <header className="topbar imex-topbar">
-      <a className="brand imex-brand" href="#home" onClick={()=>setMenu(false)}><img src="/assets/imex-logo.jpg"/><div><strong>IMEX</strong><span>LOGISTICS</span></div></a>
+  return <div className={cls('site','postop-site',embedded&&'embedded')}>
+    <header className="topbar postop-topbar">
+      <a className="brand postop-brand" href="#home" onClick={()=>setMenu(false)}><img src="/assets/postop-logo.jpg"/><div><strong>Post OP</strong><span>LOGISTICS</span></div></a>
       <nav className={menu?'open':''}>
         <a href="#services" onClick={()=>setMenu(false)}>Services</a>
         <a href="#fleet" onClick={()=>setMenu(false)}>Flotte</a>
@@ -203,51 +202,51 @@ function PublicSite({partners,fleet,setModal,embedded}){
     </header>
 
     <main>
-      <section id="home" className="imex-hero">
-        <div className="imex-hero-copy">
-          <div className="imex-kicker">LOS SANTOS · SHIPPING & LOGISTICS</div>
-          <h1>La logistique<br/><em>qui fait avancer.</em></h1>
-          <p>Livraison, ravitaillement, fret et dessertes régulières pour les entreprises et professionnels de Los Santos.</p>
-          <div className="imex-hero-actions">
-            <button className="btn imex-btn-primary" onClick={()=>openCase()}>Demander un transport <ArrowRight size={16}/></button>
-            <button className="btn imex-btn-secondary" onClick={()=>setModal({type:'track'})}>Suivre ma demande</button>
+      <section id="home" className="postop-hero">
+        <div className="postop-hero-copy">
+          <div className="postop-kicker">LOS SANTOS · DELIVERY & LOGISTICS</div>
+          <h1>Votre fret.<br/><em>Notre tournée.</em></h1>
+          <p>Livraison, ravitaillement et transport routier pour les entreprises et professionnels de Los Santos.</p>
+          <div className="postop-hero-actions">
+            <button className="btn postop-btn-primary" onClick={()=>openCase()}>Demander un transport <ArrowRight size={16}/></button>
+            <button className="btn postop-btn-secondary" onClick={()=>setModal({type:'track'})}>Suivre ma demande</button>
           </div>
-          <div className="imex-hero-points"><span><Check/> Simple</span><span><Check/> Suivi</span><span><Check/> Professionnel</span></div>
+          <div className="postop-hero-points"><span><Check/> Simple</span><span><Check/> Suivi</span><span><Check/> Professionnel</span></div>
         </div>
-        <div className="imex-hero-visual"><div className="imex-logo-panel"><img src="/assets/imex-logo.jpg" alt="IMEX Logistics"/></div><img className="imex-hero-truck" src={PHANTOM_IMAGE} alt="Camion IMEX Logistics"/></div>
+        <div className="postop-hero-visual"><div className="postop-logo-panel"><img src="/assets/postop-logo.jpg" alt="Post OP Logistics"/></div><img className="postop-hero-truck" src={PHANTOM_IMAGE} alt="Camion Post OP Logistics"/></div>
       </section>
 
-      <section className="imex-quickbar">
+      <section className="postop-quickbar">
         <button onClick={()=>openCase('business_supply')}><Warehouse/><div><b>Ravitaillement</b><span>Approvisionnez votre activité</span></div><ArrowRight/></button>
         <button onClick={()=>openCase('special_freight')}><Truck/><div><b>Fret & transport</b><span>Organisez votre livraison</span></div><ArrowRight/></button>
         <button onClick={()=>setModal({type:'track'})}><Phone/><div><b>Suivi client</b><span>Retrouvez vos demandes</span></div><ArrowRight/></button>
       </section>
 
-      <section id="services" className="imex-section imex-services">
-        <div className="imex-section-head"><div><span>01 · NOS SERVICES</span><h2>Une solution pour chaque livraison.</h2></div><p>Du petit ravitaillement à la tournée poids lourd, IMEX organise vos flux avec une prise en charge simple et un suivi centralisé.</p></div>
-        <div className="imex-service-grid">{LOG_SERVICES.map((s,i)=>{const Icon=s.icon;return <button key={s.id} className="imex-service-card" onClick={()=>openCase(s.id)}><div className="imex-service-icon"><Icon/></div><small>{String(i+1).padStart(2,'0')} · {s.tag}</small><h3>{s.title}</h3><p>{s.text}</p><span>Demander <ArrowRight size={14}/></span></button>})}</div>
+      <section id="services" className="postop-section postop-services">
+        <div className="postop-section-head"><div><span>01 · NOS SERVICES</span><h2>Une solution pour chaque livraison.</h2></div><p>Du colis urgent à la tournée poids lourd, Post OP Logistics organise vos livraisons avec une prise en charge simple et un suivi centralisé.</p></div>
+        <div className="postop-service-grid">{LOG_SERVICES.map((s,i)=>{const Icon=s.icon;return <button key={s.id} className="postop-service-card" onClick={()=>openCase(s.id)}><div className="postop-service-icon"><Icon/></div><small>{String(i+1).padStart(2,'0')} · {s.tag}</small><h3>{s.title}</h3><p>{s.text}</p><span>Demander <ArrowRight size={14}/></span></button>})}</div>
       </section>
 
-      <section className="imex-process">
-        <div className="imex-process-title"><span>02 · COMMENT ÇA MARCHE</span><h2>Trois étapes. Pas plus.</h2></div>
-        <div className="imex-process-grid"><div><b>01</b><h3>Vous décrivez le besoin</h3><p>Quelques informations et un message libre suffisent.</p></div><div><b>02</b><h3>Nous organisons</h3><p>IMEX qualifie la demande et prépare l'opération.</p></div><div><b>03</b><h3>Vous suivez</h3><p>Retrouvez l'avancement et nos réponses avec votre téléphone.</p></div></div>
+      <section className="postop-process">
+        <div className="postop-process-title"><span>02 · COMMENT ÇA MARCHE</span><h2>Trois étapes. Pas plus.</h2></div>
+        <div className="postop-process-grid"><div><b>01</b><h3>Vous décrivez le besoin</h3><p>Quelques informations et un message libre suffisent.</p></div><div><b>02</b><h3>Nous organisons</h3><p>Post OP Logistics planifie la tournée et affecte le véhicule adapté.</p></div><div><b>03</b><h3>Vous suivez</h3><p>Retrouvez l'avancement et nos réponses avec votre téléphone.</p></div></div>
       </section>
 
-      <section id="fleet" className="imex-section imex-fleet-section">
-        <div className="imex-section-head"><div><span>03 · NOTRE FLOTTE</span><h2>Les bons véhicules pour vos flux.</h2></div><p>Notre flotte évolue avec l'activité et les besoins de nos clients. Chaque véhicule est affecté selon le volume et la nature de la mission.</p></div>
-        <div className="imex-fleet-grid">{fleet.map((v,i)=><article className="imex-fleet-card" key={v.id}><div className="imex-fleet-image"><img src={v.image_url} alt={v.name}/><span>{String(i+1).padStart(2,'0')}</span></div><div className="imex-fleet-copy"><div><small>{v.brand} · {v.category}{v.capacity?' · '+v.capacity:''}</small><h3>{v.name}</h3></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}</div>
+      <section id="fleet" className="postop-section postop-fleet-section">
+        <div className="postop-section-head"><div><span>03 · NOTRE FLOTTE</span><h2>Les bons véhicules pour vos flux.</h2></div><p>Notre flotte évolue avec l'activité et les besoins de nos clients. Chaque véhicule est affecté selon le volume et la nature de la mission.</p></div>
+        <div className="postop-fleet-grid">{fleet.map((v,i)=><article className="postop-fleet-card" key={v.id}><div className="postop-fleet-image"><img src={v.image_url} alt={v.name}/><span>{String(i+1).padStart(2,'0')}</span></div><div className="postop-fleet-copy"><div><small>{v.brand} · {v.category}{v.capacity?' · '+v.capacity:''}</small><h3>{v.name}</h3></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}</div>
       </section>
 
-      <section id="careers" className="imex-section imex-careers">
-        <div className="imex-section-head"><div><span>04 · CARRIÈRES</span><h2>Rejoignez IMEX Logistics.</h2></div><p>Nous recrutons des profils terrain et commerciaux pour accompagner le développement de l'entreprise.</p></div>
-        <div className="imex-job-grid">{JOBS.map(j=>{const Icon=j.icon;return <button key={j.id} className="imex-job-card" onClick={()=>setModal({type:'apply',job:j.id})}><Icon/><small>POSTE OUVERT</small><h3>{j.title}</h3><p>{j.text}</p><span>Postuler <ArrowRight size={14}/></span></button>})}</div>
+      <section id="careers" className="postop-section postop-careers">
+        <div className="postop-section-head"><div><span>04 · CARRIÈRES</span><h2>Prenez la route avec Post OP.</h2></div><p>Nous recrutons des chauffeurs et profils commerciaux pour développer notre réseau de livraison à Los Santos.</p></div>
+        <div className="postop-job-grid">{JOBS.map(j=>{const Icon=j.icon;return <button key={j.id} className="postop-job-card" onClick={()=>setModal({type:'apply',job:j.id})}><Icon/><small>POSTE OUVERT</small><h3>{j.title}</h3><p>{j.text}</p><span>Postuler <ArrowRight size={14}/></span></button>})}</div>
       </section>
 
-      <section className="imex-cta"><div><span>IMEX LOGISTICS · LOS SANTOS</span><h2>Un transport à organiser ?</h2><p>Dites-nous simplement ce qu'il faut livrer et quand. Nous nous occupons du reste.</p></div><div><button className="btn imex-btn-primary" onClick={()=>openCase()}>Ouvrir une demande <ArrowRight size={16}/></button><button className="btn imex-btn-secondary" onClick={()=>setModal({type:'track'})}>Suivre une demande</button></div></section>
+      <section className="postop-cta"><div><span>POST OP LOGISTICS · LOS SANTOS</span><h2>Un transport à organiser ?</h2><p>Indiquez-nous ce qu'il faut acheminer et quand. Notre équipe organise la tournée.</p></div><div><button className="btn postop-btn-primary" onClick={()=>openCase()}>Ouvrir une demande <ArrowRight size={16}/></button><button className="btn postop-btn-secondary" onClick={()=>setModal({type:'track'})}>Suivre une demande</button></div></section>
     </main>
 
-    <div className="imex-mobile-actions"><button onClick={()=>openCase()}><FileText/><span>Demande</span></button><button onClick={()=>setModal({type:'track'})}><Search/><span>Suivi</span></button></div>
-    <footer className="imex-footer"><img src="/assets/imex-logo.jpg"/><p>Shipping & Logistics · Livraison · Ravitaillement · Fret</p><div>Los Santos</div></footer>
+    <div className="postop-mobile-actions"><button onClick={()=>openCase()}><FileText/><span>Demande</span></button><button onClick={()=>setModal({type:'track'})}><Search/><span>Suivi</span></button></div>
+    <footer className="postop-footer"><img src="/assets/postop-logo.jpg"/><p>Delivery & Logistics · Livraison · Ravitaillement · Fret</p><div>Los Santos</div></footer>
   </div>
 }
 
@@ -282,14 +281,14 @@ function CaseForm({initialService,close,notify}){
       const ref=await publicOpenCase(payload);setReference(ref)
     }catch(err){notify(err.message||'Impossible d’ouvrir la demande.','error')}finally{setBusy(false)}
   }
-  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DEMANDE CRÉÉE" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre demande est transmise à IMEX.</h3><p>Vous pourrez la retrouver avec le numéro de téléphone utilisé. Aucun numéro de dossier à conserver.</p><div className="success-note"><Phone/><span>Numéro utilisé : <b>{form.phone}</b></span></div><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
+  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DEMANDE CRÉÉE" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre demande est transmise à Post OP.</h3><p>Vous pourrez la retrouver avec le numéro de téléphone utilisé. Aucun numéro de dossier à conserver.</p><div className="success-note"><Phone/><span>Numéro utilisé : <b>{form.phone}</b></span></div><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
 
-  return <div className="modal-panel case-modal imex-case-modal"><ModalHeader kicker="IMEX LOGISTICS" title="Demander un transport" close={close}/><form className="modal-body imex-case-form" onSubmit={submit}>
-    <p className="imex-form-lead">Pas de formulaire interminable : décrivez votre besoin, nous vous demanderons les précisions nécessaires ensuite.</p>
+  return <div className="modal-panel case-modal postop-case-modal"><ModalHeader kicker="POST OP LOGISTICS" title="Demander un transport" close={close}/><form className="modal-body postop-case-form" onSubmit={submit}>
+    <p className="postop-form-lead">Pas de formulaire interminable : décrivez votre besoin, nous vous demanderons les précisions nécessaires ensuite.</p>
     <Field label="Type de demande" full><select required value={form.service} onChange={e=>setForm({...form,service:e.target.value})}><option value="">Sélectionner...</option>{LOG_SERVICES.map(s=><option value={s.id} key={s.id}>{s.title}</option>)}</select></Field>
-    <div className="form-grid imex-contact-grid"><Field label="Nom & prénom"><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})} placeholder="Votre nom"/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="Votre numéro"/></Field></div>
+    <div className="form-grid postop-contact-grid"><Field label="Nom & prénom"><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})} placeholder="Votre nom"/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="Votre numéro"/></Field></div>
     <Field label="Entreprise · facultatif" full><Input value={form.company_name} onChange={e=>setForm({...form,company_name:e.target.value})} placeholder="Nom de votre entreprise"/></Field>
-    <details className="imex-optional-block"><summary><div><span>Ajouter des précisions</span><small>Date, fréquence ou priorité · facultatif</small></div><ChevronRight/></summary><div className="imex-optional-fields"><div className="form-grid"><Field label="Date souhaitée"><Input type="datetime-local" value={form.requested_at} onChange={e=>setForm({...form,requested_at:e.target.value})}/></Field><Field label="Fréquence"><select value={form.frequency} onChange={e=>setForm({...form,frequency:e.target.value})}><option value="">Pas de préférence</option><option value="once">Ponctuel</option><option value="daily">Quotidien</option><option value="several_week">Plusieurs fois / semaine</option><option value="weekly">Hebdomadaire</option><option value="on_demand">À la demande</option></select></Field></div><Field label="Priorité" full><select value={form.urgency} onChange={e=>setForm({...form,urgency:e.target.value})}><option value="">Standard</option><option value="urgent">Urgent</option><option value="planned">Planifiable</option></select></Field></div></details>
+    <details className="postop-optional-block"><summary><div><span>Ajouter des précisions</span><small>Date, fréquence ou priorité · facultatif</small></div><ChevronRight/></summary><div className="postop-optional-fields"><div className="form-grid"><Field label="Date souhaitée"><Input type="datetime-local" value={form.requested_at} onChange={e=>setForm({...form,requested_at:e.target.value})}/></Field><Field label="Fréquence"><select value={form.frequency} onChange={e=>setForm({...form,frequency:e.target.value})}><option value="">Pas de préférence</option><option value="once">Ponctuel</option><option value="daily">Quotidien</option><option value="several_week">Plusieurs fois / semaine</option><option value="weekly">Hebdomadaire</option><option value="on_demand">À la demande</option></select></Field></div><Field label="Priorité" full><select value={form.urgency} onChange={e=>setForm({...form,urgency:e.target.value})}><option value="">Standard</option><option value="urgent">Urgent</option><option value="planned">Planifiable</option></select></Field></div></details>
     <Field label="Décrivez votre demande" full hint="Lieu, marchandise, quantité, contraintes : indiquez seulement ce qui vous paraît utile."><Textarea required rows="5" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Ex. Nous avons besoin d'un ravitaillement vendredi soir pour notre établissement..."/></Field>
     <button className="btn btn-dark wide" disabled={busy}>{busy?'Envoi...':'Envoyer ma demande'} <ArrowRight size={16}/></button>
   </form></div>
@@ -325,18 +324,18 @@ function TrackPortal({close,notify}){
 
   return <div className="modal-panel track-modal"><ModalHeader kicker="ESPACE CLIENT" title="Suivre un dossier" close={close}/><div className="modal-body">
     {!cases.length&&!selected?<form onSubmit={search} className="track-search"><div className="track-phone-mark"><Phone/></div><h3>Retrouvez vos demandes.</h3><p>Saisissez uniquement le numéro de téléphone utilisé lors de votre prise de contact. Aucun compte ni numéro de dossier n’est nécessaire.</p><Field label="Téléphone"><Input required autoFocus value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Votre numéro de téléphone"/></Field><button className="btn btn-dark wide" disabled={busy}><Search size={16}/>{busy?'Recherche...':'Afficher mes dossiers'}</button></form>:
-      !selected?<div className="case-picker"><div className="case-picker-head"><div><small>DOSSIERS RETROUVÉS</small><h3>{cases.length} demande{cases.length>1?'s':''}</h3></div><button className="text-link" onClick={()=>{setCases([]);setPhone('')}}>Changer de numéro</button></div><div className="case-picker-list">{cases.map(c=><button key={c.id} onClick={()=>openCase(c)}><div><small>{'IMEX LOGISTICS'} · {dt(c.created_at)}</small><b>{c.title}</b><span>{serviceLabel(c.service)}</span></div><CaseStatus value={c.status}/><ChevronRight/></button>)}</div></div>:
+      !selected?<div className="case-picker"><div className="case-picker-head"><div><small>DOSSIERS RETROUVÉS</small><h3>{cases.length} demande{cases.length>1?'s':''}</h3></div><button className="text-link" onClick={()=>{setCases([]);setPhone('')}}>Changer de numéro</button></div><div className="case-picker-list">{cases.map(c=><button key={c.id} onClick={()=>openCase(c)}><div><small>{'POST OP LOGISTICS'} · {dt(c.created_at)}</small><b>{c.title}</b><span>{serviceLabel(c.service)}</span></div><CaseStatus value={c.status}/><ChevronRight/></button>)}</div></div>:
       <div className="client-case">
-        <div className="client-case-head"><div><small>{'IMEX LOGISTICS'}</small><h3>{selected.title}</h3><span>{serviceLabel(selected.service)}</span></div><CaseStatus value={selected.status}/></div>
+        <div className="client-case-head"><div><small>{'POST OP LOGISTICS'}</small><h3>{selected.title}</h3><span>{serviceLabel(selected.service)}</span></div><CaseStatus value={selected.status}/></div>
         <div className="client-summary"><div><span>Ouvert le</span><b>{dt(selected.created_at)}</b></div><div><span>Dernière mise à jour</span><b>{dt(selected.updated_at)}</b></div>{selected.requested_at&&<div><span>Date souhaitée</span><b>{dt(selected.requested_at)}</b></div>}</div>
-        <div className="conversation"><div className="conversation-title"><MessageSquareText/><div><b>Échanges avec IMEX</b><span>Retrouvez ici les réponses et demandes de précision concernant votre dossier.</span></div></div>{messages?.length?messages.map(m=><MessageBubble key={m.id} m={m}/>):<div className="empty-line">Aucun message pour le moment.</div>}</div>
-        {!['completed','declined','cancelled'].includes(selected.status)&&<div className="client-reply"><Textarea rows="3" value={reply} onChange={e=>setReply(e.target.value)} placeholder="Écrire à IMEX..."/><button className="btn btn-dark" disabled={busy||!reply.trim()} onClick={send}><Send size={15}/> Envoyer</button></div>}
+        <div className="conversation"><div className="conversation-title"><MessageSquareText/><div><b>Échanges avec Post OP</b><span>Retrouvez ici les réponses et demandes de précision concernant votre dossier.</span></div></div>{messages?.length?messages.map(m=><MessageBubble key={m.id} m={m}/>):<div className="empty-line">Aucun message pour le moment.</div>}</div>
+        {!['completed','declined','cancelled'].includes(selected.status)&&<div className="client-reply"><Textarea rows="3" value={reply} onChange={e=>setReply(e.target.value)} placeholder="Écrire à Post OP..."/><button className="btn btn-dark" disabled={busy||!reply.trim()} onClick={send}><Send size={15}/> Envoyer</button></div>}
         <button className="text-link back-search" onClick={()=>setSelected(null)}>Voir mes autres dossiers</button>
       </div>}
   </div></div>
 }
 
-function MessageBubble({m}){const staff=m.author_type==='staff'||m.author_type==='system';return <div className={cls('message-bubble',staff?'staff':'client')}><div><b>{m.author_name|| (staff?'IMEX Logistics':'Client')}</b><span>{dt(m.created_at)}</span></div><p>{m.body}</p></div>}
+function MessageBubble({m}){const staff=m.author_type==='staff'||m.author_type==='system';return <div className={cls('message-bubble',staff?'staff':'client')}><div><b>{m.author_name|| (staff?'Post OP Logistics':'Client')}</b><span>{dt(m.created_at)}</span></div><p>{m.body}</p></div>}
 
 function ApplicationForm({job,close,notify}){
   const [form,setForm]=React.useState({full_name:'',phone:'',position:job||'heavy_driver',experience:'',availability:'',motivation:''})
@@ -348,12 +347,12 @@ function ApplicationForm({job,close,notify}){
     setRef(reference)
   }catch(err){notify(err.message||'Candidature impossible.','error')}finally{setBusy(false)}}
   if(ref)return <div className="modal-panel success-panel"><ModalHeader kicker="CANDIDATURE" title="Candidature transmise" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Merci pour votre candidature.</h3><p>Notre équipe étudiera votre profil et reviendra vers vous par téléphone.</p><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
-  return <div className="modal-panel imex-apply-modal"><ModalHeader kicker="CARRIÈRES" title="Rejoindre IMEX Logistics" close={close}/><form className="modal-body imex-apply-form" onSubmit={submit}>
-    <p className="imex-form-lead">Un formulaire court suffit. Nous préférons échanger avec vous ensuite plutôt que vous demander un dossier interminable.</p>
+  return <div className="modal-panel postop-apply-modal"><ModalHeader kicker="CARRIÈRES" title="Rejoindre Post OP Logistics" close={close}/><form className="modal-body postop-apply-form" onSubmit={submit}>
+    <p className="postop-form-lead">Un formulaire court suffit. Nous préférons échanger avec vous ensuite plutôt que vous demander un dossier interminable.</p>
     <div className="form-grid"><Field label="Nom & prénom"><Input required value={form.full_name} onChange={e=>setForm({...form,full_name:e.target.value})}/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div>
     <Field label="Poste" full><select value={form.position} onChange={e=>setForm({...form,position:e.target.value})}>{JOBS.map(j=><option value={j.id} key={j.id}>{j.title}</option>)}</select></Field>
     <Field label="Disponibilités · facultatif" full><Input value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})} placeholder="Ex. soirs, week-end, plusieurs jours par semaine..."/></Field>
-    <Field label="Présentez-vous en quelques lignes" full hint="Expérience, motivation, ce que vous aimeriez faire chez IMEX."><Textarea required rows="5" value={form.motivation} onChange={e=>setForm({...form,motivation:e.target.value})}/></Field>
+    <Field label="Présentez-vous en quelques lignes" full hint="Expérience, motivation, ce que vous aimeriez faire chez Post OP."><Textarea required rows="5" value={form.motivation} onChange={e=>setForm({...form,motivation:e.target.value})}/></Field>
     <Field label="Expérience complémentaire · facultatif" full><Textarea rows="2" value={form.experience} onChange={e=>setForm({...form,experience:e.target.value})}/></Field>
     <button className="btn btn-dark wide" disabled={busy}>{busy?'Envoi...':'Envoyer ma candidature'} <ArrowRight size={16}/></button>
   </form></div>
@@ -369,7 +368,7 @@ function StaffApp({session,profile,notify,loadPublic,demo}){
 function StaffLogin({notify,demo,onDemo}){
   const [email,setEmail]=React.useState(''),[password,setPassword]=React.useState(''),[busy,setBusy]=React.useState(false)
   async function login(e){e.preventDefault();if(!supabase)return onDemo();setBusy(true);const {error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);if(error)notify(error.message,'error')}
-  return <div className="staff-login"><a className="login-brand" href="#home"><img src="/assets/imex-logo.jpg"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>IMEX LOGISTICS / OPERATIONS</span><h1>Espace opérations</h1><p>Dossiers, réponses clients, missions, flotte, recrutement et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
+  return <div className="staff-login"><a className="login-brand" href="#home"><img src="/assets/postop-logo.jpg"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>POST OP LOGISTICS / OPERATIONS</span><h1>Espace opérations</h1><p>Dossiers, réponses clients, missions, flotte, recrutement et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
 }
 function StaffGate({session}){return <div className="staff-login"><div className="login-card"><AlertTriangle/><h1>Compte non autorisé</h1><p>{session.user.email} est connecté mais n’a pas de profil dans <code>staff_profiles</code>.</p><button className="btn btn-light" onClick={()=>supabase.auth.signOut()}>Déconnexion</button></div></div>}
 
@@ -401,8 +400,8 @@ function StaffDashboard({profile,notify,loadPublic,demo,onDemoExit}){
   ]
   const logout=async()=>{if(demo)return onDemoExit();await supabase.auth.signOut();location.hash='#home'}
   return <div className="staff-shell">
-    <aside className={mobileNav?'open':''}><div className="staff-brand"><img src="/assets/imex-logo.jpg"/><div><b>IMEX</b><span>OPERATIONS</span></div></div><nav>{nav.map(([id,Icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setMobileNav(false)}}><Icon size={18}/>{label}</button>)}</nav><div className="staff-side-bottom"><a href="#home"><ExternalLink size={15}/> Site public</a><button onClick={logout}><LogOut size={15}/> Déconnexion</button></div></aside>
-    <div className="staff-main"><header><button className="staff-menu" onClick={()=>setMobileNav(v=>!v)}><Menu/></button><div><small>IMEX LOGISTICS / OPERATIONS</small><h1>{nav.find(x=>x[0]===tab)?.[2]}</h1></div><div className="staff-user"><span>{profile.display_name}</span><b>{profile.role}</b></div><button className="icon-btn" onClick={load} title="Actualiser"><RefreshCw className={busy?'spin':''}/></button></header>
+    <aside className={mobileNav?'open':''}><div className="staff-brand"><img src="/assets/postop-logo.jpg"/><div><b>Post OP</b><span>OPERATIONS</span></div></div><nav>{nav.map(([id,Icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setMobileNav(false)}}><Icon size={18}/>{label}</button>)}</nav><div className="staff-side-bottom"><a href="#home"><ExternalLink size={15}/> Site public</a><button onClick={logout}><LogOut size={15}/> Déconnexion</button></div></aside>
+    <div className="staff-main"><header><button className="staff-menu" onClick={()=>setMobileNav(v=>!v)}><Menu/></button><div><small>POST OP LOGISTICS / OPERATIONS</small><h1>{nav.find(x=>x[0]===tab)?.[2]}</h1></div><div className="staff-user"><span>{profile.display_name}</span><b>{profile.role}</b></div><button className="icon-btn" onClick={load} title="Actualiser"><RefreshCw className={busy?'spin':''}/></button></header>
       <div className="staff-content">
         {tab==='overview'&&<Overview data={data} setTab={setTab}/>} 
         {tab==='logistics'&&<CasesPanel data={data} reload={load} notify={notify} demo={demo} forcedKind="logistics"/>}
@@ -427,7 +426,7 @@ function Overview({data,setTab}){
 }
 function Metric({icon:Icon,label,value}){return <div className="metric"><div><Icon/></div><span>{label}</span><b>{value}</b></div>}
 function CardTitle({kicker,title,action}){return <div className="card-title"><div><span>{kicker}</span><h2>{title}</h2></div>{action}</div>}
-function MiniCase({c}){return <div className="mini-case"><div><small>{c.reference} · IMEX LOGISTICS</small><b>{c.title}</b><span>{c.company_name||c.contact_name}</span></div><CaseStatus value={c.status}/></div>}
+function MiniCase({c}){return <div className="mini-case"><div><small>{c.reference} · POST OP LOGISTICS</small><b>{c.title}</b><span>{c.company_name||c.contact_name}</span></div><CaseStatus value={c.status}/></div>}
 function CaseStatus({value}){return <span className={cls('case-status',value)}><i/>{statusLabel(value)}</span>}
 function Empty({icon:Icon,text}){return <div className="empty-admin"><Icon/><p>{text}</p></div>}
 
@@ -435,7 +434,7 @@ function CasesPanel({data,reload,notify,demo,forcedKind}){
   const [filter,setFilter]=React.useState(forcedKind||'logistics'),[q,setQ]=React.useState(''),[selected,setSelected]=React.useState(null)
   React.useEffect(()=>{setFilter('logistics')},[forcedKind])
   const rows=data.cases.filter(c=>c.kind==='logistics'&&(!q||`${c.reference} ${c.title} ${c.contact_name} ${c.company_name||''} ${c.phone}`.toLowerCase().includes(q.toLowerCase())))
-  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>{'IMEX LOGISTICS'}</span><h2>{'Missions & demandes'}</h2></div><div className="panel-tools"><label className="searchbox"><Search/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Réf, client, entreprise..."/></label></div></div>
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>{'POST OP LOGISTICS'}</span><h2>{'Missions & demandes'}</h2></div><div className="panel-tools"><label className="searchbox"><Search/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Réf, client, entreprise..."/></label></div></div>
     <div className="case-table-head"><span>Dossier</span><span>Client</span><span>Statut</span><span>Activité</span><span/></div>
     <div className="case-list">{rows.map(c=><button className="case-row" key={c.id} onClick={()=>setSelected(c)}><div><small>{c.reference}</small><b>{c.title}</b><span>{serviceLabel(c.service)}</span></div><div><b>{c.company_name||c.contact_name}</b><span>{c.phone}</span></div><CaseStatus value={c.status}/><span>{dt(c.updated_at)}</span><ChevronRight/></button>)}{!rows.length&&<Empty icon={Inbox} text="Aucun dossier ne correspond au filtre."/>}</div>
     {selected&&<CaseDrawer row={data.cases.find(c=>c.id===selected.id)||selected} messages={data.messages.filter(m=>m.case_id===selected.id)} staff={data.staff} close={()=>setSelected(null)} reload={reload} notify={notify} demo={demo}/>} 
@@ -450,12 +449,12 @@ function CaseDrawer({row,messages,staff,close,reload,notify,demo}){
     await reload();notify('Dossier mis à jour.')
   }catch(e){notify(e.message,'error')}finally{setBusy(false)}}
   async function send(){if(!reply.trim())return;setBusy(true);try{
-    const name=visibility==='internal'?'Note interne':'IMEX Logistics'
+    const name=visibility==='internal'?'Note interne':'Post OP Logistics'
     if(demo){const m={id:uuid(),case_id:row.id,author_type:'staff',author_name:name,visibility,body:reply.trim(),created_at:new Date().toISOString()};demoSet('messages',[...demoGet('messages'),m]);demoSet('cases',demoGet('cases').map(c=>c.id===row.id?{...c,updated_at:new Date().toISOString()}:c))}
     else {const {error}=await supabase.from('case_messages').insert({case_id:row.id,author_type:'staff',author_name:name,visibility,body:reply.trim()});if(error)throw error}
     setReply('');await reload();notify(visibility==='public'?'Réponse client envoyée.':'Note interne ajoutée.')
   }catch(e){notify(e.message,'error')}finally{setBusy(false)}}
-  return <div className="drawer-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}><aside className="drawer"><ModalHeader kicker={`IMEX LOGISTICS · ${row.reference}`} title={row.title} close={close}/><div className="drawer-body">
+  return <div className="drawer-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}><aside className="drawer"><ModalHeader kicker={`POST OP LOGISTICS · ${row.reference}`} title={row.title} close={close}/><div className="drawer-body">
     <div className="drawer-block"><div className="drawer-section-title"><span>ÉTAT DU DOSSIER</span><CaseStatus value={row.status}/></div><div className="status-grid">{STATUS_FLOW.map(s=><button key={s} disabled={busy} className={row.status===s?'active':''} onClick={()=>update({status:s})}>{statusLabel(s)}</button>)}</div><Field label="Responsable du dossier"><select value={row.assigned_to||''} onChange={e=>update({assigned_to:e.target.value||null})}><option value="">Non affecté</option>{staff.map(s=><option value={s.id} key={s.id}>{s.display_name}</option>)}</select></Field></div>
     <div className="drawer-block"><div className="drawer-section-title"><span>CLIENT & DEMANDE</span></div><div className="detail-grid"><Detail label="Contact" value={row.contact_name}/>{row.company_name&&<Detail label="Entreprise" value={row.company_name}/>}<Detail label="Téléphone" value={row.phone}/><Detail label="Service" value={serviceLabel(row.service)}/><Detail label="Ouvert" value={dt(row.created_at)}/>{row.requested_at&&<Detail label="Date souhaitée" value={dt(row.requested_at)}/>} {row.kind==='logistics'&&row.frequency&&<Detail label="Fréquence" value={row.frequency}/>} {row.kind==='logistics'&&row.urgency&&row.urgency!=='standard'&&<Detail label="Priorité" value={row.urgency}/>}</div><div className="description-box"><span>DEMANDE</span><p>{row.description}</p></div></div>
     <div className="drawer-block"><div className="drawer-section-title"><span>FIL DU DOSSIER</span><b>{messages.length} message{messages.length>1?'s':''}</b></div><div className="staff-conversation">{messages.map(m=><div className={cls('staff-message',m.visibility==='internal'&&'internal',m.author_type==='client'&&'from-client')} key={m.id}><div><b>{m.author_name||m.author_type}</b><span>{m.visibility==='internal'?'NOTE INTERNE':dt(m.created_at)}</span></div><p>{m.body}</p></div>)}{!messages.length&&<Empty icon={MessageSquareText} text="Aucun échange sur ce dossier."/>}</div><div className="reply-box"><div className="reply-mode"><button className={visibility==='public'?'active':''} onClick={()=>setVisibility('public')}><MessageCircle/> Réponse client</button><button className={visibility==='internal'?'active':''} onClick={()=>setVisibility('internal')}><LockKeyhole/> Note interne</button></div><Textarea rows="4" value={reply} onChange={e=>setReply(e.target.value)} placeholder={visibility==='public'?'Écrire une réponse visible par le client...':'Ajouter une note réservée au staff...'}/><button className="btn btn-dark" onClick={send} disabled={busy||!reply.trim()}><Send size={15}/> Envoyer</button></div></div>
@@ -466,7 +465,7 @@ function Detail({label,value}){return <div className="detail"><span>{label}</spa
 function PartnersPanel({items,reload,loadPublic,notify,demo}){
   const [edit,setEdit]=React.useState(null)
   async function save(v){try{
-    const payload={name:v.name,eyebrow:v.eyebrow||'PARTENAIRE IMEX',description:v.description,image_url:v.image_url||null,link_url:v.link_url||null,active:v.active??true,sort_order:Number(v.sort_order||0)}
+    const payload={name:v.name,eyebrow:v.eyebrow||'PARTENAIRE Post OP',description:v.description,image_url:v.image_url||null,link_url:v.link_url||null,active:v.active??true,sort_order:Number(v.sort_order||0)}
     if(demo){let rows=demoGet('partners');if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x);else rows=[...rows,{id:uuid(),...payload}];demoSet('partners',rows)}else{const q=v.id?supabase.from('partners').update(payload).eq('id',v.id):supabase.from('partners').insert(payload);const {error}=await q;if(error)throw error}
     setEdit(null);await reload();await loadPublic();notify('Partenaire enregistré.')
   }catch(e){notify(e.message,'error')}}
@@ -501,7 +500,7 @@ function FleetPanel({items,reload,loadPublic,notify,demo}){
         : supabase.from('fleet_vehicles').insert(payload).select().single()
       const {data,error}=await q
       if(error){
-        console.error('IMEX fleet save error',error)
+        console.error('Post OP fleet save error',error)
         throw new Error([error.message,error.details,error.hint].filter(Boolean).join(' — '))
       }
       if(!data)throw new Error('Supabase n’a retourné aucun véhicule après enregistrement.')
@@ -515,12 +514,12 @@ function FleetPanel({items,reload,loadPublic,notify,demo}){
     notify(e.message||'Impossible d’enregistrer le véhicule.','error')
   }}
   async function remove(id){if(!confirm('Retirer ce véhicule de la flotte ?'))return;try{if(demo)demoSet('fleet',demoGet('fleet',FLEET_SEEDS).filter(x=>x.id!==id));else{const {error}=await supabase.from('fleet_vehicles').delete().eq('id',id);if(error)throw error}await reload();await loadPublic();notify('Véhicule retiré.')}catch(e){notify(e.message,'error')}}
-  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>IMEX LOGISTICS</span><h2>Flotte</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,status:'available',sort_order:items.length+1})}><Plus size={15}/> Ajouter un véhicule</button></div><div className="admin-grid">{items.map(v=><article className="admin-item" key={v.id}><div className="admin-thumb">{v.image_url?<img src={v.image_url}/>:<Truck/>}</div><div><small>{v.brand} · {v.category}{v.registration?' · '+v.registration:''}</small><h3>{v.name}</h3><p>{v.capacity&&<b>{v.capacity} — </b>}{v.description}</p><CaseStatus value={v.status}/></div><div className="admin-actions"><button onClick={()=>setEdit(v)} title="Modifier"><Pencil/></button><button onClick={()=>remove(v.id)} title="Supprimer"><Trash2/></button></div></article>)}{!items.length&&<Empty icon={Truck} text="Aucun véhicule dans la flotte."/>}</div>{edit&&<EntityEditor title="Véhicule Logistics" item={edit} close={()=>setEdit(null)} save={save} fields="fleet"/>}</section>
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>POST OP LOGISTICS</span><h2>Flotte</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,status:'available',sort_order:items.length+1})}><Plus size={15}/> Ajouter un véhicule</button></div><div className="admin-grid">{items.map(v=><article className="admin-item" key={v.id}><div className="admin-thumb">{v.image_url?<img src={v.image_url}/>:<Truck/>}</div><div><small>{v.brand} · {v.category}{v.registration?' · '+v.registration:''}</small><h3>{v.name}</h3><p>{v.capacity&&<b>{v.capacity} — </b>}{v.description}</p><CaseStatus value={v.status}/></div><div className="admin-actions"><button onClick={()=>setEdit(v)} title="Modifier"><Pencil/></button><button onClick={()=>remove(v.id)} title="Supprimer"><Trash2/></button></div></article>)}{!items.length&&<Empty icon={Truck} text="Aucun véhicule dans la flotte."/>}</div>{edit&&<EntityEditor title="Véhicule Logistics" item={edit} close={()=>setEdit(null)} save={save} fields="fleet"/>}</section>
 }
 
 function EntityEditor({title,item,close,save,fields}){
   const [v,setV]=React.useState({...item})
-  return <div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="GESTION" title={title} close={close}/><div className="drawer-body"><div className="form-grid"><Field label="Nom"><Input required value={v.name||''} onChange={e=>setV({...v,name:e.target.value})}/></Field>{fields==='fleet'?<Field label="Marque"><Input value={v.brand||''} onChange={e=>setV({...v,brand:e.target.value})}/></Field>:<Field label="Label"><Input value={v.eyebrow||''} onChange={e=>setV({...v,eyebrow:e.target.value})} placeholder="PARTENAIRE IMEX"/></Field>}</div>{fields==='fleet'&&<><div className="form-grid"><Field label="Catégorie"><Input value={v.category||''} onChange={e=>setV({...v,category:e.target.value})} placeholder="Poids lourd, utilitaire..."/></Field><Field label="Immatriculation"><Input value={v.registration||''} onChange={e=>setV({...v,registration:e.target.value})} placeholder="Optionnel"/></Field></div><Field label="Capacité / usage" full><Input value={v.capacity||''} onChange={e=>setV({...v,capacity:e.target.value})} placeholder="Ex. Fret lourd · longues tournées"/></Field></>}<Field label="Image (URL)" full><Input value={v.image_url||''} onChange={e=>setV({...v,image_url:e.target.value})}/></Field>{fields==='partner'&&<Field label="Lien externe (optionnel)" full><Input value={v.link_url||''} onChange={e=>setV({...v,link_url:e.target.value})}/></Field>}<Field label="Texte" full><Textarea rows="5" value={v.description||''} onChange={e=>setV({...v,description:e.target.value})}/></Field><div className="form-grid">{fields==='fleet'&&<Field label="Statut"><select value={v.status||'available'} onChange={e=>setV({...v,status:e.target.value})}><option value="available">Disponible</option><option value="service">En mission</option><option value="maintenance">Maintenance</option><option value="unavailable">Indisponible</option></select></Field>}<Field label="Ordre"><Input type="number" value={v.sort_order||0} onChange={e=>setV({...v,sort_order:e.target.value})}/></Field></div><label className="toggle"><input type="checkbox" checked={v.active??true} onChange={e=>setV({...v,active:e.target.checked})}/><span>Visible sur le site public</span></label><button className="btn btn-dark wide" onClick={()=>save(v)}>Enregistrer</button></div></aside></div>
+  return <div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="GESTION" title={title} close={close}/><div className="drawer-body"><div className="form-grid"><Field label="Nom"><Input required value={v.name||''} onChange={e=>setV({...v,name:e.target.value})}/></Field>{fields==='fleet'?<Field label="Marque"><Input value={v.brand||''} onChange={e=>setV({...v,brand:e.target.value})}/></Field>:<Field label="Label"><Input value={v.eyebrow||''} onChange={e=>setV({...v,eyebrow:e.target.value})} placeholder="PARTENAIRE Post OP"/></Field>}</div>{fields==='fleet'&&<><div className="form-grid"><Field label="Catégorie"><Input value={v.category||''} onChange={e=>setV({...v,category:e.target.value})} placeholder="Poids lourd, utilitaire..."/></Field><Field label="Immatriculation"><Input value={v.registration||''} onChange={e=>setV({...v,registration:e.target.value})} placeholder="Optionnel"/></Field></div><Field label="Capacité / usage" full><Input value={v.capacity||''} onChange={e=>setV({...v,capacity:e.target.value})} placeholder="Ex. Fret lourd · longues tournées"/></Field></>}<Field label="Image (URL)" full><Input value={v.image_url||''} onChange={e=>setV({...v,image_url:e.target.value})}/></Field>{fields==='partner'&&<Field label="Lien externe (optionnel)" full><Input value={v.link_url||''} onChange={e=>setV({...v,link_url:e.target.value})}/></Field>}<Field label="Texte" full><Textarea rows="5" value={v.description||''} onChange={e=>setV({...v,description:e.target.value})}/></Field><div className="form-grid">{fields==='fleet'&&<Field label="Statut"><select value={v.status||'available'} onChange={e=>setV({...v,status:e.target.value})}><option value="available">Disponible</option><option value="service">En mission</option><option value="maintenance">Maintenance</option><option value="unavailable">Indisponible</option></select></Field>}<Field label="Ordre"><Input type="number" value={v.sort_order||0} onChange={e=>setV({...v,sort_order:e.target.value})}/></Field></div><label className="toggle"><input type="checkbox" checked={v.active??true} onChange={e=>setV({...v,active:e.target.checked})}/><span>Visible sur le site public</span></label><button className="btn btn-dark wide" onClick={()=>save(v)}>Enregistrer</button></div></aside></div>
 }
 
 function FinancePanel({items,cases,reload,notify,demo}){
@@ -559,7 +558,7 @@ function CareersPanel({items,reload,notify,demo}){
       <Field label="Statut" full><select value={selected.status} onChange={e=>{const value=e.target.value;setSelected({...selected,status:value});update(selected.id,{status:value})}}><option value="new">Nouvelle</option><option value="review">À étudier</option><option value="interview">Entretien</option><option value="accepted">Acceptée</option><option value="rejected">Refusée</option></select></Field>
       <div className="candidate-detail-block"><span>Présentation</span><p>{selected.motivation}</p></div>
       {selected.experience&&<div className="candidate-detail-block"><span>Expérience complémentaire</span><p>{selected.experience}</p></div>}
-      <Field label="Notes internes" full hint="Visible uniquement par l’équipe IMEX Logistics."><Textarea rows="5" value={notes} onChange={e=>setNotes(e.target.value)}/></Field>
+      <Field label="Notes internes" full hint="Visible uniquement par l’équipe Post OP Logistics."><Textarea rows="5" value={notes} onChange={e=>setNotes(e.target.value)}/></Field>
       <button className="btn btn-dark wide" onClick={()=>update(selected.id,{notes})}>Enregistrer les notes</button>
     </div></aside></div>}
   </>

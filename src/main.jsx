@@ -221,10 +221,11 @@ function PublicSite({partners,fleet,setModal,embedded,notify}){
           <div className="postop-hero-points"><span><Check/> Simple</span><span><Check/> Suivi</span><span><Check/> Professionnel</span></div>
         </div>
         <div className="postop-hero-visual">
-          <div className="postop-hero-image-wash"/>
-          <div className="postop-hero-mark"><img src="/assets/postop-logo-transparent.png" alt="Post OP"/></div>
-          <div className="postop-hero-meta"><span>POST OP LOGISTICS</span><b>FLOTTE · 01</b><small>TRACTEUR ROUTIER</small></div>
           <img className="postop-hero-truck" src={PHANTOM_IMAGE} alt="Camion Post OP Logistics"/>
+          <div className="postop-hero-photo-caption">
+            <span>POST OP LOGISTICS</span>
+            <b>Transport routier professionnel</b>
+          </div>
         </div>
       </section>
 

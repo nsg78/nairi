@@ -952,3 +952,96 @@ img{max-width:100%;display:block}
   .postop-logo-panel{width:92px}
   .postop-mobile-actions button:first-child{background:var(--postop-orange);color:#2b2217}
 }
+
+
+/* ================================================================
+   POST OP V9 — DEMANDE EXPRESS / PARTNERS / CLIENT CRM
+   ================================================================ */
+.postop-express{
+  margin:54px clamp(22px,6vw,92px) 0;
+  padding:34px;
+  border:1px solid var(--postop-line);
+  border-radius:18px;
+  background:#fffdf9;
+  display:grid;
+  grid-template-columns:.8fr 1.2fr;
+  gap:42px;
+  align-items:center;
+  box-shadow:0 14px 36px rgba(74,55,31,.06)
+}
+.postop-express-copy>span,.postop-partner-cta span{
+  color:var(--postop-orange-dark);font-size:8px;font-weight:800;letter-spacing:.15em
+}
+.postop-express-copy h2{
+  margin:8px 0 0;color:var(--postop-brown-dark);font:600 30px/1.05 'Space Grotesk';letter-spacing:-.035em
+}
+.postop-express-copy p{margin:10px 0 0;color:#786d5f;font-size:11.5px;line-height:1.65}
+.postop-express-form{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:start}
+.postop-express-form textarea{grid-column:1/3}
+.postop-express-form input,.postop-express-form textarea{
+  width:100%;border:1px solid #dfd4c2;background:#fff;border-radius:11px;padding:12px;outline:none;color:#2d261d
+}
+.postop-express-form input{height:44px}
+.postop-express-form textarea:focus,.postop-express-form input:focus{border-color:rgba(239,162,26,.75);box-shadow:0 0 0 3px rgba(239,162,26,.10)}
+.postop-express-form .btn{grid-column:3;grid-row:1/3;height:100%;min-height:97px}
+.postop-express-success{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:17px;border-radius:14px;background:#f3f8f1}
+.postop-express-success>svg{width:44px;height:44px;padding:11px;border-radius:50%;background:#e1f1dc;color:#3c8750}
+.postop-express-success b{display:block;color:#335b3e;font-size:12px}
+.postop-express-success span{display:block;margin-top:4px;color:#6e796f;font-size:9.5px}
+
+.postop-partners{background:#fffaf2}
+.postop-partner-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.postop-partner-card{
+  overflow:hidden;border:1px solid #e2d7c5;border-radius:18px;background:#fffdf9;display:flex;flex-direction:column
+}
+.postop-partner-logo{height:220px;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#2d2419,#17120d)}
+.postop-partner-logo img{width:100%;height:100%;object-fit:contain}
+.postop-partner-logo>svg{width:42px;color:#e6a63a}
+.postop-partner-copy{padding:22px;display:flex;flex-direction:column;flex:1}
+.postop-partner-copy small{font-size:7px;letter-spacing:.13em;font-weight:800;color:#b77811}
+.postop-partner-copy h3{font:600 20px 'Space Grotesk';margin:8px 0;color:var(--postop-brown-dark)}
+.postop-partner-copy p{margin:0;color:#776d60;font-size:11.5px;line-height:1.7;flex:1}
+.postop-partner-copy a{display:inline-flex;align-items:center;gap:5px;margin-top:16px;color:#b7770d;font-size:10px;font-weight:800}
+.postop-partner-cta{
+  margin-top:18px;padding:28px;border-radius:16px;background:#3b2e1f;color:#fff;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center
+}
+.postop-partner-cta h3{margin:6px 0 0;font:600 22px 'Space Grotesk';color:#fff8ec}
+.postop-partner-cta p{margin:7px 0 0;color:#d6cbbb;font-size:11px;line-height:1.65}
+
+.client-history-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0 10px;padding:13px 14px;border-radius:13px;background:#faf6ee;border:1px solid #e7dccb}
+.client-history-head>div{display:grid;gap:3px}
+.client-history-head span{font-size:7px;font-weight:800;letter-spacing:.12em;color:#b67812}
+.client-history-head b{font-size:10px;color:#5c4c38}
+.client-history-head .btn{min-height:38px;padding:0 12px;font-size:9px}
+
+.client-stats-mini{display:grid;grid-template-columns:auto auto auto auto;gap:5px 9px;align-items:end}
+.client-stats-mini b{font:600 18px 'Space Grotesk';color:var(--postop-brown-dark)}
+.client-stats-mini span{font-size:8px;color:#8a8072;margin-right:9px}
+.staff-client-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px}
+.staff-client-card{border:1px solid var(--postop-line);border-radius:15px;background:#fff;padding:16px;display:grid;grid-template-columns:1fr auto;gap:18px}
+.staff-client-card small{font-size:7px;font-weight:800;letter-spacing:.12em;color:#b67610}
+.staff-client-card h3{margin:5px 0 4px;font:600 17px 'Space Grotesk';color:var(--postop-brown-dark)}
+.staff-client-card p{margin:0;color:#767064;font-size:9px}
+.staff-client-meta{display:grid;text-align:right;gap:4px;color:#797266;font-size:8px}
+.staff-client-meta span b{color:#3f3222;font-size:11px}
+.staff-client-meta small{margin-top:3px;color:#9b9285;letter-spacing:0}
+
+@media(max-width:1000px){
+  .postop-partner-grid{grid-template-columns:1fr 1fr}
+  .postop-express{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .postop-express{margin:34px 14px 0;padding:22px;border-radius:16px;gap:20px}
+  .postop-express-copy h2{font-size:25px}
+  .postop-express-form{grid-template-columns:1fr}
+  .postop-express-form textarea,.postop-express-form .btn{grid-column:auto;grid-row:auto;min-height:46px}
+  .postop-express-success{grid-template-columns:38px 1fr}.postop-express-success .text-link{grid-column:2;text-align:left}
+  .postop-partner-grid{grid-template-columns:1fr}
+  .postop-partner-logo{height:205px}
+  .postop-partner-cta{grid-template-columns:1fr;padding:22px}
+  .postop-partner-cta .btn{width:100%}
+  .client-history-head{align-items:flex-start;flex-direction:column}
+  .client-history-head .btn{width:100%}
+  .staff-client-grid{grid-template-columns:1fr;padding:12px}
+  .staff-client-card{grid-template-columns:1fr}.staff-client-meta{text-align:left}
+}

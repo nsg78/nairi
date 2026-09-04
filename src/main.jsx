@@ -220,8 +220,9 @@ function PublicSite({partners,fleet,setModal,embedded,notify}){
           </div>
           <div className="postop-hero-points"><span><Check/> Simple</span><span><Check/> Suivi</span><span><Check/> Professionnel</span></div>
         </div>
-        <div className="postop-hero-visual">
-          <img className="postop-hero-truck" src={PHANTOM_IMAGE} alt="Camion Post OP Logistics"/>
+        <div className="postop-hero-visual postop-hero-hq">
+          <img className="postop-hero-hq-image" src="https://static.wikia.nocookie.net/gtawiki/images/0/03/PostOP-GTAV-port.jpg/revision/latest?cb=20140917020907" alt="Centre logistique Post OP"/>
+          <div className="postop-hero-hq-overlay"></div>
           <div className="postop-hero-photo-caption">
             <span>POST OP LOGISTICS</span>
             <b>Transport routier professionnel</b>

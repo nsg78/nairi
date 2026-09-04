@@ -1471,3 +1471,68 @@ body{background:var(--postop-v10-cream)}
   .postop-hero-meta b{font-size:14px}
   .postop-hero-meta small{font-size:7px}
 }
+
+
+/* ================================================================
+   POST OP V10.2 — HERO PHOTO / EDGE-TO-EDGE
+   The truck photo is the visual hero. No badge, no fake fleet card,
+   no brown bubble behind the vehicle.
+   ================================================================ */
+.postop-hero-visual{
+  min-height:470px;
+  position:relative;
+  overflow:hidden;
+  border-radius:22px;
+  background:#2f251a;
+  border:1px solid rgba(71,50,25,.18);
+  box-shadow:0 24px 60px rgba(67,50,29,.16);
+  isolation:isolate;
+}
+.postop-hero-visual:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(32,23,14,.02) 45%,rgba(24,17,10,.42) 100%);
+}
+.postop-hero-truck{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  display:block;
+  filter:saturate(.88) contrast(1.04);
+  transform:none;
+}
+.postop-hero-photo-caption{
+  position:absolute;
+  z-index:3;
+  left:22px;
+  bottom:20px;
+  display:grid;
+  gap:4px;
+  padding-left:12px;
+  border-left:3px solid var(--postop-orange,#f2a007);
+  color:#fffaf0;
+  text-shadow:0 1px 10px rgba(0,0,0,.35);
+}
+.postop-hero-photo-caption span{
+  font:800 9px/1.2 'Space Grotesk',sans-serif;
+  letter-spacing:.18em;
+  color:#ffb21c;
+}
+.postop-hero-photo-caption b{
+  font:700 15px/1.2 'Space Grotesk',sans-serif;
+}
+@media(max-width:900px){
+  .postop-hero-visual{min-height:400px}
+}
+@media(max-width:640px){
+  .postop-hero-visual{min-height:290px;border-radius:16px}
+  .postop-hero-photo-caption{left:16px;bottom:15px}
+  .postop-hero-photo-caption b{font-size:13px}
+}

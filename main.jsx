@@ -1,0 +1,643 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { createClient } from '@supabase/supabase-js'
+import {
+  ArrowRight, ArrowUpRight, BadgeCheck, Banknote, Boxes, BriefcaseBusiness,
+  Building2, Check, ChevronRight, CircleDollarSign, ClipboardList, Clock3,
+  Copy, FileText, Gauge, Handshake, HardHat, Headphones, Inbox, LayoutDashboard,
+  LockKeyhole, LogIn, LogOut, MapPin, Menu, MessageCircle, MessageSquareText,
+  PackageCheck, Pencil, Phone, Plus, RefreshCw, Route, Search, Send, ShieldCheck,
+  Truck, UserRound, UsersRound, Warehouse, X, AlertTriangle, Trash2, Eye,
+  CalendarDays, SlidersHorizontal, CircleDot, UserCheck, ExternalLink
+} from 'lucide-react'
+import './styles.css'
+
+const SB_URL = import.meta.env.VITE_SUPABASE_URL
+const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabase = SB_URL && SB_KEY ? createClient(SB_URL, SB_KEY) : null
+const DEMO = !supabase
+
+const LOGISTICS_IMAGE = 'https://static.wikia.nocookie.net/gtawiki/images/8/85/PounderCustom-GTAO-front.png/revision/latest?cb=20190716203227'
+const PHANTOM_IMAGE = 'https://static.wikia.nocookie.net/gtawiki/images/f/ff/Phantom-GTAV-front.png/revision/latest/scale-to-width-down/1200?cb=20160702200418'
+const BURRITO_IMAGE = 'https://static.wikia.nocookie.net/gtawiki/images/8/80/Burrito3-GTAV-front.png/revision/latest?cb=20160929164143'
+
+const FLEET_SEEDS = [
+  { id:'demo-phantom', name:'Phantom', brand:'JoBuilt', category:'Tracteur routier', capacity:'Semi-remorque', registration:'', status:'available', active:true, sort_order:1, image_url:PHANTOM_IMAGE, description:'Tracteur routier affecté au fret lourd, aux dessertes régulières et aux longues tournées.' },
+  { id:'demo-burrito', name:'Burrito', brand:'Declasse', category:'Utilitaire', capacity:'Distribution', registration:'', status:'available', active:true, sort_order:2, image_url:BURRITO_IMAGE, description:'Utilitaire destiné aux livraisons urbaines, petits volumes et réapprovisionnements rapides.' },
+]
+
+const LOG_SERVICES = [
+  { id:'business_supply', icon:Warehouse, title:'Ravitaillement entreprise', tag:'APPROVISIONNEMENT', text:'Réapprovisionnement de commerces, ateliers, établissements et sites professionnels.' },
+  { id:'dedicated_route', icon:Route, title:'Desserte régulière', tag:'RÉCURRENT', text:'Tournées planifiées et passages réguliers adaptés au rythme de votre activité.' },
+  { id:'urgent_resupply', icon:Gauge, title:'Livraison prioritaire', tag:'URGENT', text:'Prise en charge accélérée des besoins qui ne peuvent attendre la prochaine tournée.' },
+  { id:'special_freight', icon:Boxes, title:'Fret & transport spécifique', tag:'SUR MESURE', text:'Transport de marchandises, matériel et cargaisons nécessitant une organisation dédiée.' },
+  { id:'intersite_transfer', icon:Truck, title:'Transport inter-sites', tag:'ENTREPRISE', text:'Transferts entre entrepôts, commerces, garages, points de vente et sites partenaires.' },
+]
+const PARTNER_SEEDS = [
+  { id:'seed-ls-choppers', name:'LS CHOPPERS ONLY', eyebrow:'PARTENAIRE · CUSTOM CULTURE', description:'Repaire incontournable de la culture custom et de l’esprit West Coast, entre choppers, lowriders, vêtements, équipements et accessoires.', image_url:'/assets/partners/ls-choppers-only.png', link_url:null, active:true, sort_order:1 },
+  { id:'seed-ararat', name:'Ararat Coffee', eyebrow:'PARTENAIRE · VINEWOOD OUEST', description:'Établissement de la communauté arménienne de Vinewood Ouest, lieu de café, de rencontres et d’affaires pour les habitués du quartier.', image_url:'/assets/partners/ararat-coffee.png', link_url:null, active:true, sort_order:2 },
+  { id:'seed-cockatoos', name:'Cockatoos Nightclub', eyebrow:'PARTENAIRE · NIGHTLIFE', description:'Nightclub et stripclub de Los Santos, établissement partenaire du réseau Post OP Logistics.', image_url:'/assets/partners/cockatoos-nightclub.png', link_url:null, active:true, sort_order:3 },
+]
+
+const EXTRA_SERVICE_LABELS = { express_delivery:'Demande express', partnership_request:'Demande de partenariat' }
+
+const JOBS = [
+  { id:'heavy_driver', icon:Truck, title:'Chauffeur poids lourd', text:'Conduite poids lourd, chargement, livraison et représentation de Post OP auprès de nos clients.' },
+  { id:'dispatcher', icon:ClipboardList, title:'Dispatcher / Exploitant', text:'Planification des tournées, affectation des chauffeurs et suivi opérationnel des transports.' },
+  { id:'advisor', icon:BriefcaseBusiness, title:'Commercial / Conseiller', text:'Prospection, relation client, développement des contrats et suivi commercial des prestations.' },
+]
+const CASE_STATUS = {
+  new:'Nouveau', qualified:'Qualifié', waiting_client:'Attente client', accepted:'Accepté',
+  scheduled:'Planifié', in_progress:'En cours', completed:'Terminé', declined:'Refusé', cancelled:'Annulé'
+}
+const STATUS_FLOW = ['new','qualified','accepted','scheduled','in_progress','waiting_client','completed','declined','cancelled']
+const FLEET_STATUS = {available:'Disponible', service:'En mission', maintenance:'Maintenance', unavailable:'Indisponible'}
+const APP_STATUS = {new:'Nouvelle',review:'À étudier',interview:'Entretien',accepted:'Acceptée',rejected:'Refusée'}
+
+const serviceLabel = id => LOG_SERVICES.find(x=>x.id===id)?.title || EXTRA_SERVICE_LABELS[id] || id || 'Demande générale'
+const statusLabel = s => CASE_STATUS[s] || APP_STATUS[s] || FLEET_STATUS[s] || s
+const dt = v => v ? new Date(v).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}) : '—'
+const d = v => v ? new Date(v).toLocaleDateString('fr-FR') : '—'
+const money = n => new Intl.NumberFormat('fr-FR').format(Number(n || 0)) + ' $'
+const cls = (...xs) => xs.filter(Boolean).join(' ')
+
+const DEMO_KEYS = {
+  cases:'postop_v8_cases', messages:'postop_v8_messages', partners:'postop_v8_partners',
+  fleet:'postop_v8_fleet', finance:'postop_v8_finance', applications:'postop_v8_applications'
+}
+const demoGet = (key, fallback=[]) => { try { const v=JSON.parse(localStorage.getItem(DEMO_KEYS[key])); return Array.isArray(v)?v:fallback } catch { return fallback } }
+const demoSet = (key, value) => localStorage.setItem(DEMO_KEYS[key], JSON.stringify(value))
+const makeRef = kind => `PO-${new Date().toISOString().slice(2,10).replaceAll('-','')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`
+const uuid = () => crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+function ensureDemo(){
+  if(!localStorage.getItem(DEMO_KEYS.fleet)) demoSet('fleet',FLEET_SEEDS)
+  if(!localStorage.getItem(DEMO_KEYS.partners)) demoSet('partners',PARTNER_SEEDS)
+}
+if(DEMO && typeof localStorage!=='undefined') ensureDemo()
+
+async function publicOpenCase(payload){
+  if(!supabase){
+    const reference=makeRef(payload.kind)
+    const now=new Date().toISOString()
+    const row={id:uuid(),reference,status:'new',created_at:now,updated_at:now,assigned_to:null,...payload}
+    const cases=demoGet('cases'); demoSet('cases',[row,...cases])
+    const messages=demoGet('messages');
+    demoSet('messages',[...messages,{id:uuid(),case_id:row.id,author_type:'system',author_name:'Post OP',visibility:'public',body:'Votre dossier a bien été ouvert. Notre équipe va le qualifier puis revenir vers vous ici.',created_at:now}])
+    return reference
+  }
+  const {data,error}=await supabase.rpc('open_case',{
+    p_kind:payload.kind,p_service:payload.service,p_contact_name:payload.contact_name,p_company_name:payload.company_name||null,
+    p_phone:payload.phone,p_title:payload.title,p_description:payload.description,p_origin:payload.origin||null,
+    p_destination:payload.destination||null,p_cargo:payload.cargo||null,p_quantity:payload.quantity||null,
+    p_requested_at:payload.requested_at||null,p_frequency:payload.frequency||null,p_urgency:payload.urgency||'standard'
+  })
+  if(error) throw error
+  return data
+}
+
+const normalizePhone = value => String(value || '').replace(/\D/g,'')
+
+async function publicTrack(phone){
+  if(!supabase){
+    const normalized=normalizePhone(phone)
+    return demoGet('cases')
+      .filter(c=>normalizePhone(c.phone)===normalized)
+      .sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at))
+  }
+  const {data,error}=await supabase.rpc('track_cases_by_phone',{p_phone:phone})
+  if(error) throw error
+  return data||[]
+}
+
+async function publicCaseMessages(caseId,phone){
+  if(!supabase){
+    const row=demoGet('cases').find(c=>c.id===caseId && normalizePhone(c.phone)===normalizePhone(phone))
+    if(!row) throw new Error('Dossier introuvable')
+    return demoGet('messages').filter(m=>m.case_id===row.id && m.visibility==='public').sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
+  }
+  const {data,error}=await supabase.rpc('case_public_messages_by_phone',{p_case_id:caseId,p_phone:phone})
+  if(error) throw error
+  return data||[]
+}
+
+async function publicReply(caseId,phone,body){
+  if(!supabase){
+    const cases=demoGet('cases'); const row=cases.find(c=>c.id===caseId && normalizePhone(c.phone)===normalizePhone(phone))
+    if(!row) throw new Error('Dossier introuvable')
+    const now=new Date().toISOString()
+    demoSet('messages',[...demoGet('messages'),{id:uuid(),case_id:row.id,author_type:'client',author_name:row.contact_name,visibility:'public',body,created_at:now}])
+    demoSet('cases',cases.map(c=>c.id===row.id?{...c,updated_at:now}:c))
+    return true
+  }
+  const {error}=await supabase.rpc('reply_case_by_phone',{p_case_id:caseId,p_phone:phone,p_body:body})
+  if(error) throw error
+  return true
+}
+
+function useHashRoute(){
+  const [route,setRoute]=React.useState(location.hash || '#home')
+  React.useEffect(()=>{const f=()=>setRoute(location.hash||'#home');addEventListener('hashchange',f);return()=>removeEventListener('hashchange',f)},[])
+  return route
+}
+
+function useFivemBridge(){
+  const [embedded,setEmbedded]=React.useState(new URLSearchParams(location.search).get('fivem')==='1')
+  const [visible,setVisible]=React.useState(!embedded)
+  React.useEffect(()=>{const fn=e=>{if(e.data?.action==='open'){setVisible(true);setEmbedded(true)}if(e.data?.action==='close')setVisible(false)};addEventListener('message',fn);return()=>removeEventListener('message',fn)},[])
+  React.useEffect(()=>{const fn=e=>{if(e.key==='Escape'&&embedded){setVisible(false);const r=window.GetParentResourceName?.();if(r)fetch(`https://${r}/close`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).catch(()=>{})}};addEventListener('keydown',fn);return()=>removeEventListener('keydown',fn)},[embedded])
+  return {embedded,visible}
+}
+
+function App(){
+  const route=useHashRoute()
+  const {embedded,visible}=useFivemBridge()
+  const [modal,setModal]=React.useState(null)
+  const [toast,setToast]=React.useState(null)
+  const [partners,setPartners]=React.useState([])
+  const [fleet,setFleet]=React.useState(FLEET_SEEDS)
+  const [session,setSession]=React.useState(null)
+  const [profile,setProfile]=React.useState(null)
+
+  const notify=(text,type='ok')=>{setToast({text,type});setTimeout(()=>setToast(null),3500)}
+  const loadPublic=React.useCallback(async()=>{
+    if(!supabase){setPartners(demoGet('partners'));setFleet(demoGet('fleet',FLEET_SEEDS));return}
+    const [{data:p},{data:f}] = await Promise.all([
+      supabase.from('partners').select('*').eq('active',true).order('sort_order'),
+      supabase.from('fleet_vehicles').select('*').eq('active',true).order('sort_order')
+    ])
+    setPartners(p?.length?p:PARTNER_SEEDS); if(f?.length)setFleet(f)
+  },[])
+
+  React.useEffect(()=>{loadPublic()},[loadPublic])
+  React.useEffect(()=>{
+    if(!supabase)return
+    supabase.auth.getSession().then(({data})=>setSession(data.session))
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>setSession(s))
+    return()=>subscription.unsubscribe()
+  },[])
+  React.useEffect(()=>{
+    if(!supabase||!session){setProfile(null);return}
+    supabase.from('staff_profiles').select('*').eq('id',session.user.id).maybeSingle().then(({data})=>setProfile(data||null))
+  },[session])
+
+  if(embedded&&!visible)return <div className="nui-hidden"/>
+  if(route.startsWith('#staff')) return <StaffApp session={session} profile={profile} notify={notify} loadPublic={loadPublic} demo={DEMO}/>
+
+  return <>
+    <PublicSite partners={partners} fleet={fleet} setModal={setModal} embedded={embedded} notify={notify}/>
+    {modal && <ModalShell close={()=>setModal(null)}><ModalContent modal={modal} close={()=>setModal(null)} notify={notify} setModal={setModal}/></ModalShell>}
+    {toast&&<Toast {...toast}/>} 
+  </>
+}
+
+function PublicSite({partners,fleet,setModal,embedded,notify}){
+  const [menu,setMenu]=React.useState(false)
+  const openCase=(service=null)=>setModal({type:'case',kind:'logistics',service})
+  return <div className={cls('site','postop-site',embedded&&'embedded')}>
+    <header className="topbar postop-topbar">
+      <a className="brand postop-brand" href="#home" onClick={()=>setMenu(false)}><img src="https://i.imgur.com/60i4d70.png"/><div><strong>Post OP</strong><span>LOGISTICS</span></div></a>
+      <nav className={menu?'open':''}>
+        <a href="#services" onClick={()=>setMenu(false)}>Services</a>
+        <a href="#fleet" onClick={()=>setMenu(false)}>Flotte</a>
+        <a href="#partners" onClick={()=>setMenu(false)}>Partenaires</a>
+        <a href="#careers" onClick={()=>setMenu(false)}>Carrières</a>
+        <button className="nav-track" onClick={()=>{setModal({type:'track'});setMenu(false)}}><Search size={14}/> Suivre</button>
+        <a className="staff-link" href="#staff"><LockKeyhole size={13}/> Interne</a>
+      </nav>
+      <button className="menu-btn" onClick={()=>setMenu(v=>!v)} aria-label="Menu">{menu?<X/>:<Menu/>}</button>
+    </header>
+
+    <main>
+      <section id="home" className="postop-hero">
+        <div className="postop-hero-copy">
+          <div className="postop-kicker">LOS SANTOS · DELIVERY & LOGISTICS</div>
+          <h1>Votre fret.<br/><em>Notre tournée.</em></h1>
+          <p>Livraison, ravitaillement et transport routier pour les entreprises et professionnels de Los Santos.</p>
+          <div className="postop-hero-actions">
+            <button className="btn postop-btn-primary" onClick={()=>openCase()}>Demander un transport <ArrowRight size={16}/></button>
+            <button className="btn postop-btn-secondary" onClick={()=>setModal({type:'track'})}>Suivre ma demande</button>
+          </div>
+          <div className="postop-hero-points"><span><Check/> Simple</span><span><Check/> Suivi</span><span><Check/> Professionnel</span></div>
+        </div>
+        <div className="postop-hero-visual">
+          <div className="postop-hero-image-wash"/>
+          <div className="postop-hero-mark"><img src="/assets/postop-logo-transparent.png" alt="Post OP"/></div>
+          <div className="postop-hero-meta"><span>POST OP LOGISTICS</span><b>FLOTTE · 01</b><small>TRACTEUR ROUTIER</small></div>
+          <img className="postop-hero-truck" src={PHANTOM_IMAGE} alt="Camion Post OP Logistics"/>
+        </div>
+      </section>
+
+      <section className="postop-quickbar">
+        <button onClick={()=>openCase('business_supply')}><Warehouse/><div><b>Ravitaillement</b><span>Approvisionnez votre activité</span></div><ArrowRight/></button>
+        <button onClick={()=>openCase('special_freight')}><Truck/><div><b>Fret & transport</b><span>Organisez votre livraison</span></div><ArrowRight/></button>
+        <button onClick={()=>setModal({type:'track'})}><Phone/><div><b>Suivi client</b><span>Retrouvez vos demandes</span></div><ArrowRight/></button>
+      </section>
+
+      <ExpressRequest notify={notify} />
+
+      <section id="services" className="postop-section postop-services">
+        <div className="postop-section-head"><div><span>01 · NOS SERVICES</span><h2>Une solution pour chaque livraison.</h2></div><p>Du colis urgent à la tournée poids lourd, Post OP Logistics organise vos livraisons avec une prise en charge simple et un suivi centralisé.</p></div>
+        <div className="postop-service-grid">{LOG_SERVICES.map((s,i)=>{const Icon=s.icon;return <button key={s.id} className="postop-service-card" onClick={()=>openCase(s.id)}><div className="postop-service-icon"><Icon/></div><small>{String(i+1).padStart(2,'0')} · {s.tag}</small><h3>{s.title}</h3><p>{s.text}</p><span>Demander <ArrowRight size={14}/></span></button>})}</div>
+      </section>
+
+      <section className="postop-process">
+        <div className="postop-process-title"><span>02 · COMMENT ÇA MARCHE</span><h2>Trois étapes. Pas plus.</h2></div>
+        <div className="postop-process-grid"><div><b>01</b><h3>Vous décrivez le besoin</h3><p>Quelques informations et un message libre suffisent.</p></div><div><b>02</b><h3>Nous organisons</h3><p>Post OP Logistics planifie la tournée et affecte le véhicule adapté.</p></div><div><b>03</b><h3>Vous suivez</h3><p>Retrouvez l'avancement et nos réponses avec votre téléphone.</p></div></div>
+      </section>
+
+      <section id="fleet" className="postop-section postop-fleet-section">
+        <div className="postop-section-head"><div><span>03 · NOTRE FLOTTE</span><h2>Les bons véhicules pour vos flux.</h2></div><p>Notre flotte évolue avec l'activité et les besoins de nos clients. Chaque véhicule est affecté selon le volume et la nature de la mission.</p></div>
+        <div className="postop-fleet-grid">{fleet.map((v,i)=><article className="postop-fleet-card" key={v.id}><div className="postop-fleet-image"><img src={v.image_url} alt={v.name}/><span>{String(i+1).padStart(2,'0')}</span></div><div className="postop-fleet-copy"><div><small>{v.brand} · {v.category}{v.capacity?' · '+v.capacity:''}</small><h3>{v.name}</h3></div><span className={cls('fleet-status',v.status)}><i/>{statusLabel(v.status)}</span><p>{v.description}</p></div></article>)}</div>
+      </section>
+
+      <section id="partners" className="postop-section postop-partners">
+        <div className="postop-section-head"><div><span>04 · ILS NOUS FONT CONFIANCE</span><h2>Un réseau qui roule avec nous.</h2></div><p>Commerces, lieux de vie et entreprises locales font appel à Post OP pour leurs besoins de livraison et de ravitaillement.</p></div>
+        <div className="postop-partner-grid">{partners.map(p=><article className="postop-partner-card" key={p.id}><div className="postop-partner-logo">{p.image_url?<img src={p.image_url} alt={p.name}/>:<Handshake/>}</div><div className="postop-partner-copy"><small>{p.eyebrow||'PARTENAIRE POST OP'}</small><h3>{p.name}</h3><p>{p.description}</p>{p.link_url&&<a href={p.link_url} target="_blank" rel="noopener">Découvrir <ArrowUpRight size={14}/></a>}</div></article>)}</div>
+        <div className="postop-partner-cta"><div><span>DEVENIR PARTENAIRE</span><h3>Vous souhaitez travailler avec Post OP ?</h3><p>Présentez-nous votre établissement et le type de collaboration que vous recherchez. Quelques lignes suffisent.</p></div><button className="btn postop-btn-primary" onClick={()=>setModal({type:'partnership'})}>Proposer un partenariat <Handshake size={16}/></button></div>
+      </section>
+
+      <section id="careers" className="postop-section postop-careers">
+        <div className="postop-section-head"><div><span>05 · CARRIÈRES</span><h2>Prenez la route avec Post OP.</h2></div><p>Nous recrutons des chauffeurs et profils commerciaux pour développer notre réseau de livraison à Los Santos.</p></div>
+        <div className="postop-job-grid">{JOBS.map(j=>{const Icon=j.icon;return <button key={j.id} className="postop-job-card" onClick={()=>setModal({type:'apply',job:j.id})}><Icon/><small>POSTE OUVERT</small><h3>{j.title}</h3><p>{j.text}</p><span>Postuler <ArrowRight size={14}/></span></button>})}</div>
+      </section>
+
+      <section className="postop-cta"><div><span>POST OP LOGISTICS · LOS SANTOS</span><h2>Un transport à organiser ?</h2><p>Indiquez-nous ce qu'il faut acheminer et quand. Notre équipe organise la tournée.</p></div><div><button className="btn postop-btn-primary" onClick={()=>openCase()}>Ouvrir une demande <ArrowRight size={16}/></button><button className="btn postop-btn-secondary" onClick={()=>setModal({type:'track'})}>Suivre une demande</button></div></section>
+    </main>
+
+    <div className="postop-mobile-actions"><button onClick={()=>openCase()}><FileText/><span>Demande</span></button><button onClick={()=>setModal({type:'track'})}><Search/><span>Suivi</span></button></div>
+    <footer className="postop-footer"><img src="https://i.imgur.com/60i4d70.png"/><p>Delivery & Logistics · Livraison · Ravitaillement · Fret</p><div>Los Santos</div></footer>
+  </div>
+}
+
+function ExpressRequest({notify}){
+  const [form,setForm]=React.useState({contact_name:'',phone:'',description:''})
+  const [busy,setBusy]=React.useState(false)
+  const [sent,setSent]=React.useState(false)
+  async function submit(e){
+    e.preventDefault()
+    if(!form.contact_name.trim()||!form.phone.trim()||!form.description.trim())return notify('Nom, téléphone et demande sont nécessaires.','error')
+    setBusy(true)
+    try{
+      await publicOpenCase({kind:'logistics',service:'express_delivery',contact_name:form.contact_name.trim(),company_name:null,phone:form.phone.trim(),title:'Demande express',description:form.description.trim(),origin:null,destination:null,cargo:null,quantity:null,requested_at:null,frequency:null,urgency:'standard'})
+      setSent(true);setForm({contact_name:'',phone:'',description:''})
+    }catch(err){notify(err.message||'Impossible d’envoyer la demande.','error')}
+    finally{setBusy(false)}
+  }
+  return <section className="postop-express"><div className="postop-express-copy"><span>DEMANDE EXPRESS</span><h2>Besoin d’un transport ? Dites-nous l’essentiel.</h2><p>Trois champs, pas plus. Si nous avons besoin de précisions, nous vous recontactons.</p></div>{sent?<div className="postop-express-success"><Check/><div><b>Demande envoyée.</b><span>Vous pouvez la retrouver avec votre numéro de téléphone.</span></div><button className="text-link" onClick={()=>setSent(false)}>Nouvelle demande</button></div>:<form className="postop-express-form" onSubmit={submit}><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})} placeholder="Nom & prénom"/><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="Téléphone"/><Textarea required rows="3" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Décrivez votre besoin en quelques mots..."/><button className="btn postop-btn-primary" disabled={busy}>{busy?'Envoi...':'Envoyer'} <ArrowRight size={15}/></button></form>}</section>
+}
+
+function ModalShell({children,close}){
+  React.useEffect(()=>{const f=e=>e.key==='Escape'&&close();addEventListener('keydown',f);return()=>removeEventListener('keydown',f)},[close])
+  return <div className="modal-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}>{children}</div>
+}
+
+function ModalContent({modal,close,notify,setModal}){
+  if(modal.type==='track')return <TrackPortal close={close} notify={notify} setModal={setModal}/>
+  if(modal.type==='apply')return <ApplicationForm job={modal.job} close={close} notify={notify}/>
+  if(modal.type==='partnership')return <PartnershipForm close={close} notify={notify}/>
+  return <CaseForm initialKind={modal.kind} initialService={modal.service} prefill={modal.prefill} close={close} notify={notify}/>
+}
+
+function ModalHeader({kicker,title,close}){return <div className="modal-head"><div><span>{kicker}</span><h2>{title}</h2></div><button onClick={close}><X/></button></div>}
+function Field({label,hint,children,full=false}){return <label className={cls('field',full&&'full')}><span>{label}</span>{children}{hint&&<small>{hint}</small>}</label>}
+const Input=props=><input {...props}/>
+const Textarea=props=><textarea {...props}/>
+
+function CaseForm({initialService,prefill,close,notify}){
+  const [form,setForm]=React.useState({service:initialService||prefill?.service||'',contact_name:prefill?.contact_name||'',company_name:prefill?.company_name||'',phone:prefill?.phone||'',description:prefill?.description||'',requested_at:'',frequency:prefill?.frequency||'',urgency:''})
+  const [busy,setBusy]=React.useState(false)
+  const [reference,setReference]=React.useState(null)
+  React.useEffect(()=>{if(initialService)setForm(v=>({...v,service:initialService}))},[initialService])
+
+  async function submit(e){
+    e.preventDefault()
+    if(!form.service||!form.contact_name||!form.phone||!form.description)return notify('Type de demande, nom, téléphone et description sont nécessaires.','error')
+    setBusy(true)
+    try{
+      const payload={...form,kind:'logistics',title:serviceLabel(form.service),origin:null,destination:null,cargo:null,quantity:null,urgency:form.urgency||'standard',frequency:form.frequency||null,requested_at:form.requested_at||null}
+      const ref=await publicOpenCase(payload);setReference(ref)
+    }catch(err){notify(err.message||'Impossible d’ouvrir la demande.','error')}finally{setBusy(false)}
+  }
+  if(reference)return <div className="modal-panel success-panel"><ModalHeader kicker="DEMANDE CRÉÉE" title="Demande enregistrée" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Votre demande est transmise à Post OP.</h3><p>Vous pourrez la retrouver avec le numéro de téléphone utilisé. Aucun numéro de dossier à conserver.</p><div className="success-note"><Phone/><span>Numéro utilisé : <b>{form.phone}</b></span></div><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
+
+  return <div className="modal-panel case-modal postop-case-modal"><ModalHeader kicker="POST OP LOGISTICS" title="Demander un transport" close={close}/><form className="modal-body postop-case-form" onSubmit={submit}>
+    <p className="postop-form-lead">Pas de formulaire interminable : décrivez votre besoin, nous vous demanderons les précisions nécessaires ensuite.</p>
+    <Field label="Type de demande" full><select required value={form.service} onChange={e=>setForm({...form,service:e.target.value})}><option value="">Sélectionner...</option>{LOG_SERVICES.map(s=><option value={s.id} key={s.id}>{s.title}</option>)}</select></Field>
+    <div className="form-grid postop-contact-grid"><Field label="Nom & prénom"><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})} placeholder="Votre nom"/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="Votre numéro"/></Field></div>
+    <Field label="Entreprise · facultatif" full><Input value={form.company_name} onChange={e=>setForm({...form,company_name:e.target.value})} placeholder="Nom de votre entreprise"/></Field>
+    <details className="postop-optional-block"><summary><div><span>Ajouter des précisions</span><small>Date, fréquence ou priorité · facultatif</small></div><ChevronRight/></summary><div className="postop-optional-fields"><div className="form-grid"><Field label="Date souhaitée"><Input type="datetime-local" value={form.requested_at} onChange={e=>setForm({...form,requested_at:e.target.value})}/></Field><Field label="Fréquence"><select value={form.frequency} onChange={e=>setForm({...form,frequency:e.target.value})}><option value="">Pas de préférence</option><option value="once">Ponctuel</option><option value="daily">Quotidien</option><option value="several_week">Plusieurs fois / semaine</option><option value="weekly">Hebdomadaire</option><option value="on_demand">À la demande</option></select></Field></div><Field label="Priorité" full><select value={form.urgency} onChange={e=>setForm({...form,urgency:e.target.value})}><option value="">Standard</option><option value="urgent">Urgent</option><option value="planned">Planifiable</option></select></Field></div></details>
+    <Field label="Décrivez votre demande" full hint="Lieu, marchandise, quantité, contraintes : indiquez seulement ce qui vous paraît utile."><Textarea required rows="5" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Ex. Nous avons besoin d'un ravitaillement vendredi soir pour notre établissement..."/></Field>
+    <button className="btn btn-dark wide" disabled={busy}>{busy?'Envoi...':'Envoyer ma demande'} <ArrowRight size={16}/></button>
+  </form></div>
+}
+
+function PartnershipForm({close,notify}){
+  const [form,setForm]=React.useState({company_name:'',contact_name:'',phone:'',activity:'',description:''})
+  const [busy,setBusy]=React.useState(false)
+  const [done,setDone]=React.useState(false)
+  async function submit(e){
+    e.preventDefault()
+    if(!form.company_name.trim()||!form.contact_name.trim()||!form.phone.trim()||!form.description.trim())return notify('Entreprise, contact, téléphone et proposition sont nécessaires.','error')
+    setBusy(true)
+    try{
+      const description=[form.activity&&`Activité : ${form.activity.trim()}`,form.description.trim()].filter(Boolean).join('\n\n')
+      await publicOpenCase({kind:'partnership',service:'partnership_request',contact_name:form.contact_name.trim(),company_name:form.company_name.trim(),phone:form.phone.trim(),title:`Partenariat · ${form.company_name.trim()}`,description,origin:null,destination:null,cargo:null,quantity:null,requested_at:null,frequency:null,urgency:'standard'})
+      setDone(true)
+    }catch(err){notify(err.message||'Impossible d’envoyer la demande de partenariat.','error')}
+    finally{setBusy(false)}
+  }
+  if(done)return <div className="modal-panel success-panel"><ModalHeader kicker="PARTENARIAT" title="Proposition transmise" close={close}/><div className="success-state"><div className="success-check"><Handshake/></div><h3>Merci pour votre proposition.</h3><p>L’équipe Post OP Logistics reviendra vers vous par téléphone après étude de votre demande.</p><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
+  return <div className="modal-panel postop-partnership-modal"><ModalHeader kicker="RÉSEAU POST OP" title="Proposer un partenariat" close={close}/><form className="modal-body" onSubmit={submit}><p className="postop-form-lead">Présentez simplement votre établissement et la collaboration envisagée. Pas besoin d’un dossier complet.</p><Field label="Entreprise / établissement" full><Input required value={form.company_name} onChange={e=>setForm({...form,company_name:e.target.value})} placeholder="Nom de votre établissement"/></Field><div className="form-grid"><Field label="Nom du contact"><Input required value={form.contact_name} onChange={e=>setForm({...form,contact_name:e.target.value})}/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div><Field label="Activité · facultatif" full><Input value={form.activity} onChange={e=>setForm({...form,activity:e.target.value})} placeholder="Garage, restaurant, nightclub, commerce..."/></Field><Field label="Votre proposition" full hint="Desserte régulière, ravitaillement, échange de visibilité, contrat de livraison, autre..."><Textarea required rows="6" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Expliquez en quelques lignes ce que vous souhaitez mettre en place avec Post OP."/></Field><button className="btn btn-dark wide" disabled={busy}>{busy?'Envoi...':'Envoyer ma proposition'} <Handshake size={16}/></button></form></div>
+}
+
+function TrackPortal({close,notify,setModal}){
+  const [phone,setPhone]=React.useState('')
+  const [cases,setCases]=React.useState([])
+  const [selected,setSelected]=React.useState(null)
+  const [messages,setMessages]=React.useState([])
+  const [busy,setBusy]=React.useState(false)
+  const [reply,setReply]=React.useState('')
+
+  async function openCase(row){
+    setBusy(true)
+    try{setSelected(row);setMessages(await publicCaseMessages(row.id,phone))}
+    catch(err){notify(err.message||'Impossible de charger le dossier.','error')}
+    finally{setBusy(false)}
+  }
+  async function search(e){
+    e?.preventDefault();setBusy(true);setSelected(null);setMessages([])
+    try{
+      const rows=await publicTrack(phone);setCases(rows)
+      if(!rows.length)notify('Aucun dossier trouvé pour ce numéro.','error')
+      else if(rows.length===1){setSelected(rows[0]);setMessages(await publicCaseMessages(rows[0].id,phone))}
+    }catch(err){notify(err.message||'Erreur de suivi.','error')}finally{setBusy(false)}
+  }
+  async function send(){
+    if(!reply.trim()||!selected)return;setBusy(true)
+    try{await publicReply(selected.id,phone,reply.trim());setReply('');setMessages(await publicCaseMessages(selected.id,phone));notify('Réponse envoyée.')}
+    catch(err){notify(err.message||'Envoi impossible.','error')}finally{setBusy(false)}
+  }
+
+  return <div className="modal-panel track-modal"><ModalHeader kicker="ESPACE CLIENT" title="Suivre un dossier" close={close}/><div className="modal-body">
+    {!cases.length&&!selected?<form onSubmit={search} className="track-search"><div className="track-phone-mark"><Phone/></div><h3>Retrouvez vos demandes.</h3><p>Saisissez uniquement le numéro de téléphone utilisé lors de votre prise de contact. Aucun compte ni numéro de dossier n’est nécessaire.</p><Field label="Téléphone"><Input required autoFocus value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Votre numéro de téléphone"/></Field><button className="btn btn-dark wide" disabled={busy}><Search size={16}/>{busy?'Recherche...':'Afficher mes dossiers'}</button></form>:
+      !selected?<div className="case-picker"><div className="case-picker-head"><div><small>DOSSIERS RETROUVÉS</small><h3>{cases.length} demande{cases.length>1?'s':''}</h3></div><button className="text-link" onClick={()=>{setCases([]);setPhone('')}}>Changer de numéro</button></div><div className="case-picker-list">{cases.map(c=><button key={c.id} onClick={()=>openCase(c)}><div><small>{'POST OP LOGISTICS'} · {dt(c.created_at)}</small><b>{c.title}</b><span>{serviceLabel(c.service)}</span></div><CaseStatus value={c.status}/><ChevronRight/></button>)}</div></div>:
+      <div className="client-case">
+        <div className="client-case-head"><div><small>{'POST OP LOGISTICS'}</small><h3>{selected.title}</h3><span>{serviceLabel(selected.service)}</span></div><CaseStatus value={selected.status}/></div>
+        <div className="client-history-head"><div><span>HISTORIQUE CLIENT</span><b>{cases.length} demande{cases.length>1?'s':''} liée{cases.length>1?'s':''} à ce numéro</b></div>{selected.kind==='logistics'&&<button className="btn postop-btn-secondary" onClick={()=>setModal({type:'case',kind:'logistics',service:selected.service,prefill:{service:selected.service,contact_name:selected.contact_name,company_name:selected.company_name,phone,description:selected.description,frequency:selected.frequency}})}>Refaire cette demande <RefreshCw size={14}/></button>}</div>
+        <div className="client-summary"><div><span>Ouvert le</span><b>{dt(selected.created_at)}</b></div><div><span>Dernière mise à jour</span><b>{dt(selected.updated_at)}</b></div>{selected.requested_at&&<div><span>Date souhaitée</span><b>{dt(selected.requested_at)}</b></div>}</div>
+        <div className="conversation"><div className="conversation-title"><MessageSquareText/><div><b>Échanges avec Post OP</b><span>Retrouvez ici les réponses et demandes de précision concernant votre dossier.</span></div></div>{messages?.length?messages.map(m=><MessageBubble key={m.id} m={m}/>):<div className="empty-line">Aucun message pour le moment.</div>}</div>
+        {!['completed','declined','cancelled'].includes(selected.status)&&<div className="client-reply"><Textarea rows="3" value={reply} onChange={e=>setReply(e.target.value)} placeholder="Écrire à Post OP..."/><button className="btn btn-dark" disabled={busy||!reply.trim()} onClick={send}><Send size={15}/> Envoyer</button></div>}
+        <button className="text-link back-search" onClick={()=>setSelected(null)}>Voir mes autres dossiers</button>
+      </div>}
+  </div></div>
+}
+
+function MessageBubble({m}){const staff=m.author_type==='staff'||m.author_type==='system';return <div className={cls('message-bubble',staff?'staff':'client')}><div><b>{m.author_name|| (staff?'Post OP Logistics':'Client')}</b><span>{dt(m.created_at)}</span></div><p>{m.body}</p></div>}
+
+function ApplicationForm({job,close,notify}){
+  const [form,setForm]=React.useState({full_name:'',phone:'',position:job||'heavy_driver',experience:'',availability:'',motivation:''})
+  const [busy,setBusy]=React.useState(false),[ref,setRef]=React.useState(null)
+  async function submit(e){e.preventDefault();setBusy(true);try{
+    const reference=`JOB-${new Date().toISOString().slice(2,10).replaceAll('-','')}-${Math.random().toString(36).slice(2,6).toUpperCase()}`
+    if(!supabase){const row={id:uuid(),client_ref:reference,status:'new',created_at:new Date().toISOString(),notes:'',...form};demoSet('applications',[row,...demoGet('applications')])}
+    else {const {error}=await supabase.from('applications').insert({client_ref:reference,...form,status:'new'});if(error)throw error}
+    setRef(reference)
+  }catch(err){notify(err.message||'Candidature impossible.','error')}finally{setBusy(false)}}
+  if(ref)return <div className="modal-panel success-panel"><ModalHeader kicker="CANDIDATURE" title="Candidature transmise" close={close}/><div className="success-state"><div className="success-check"><Check/></div><h3>Merci pour votre candidature.</h3><p>Notre équipe étudiera votre profil et reviendra vers vous par téléphone.</p><button className="btn btn-dark" onClick={close}>Terminer</button></div></div>
+  return <div className="modal-panel postop-apply-modal"><ModalHeader kicker="CARRIÈRES" title="Rejoindre Post OP Logistics" close={close}/><form className="modal-body postop-apply-form" onSubmit={submit}>
+    <p className="postop-form-lead">Un formulaire court suffit. Nous préférons échanger avec vous ensuite plutôt que vous demander un dossier interminable.</p>
+    <div className="form-grid"><Field label="Nom & prénom"><Input required value={form.full_name} onChange={e=>setForm({...form,full_name:e.target.value})}/></Field><Field label="Téléphone"><Input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div>
+    <Field label="Poste" full><select value={form.position} onChange={e=>setForm({...form,position:e.target.value})}>{JOBS.map(j=><option value={j.id} key={j.id}>{j.title}</option>)}</select></Field>
+    <Field label="Disponibilités · facultatif" full><Input value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})} placeholder="Ex. soirs, week-end, plusieurs jours par semaine..."/></Field>
+    <Field label="Présentez-vous en quelques lignes" full hint="Expérience, motivation, ce que vous aimeriez faire chez Post OP."><Textarea required rows="5" value={form.motivation} onChange={e=>setForm({...form,motivation:e.target.value})}/></Field>
+    <Field label="Expérience complémentaire · facultatif" full><Textarea rows="2" value={form.experience} onChange={e=>setForm({...form,experience:e.target.value})}/></Field>
+    <button className="btn btn-dark wide" disabled={busy}>{busy?'Envoi...':'Envoyer ma candidature'} <ArrowRight size={16}/></button>
+  </form></div>
+}
+
+function StaffApp({session,profile,notify,loadPublic,demo}){
+  const [demoAccess,setDemoAccess]=React.useState(false)
+  if(!session&&!demoAccess)return <StaffLogin notify={notify} demo={demo} onDemo={()=>setDemoAccess(true)}/>
+  if(session&&!profile)return <StaffGate session={session}/>
+  return <StaffDashboard profile={profile||{display_name:'Mode Démo',role:'admin',branch:'Logistics'}} notify={notify} loadPublic={loadPublic} demo={demo||demoAccess} onDemoExit={()=>setDemoAccess(false)}/>
+}
+
+function StaffLogin({notify,demo,onDemo}){
+  const [email,setEmail]=React.useState(''),[password,setPassword]=React.useState(''),[busy,setBusy]=React.useState(false)
+  async function login(e){e.preventDefault();if(!supabase)return onDemo();setBusy(true);const {error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);if(error)notify(error.message,'error')}
+  return <div className="staff-login"><a className="login-brand" href="#home"><img src="https://i.imgur.com/60i4d70.png"/><span>Retour au site</span></a><form className="login-card" onSubmit={login}><div className="security-mark"><LockKeyhole/></div><span>POST OP LOGISTICS / OPERATIONS</span><h1>Espace opérations</h1><p>Dossiers, réponses clients, missions, flotte, recrutement et finances.</p><Field label="E-mail"><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></Field><Field label="Mot de passe"><Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></Field><button className="btn btn-light wide" disabled={busy}><LogIn size={16}/>{busy?'Connexion...':'Connexion'}</button>{demo&&<button type="button" className="demo-link" onClick={onDemo}>Ouvrir le back-office en mode démo</button>}</form></div>
+}
+function StaffGate({session}){return <div className="staff-login"><div className="login-card"><AlertTriangle/><h1>Compte non autorisé</h1><p>{session.user.email} est connecté mais n’a pas de profil dans <code>staff_profiles</code>.</p><button className="btn btn-light" onClick={()=>supabase.auth.signOut()}>Déconnexion</button></div></div>}
+
+function StaffDashboard({profile,notify,loadPublic,demo,onDemoExit}){
+  const [tab,setTab]=React.useState('overview')
+  const [mobileNav,setMobileNav]=React.useState(false)
+  const [data,setData]=React.useState({cases:[],messages:[],partners:[],fleet:[],finance:[],applications:[],staff:[]})
+  const [busy,setBusy]=React.useState(false)
+
+  const load=React.useCallback(async()=>{
+    setBusy(true)
+    if(demo){setData({cases:demoGet('cases'),messages:demoGet('messages'),partners:demoGet('partners'),fleet:demoGet('fleet',FLEET_SEEDS),finance:demoGet('finance'),applications:demoGet('applications'),staff:[{id:'demo-staff',display_name:'T. Markoussian',role:'admin'}]});setBusy(false);return}
+    const [c,m,p,f,fin,a,s]=await Promise.all([
+      supabase.from('cases').select('*').order('updated_at',{ascending:false}),
+      supabase.from('case_messages').select('*').order('created_at',{ascending:true}),
+      supabase.from('partners').select('*').order('sort_order'),
+      supabase.from('fleet_vehicles').select('*').order('sort_order'),
+      supabase.from('financial_transactions').select('*').order('transaction_date',{ascending:false}),
+      supabase.from('applications').select('*').order('created_at',{ascending:false}),
+      supabase.from('staff_profiles').select('*').order('display_name')
+    ])
+    const err=[c,m,p,f,fin,a,s].find(x=>x.error)?.error;if(err)notify(err.message,'error')
+    setData({cases:c.data||[],messages:m.data||[],partners:p.data||[],fleet:f.data||[],finance:fin.data||[],applications:a.data||[],staff:s.data||[]});setBusy(false)
+  },[demo,notify])
+  React.useEffect(()=>{load()},[load])
+
+  const nav=[
+    ['overview',LayoutDashboard,'Vue d’ensemble'],['logistics',Truck,'Missions'],['clients',UsersRound,'Clients'],['partnerships',Handshake,'Demandes partenaires'],['partners',BadgeCheck,'Réseau partenaires'],['fleet',HardHat,'Flotte'],['finance',CircleDollarSign,'Finance'],['careers',BriefcaseBusiness,'Recrutement']
+  ]
+  const logout=async()=>{if(demo)return onDemoExit();await supabase.auth.signOut();location.hash='#home'}
+  return <div className="staff-shell">
+    <aside className={mobileNav?'open':''}><div className="staff-brand"><img src="https://i.imgur.com/60i4d70.png"/><div><b>Post OP</b><span>OPERATIONS</span></div></div><nav>{nav.map(([id,Icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setMobileNav(false)}}><Icon size={18}/>{label}</button>)}</nav><div className="staff-side-bottom"><a href="#home"><ExternalLink size={15}/> Site public</a><button onClick={logout}><LogOut size={15}/> Déconnexion</button></div></aside>
+    <div className="staff-main"><header><button className="staff-menu" onClick={()=>setMobileNav(v=>!v)}><Menu/></button><div><small>POST OP LOGISTICS / OPERATIONS</small><h1>{nav.find(x=>x[0]===tab)?.[2]}</h1></div><div className="staff-user"><span>{profile.display_name}</span><b>{profile.role}</b></div><button className="icon-btn" onClick={load} title="Actualiser"><RefreshCw className={busy?'spin':''}/></button></header>
+      <div className="staff-content">
+        {tab==='overview'&&<Overview data={data} setTab={setTab}/>} 
+        {tab==='logistics'&&<CasesPanel data={data} reload={load} notify={notify} demo={demo} forcedKind="logistics"/>}
+        {tab==='clients'&&<ClientsPanel cases={data.cases} setTab={setTab}/>}
+        {tab==='partnerships'&&<CasesPanel data={data} reload={load} notify={notify} demo={demo} forcedKind="partnership"/>}
+        {tab==='partners'&&<PartnersPanel items={data.partners} reload={load} loadPublic={loadPublic} notify={notify} demo={demo}/>}
+        {tab==='fleet'&&<FleetPanel items={data.fleet} reload={load} loadPublic={loadPublic} notify={notify} demo={demo}/>} 
+        {tab==='finance'&&<FinancePanel items={data.finance} cases={data.cases} reload={load} notify={notify} demo={demo}/>} 
+        {tab==='careers'&&<CareersPanel items={data.applications} reload={load} notify={notify} demo={demo}/>} 
+      </div>
+    </div>
+  </div>
+}
+
+function Overview({data,setTab}){
+  const open=data.cases.filter(c=>!['completed','declined','cancelled'].includes(c.status))
+  const logistics=open.filter(c=>c.kind==='logistics')
+  const waiting=open.filter(c=>c.status==='waiting_client')
+  const income=data.finance.filter(x=>x.direction==='income').reduce((a,b)=>a+Number(b.amount||0),0)
+  const expense=data.finance.filter(x=>x.direction==='expense').reduce((a,b)=>a+Number(b.amount||0),0)
+  return <>
+    <div className="metric-grid"><Metric icon={Inbox} label="Dossiers ouverts" value={open.length}/><Metric icon={UsersRound} label="Clients uniques" value={new Set(data.cases.map(c=>normalizePhone(c.phone)).filter(Boolean)).size}/><Metric icon={RefreshCw} label="Clients récurrents" value={Object.values(data.cases.reduce((a,c)=>{const p=normalizePhone(c.phone);if(p)a[p]=(a[p]||0)+1;return a},{})).filter(n=>n>1).length}/><Metric icon={PackageCheck} label="Livraisons terminées" value={data.cases.filter(c=>c.kind==='logistics'&&c.status==='completed').length}/></div>
+    <div className="staff-grid two"><section className="staff-card"><CardTitle kicker="ACTIVITÉ" title="Derniers dossiers" action={<button className="text-link" onClick={()=>setTab('logistics')}>Tout voir</button>}/>{data.cases.slice(0,6).map(c=><MiniCase key={c.id} c={c}/>) }{!data.cases.length&&<Empty icon={Inbox} text="Aucun dossier pour le moment."/>}</section><section className="staff-card"><CardTitle kicker="LOGISTICS" title="À piloter" action={<button className="text-link" onClick={()=>setTab('logistics')}>Ouvrir</button>}/>{data.cases.filter(c=>c.kind==='logistics'&&!['completed','cancelled','declined'].includes(c.status)).slice(0,6).map(c=><MiniCase key={c.id} c={c}/>) }{!logistics.length&&<Empty icon={Truck} text="Aucune mission active."/>}</section></div>
+  </>
+}
+function ClientsPanel({cases}){
+  const groups=Object.values(cases.reduce((acc,c)=>{
+    const phone=normalizePhone(c.phone); if(!phone)return acc
+    if(!acc[phone])acc[phone]={phone:c.phone,name:c.contact_name,company:c.company_name,count:0,last:c.updated_at,completed:0,services:{}}
+    const g=acc[phone];g.count++;if(c.company_name)g.company=c.company_name;if(new Date(c.updated_at)>new Date(g.last)) {g.last=c.updated_at;g.name=c.contact_name}
+    if(c.status==='completed')g.completed++
+    g.services[c.service]=(g.services[c.service]||0)+1
+    return acc
+  },{})).sort((a,b)=>new Date(b.last)-new Date(a.last))
+  const regular=groups.filter(g=>g.count>1)
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>CRM AUTOMATIQUE</span><h2>Clients & historique</h2></div><div className="client-stats-mini"><b>{groups.length}</b><span>clients</span><b>{regular.length}</b><span>récurrents</span></div></div><div className="staff-client-grid">{groups.map(g=>{const top=Object.entries(g.services).sort((a,b)=>b[1]-a[1])[0]?.[0];return <article className="staff-client-card" key={normalizePhone(g.phone)}><div><small>{g.count>1?'CLIENT RÉCURRENT':'CLIENT'}</small><h3>{g.company||g.name}</h3><p>{g.company&&g.name!==g.company?g.name+' · ':''}{g.phone}</p></div><div className="staff-client-meta"><span><b>{g.count}</b> demande{g.count>1?'s':''}</span><span><b>{g.completed}</b> terminée{g.completed>1?'s':''}</span><span>{top?serviceLabel(top):'—'}</span><small>Dernière activité · {dt(g.last)}</small></div></article>})}{!groups.length&&<Empty icon={UsersRound} text="Les clients apparaîtront automatiquement ici dès la première demande."/>}</div></section>
+}
+
+function Metric({icon:Icon,label,value}){return <div className="metric"><div><Icon/></div><span>{label}</span><b>{value}</b></div>}
+function CardTitle({kicker,title,action}){return <div className="card-title"><div><span>{kicker}</span><h2>{title}</h2></div>{action}</div>}
+function MiniCase({c}){return <div className="mini-case"><div><small>{c.reference} · {c.kind==='partnership'?'PARTENARIAT':'POST OP LOGISTICS'}</small><b>{c.title}</b><span>{c.company_name||c.contact_name}</span></div><CaseStatus value={c.status}/></div>}
+function CaseStatus({value}){return <span className={cls('case-status',value)}><i/>{statusLabel(value)}</span>}
+function Empty({icon:Icon,text}){return <div className="empty-admin"><Icon/><p>{text}</p></div>}
+
+function CasesPanel({data,reload,notify,demo,forcedKind}){
+  const [filter,setFilter]=React.useState(forcedKind||'logistics'),[q,setQ]=React.useState(''),[selected,setSelected]=React.useState(null)
+  React.useEffect(()=>{setFilter(forcedKind||'logistics')},[forcedKind])
+  const rows=data.cases.filter(c=>c.kind===filter&&(!q||`${c.reference} ${c.title} ${c.contact_name} ${c.company_name||''} ${c.phone}`.toLowerCase().includes(q.toLowerCase())))
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>{filter==='partnership'?'RÉSEAU POST OP':'POST OP LOGISTICS'}</span><h2>{filter==='partnership'?'Demandes de partenariat':'Missions & demandes'}</h2></div><div className="panel-tools"><label className="searchbox"><Search/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Réf, client, entreprise..."/></label></div></div>
+    <div className="case-table-head"><span>Dossier</span><span>Client</span><span>Statut</span><span>Activité</span><span/></div>
+    <div className="case-list">{rows.map(c=><button className="case-row" key={c.id} onClick={()=>setSelected(c)}><div><small>{c.reference}</small><b>{c.title}</b><span>{serviceLabel(c.service)}</span></div><div><b>{c.company_name||c.contact_name}</b><span>{c.phone}</span></div><CaseStatus value={c.status}/><span>{dt(c.updated_at)}</span><ChevronRight/></button>)}{!rows.length&&<Empty icon={Inbox} text="Aucun dossier ne correspond au filtre."/>}</div>
+    {selected&&<CaseDrawer row={data.cases.find(c=>c.id===selected.id)||selected} messages={data.messages.filter(m=>m.case_id===selected.id)} staff={data.staff} close={()=>setSelected(null)} reload={reload} notify={notify} demo={demo}/>} 
+  </section>
+}
+
+function CaseDrawer({row,messages,staff,close,reload,notify,demo}){
+  const [reply,setReply]=React.useState(''),[visibility,setVisibility]=React.useState('public'),[busy,setBusy]=React.useState(false)
+  async function update(patch){setBusy(true);try{
+    if(demo){const rows=demoGet('cases').map(c=>c.id===row.id?{...c,...patch,updated_at:new Date().toISOString()}:c);demoSet('cases',rows)}
+    else {const {error}=await supabase.from('cases').update(patch).eq('id',row.id);if(error)throw error}
+    await reload();notify('Dossier mis à jour.')
+  }catch(e){notify(e.message,'error')}finally{setBusy(false)}}
+  async function send(){if(!reply.trim())return;setBusy(true);try{
+    const name=visibility==='internal'?'Note interne':'Post OP Logistics'
+    if(demo){const m={id:uuid(),case_id:row.id,author_type:'staff',author_name:name,visibility,body:reply.trim(),created_at:new Date().toISOString()};demoSet('messages',[...demoGet('messages'),m]);demoSet('cases',demoGet('cases').map(c=>c.id===row.id?{...c,updated_at:new Date().toISOString()}:c))}
+    else {const {error}=await supabase.from('case_messages').insert({case_id:row.id,author_type:'staff',author_name:name,visibility,body:reply.trim()});if(error)throw error}
+    setReply('');await reload();notify(visibility==='public'?'Réponse client envoyée.':'Note interne ajoutée.')
+  }catch(e){notify(e.message,'error')}finally{setBusy(false)}}
+  return <div className="drawer-overlay" onMouseDown={e=>e.target===e.currentTarget&&close()}><aside className="drawer"><ModalHeader kicker={`POST OP LOGISTICS · ${row.reference}`} title={row.title} close={close}/><div className="drawer-body">
+    <div className="drawer-block"><div className="drawer-section-title"><span>ÉTAT DU DOSSIER</span><CaseStatus value={row.status}/></div><div className="status-grid">{STATUS_FLOW.map(s=><button key={s} disabled={busy} className={row.status===s?'active':''} onClick={()=>update({status:s})}>{statusLabel(s)}</button>)}</div><Field label="Responsable du dossier"><select value={row.assigned_to||''} onChange={e=>update({assigned_to:e.target.value||null})}><option value="">Non affecté</option>{staff.map(s=><option value={s.id} key={s.id}>{s.display_name}</option>)}</select></Field></div>
+    <div className="drawer-block"><div className="drawer-section-title"><span>CLIENT & DEMANDE</span></div><div className="detail-grid"><Detail label="Contact" value={row.contact_name}/>{row.company_name&&<Detail label="Entreprise" value={row.company_name}/>}<Detail label="Téléphone" value={row.phone}/><Detail label="Service" value={serviceLabel(row.service)}/><Detail label="Ouvert" value={dt(row.created_at)}/>{row.requested_at&&<Detail label="Date souhaitée" value={dt(row.requested_at)}/>} {row.kind==='logistics'&&row.frequency&&<Detail label="Fréquence" value={row.frequency}/>} {row.kind==='logistics'&&row.urgency&&row.urgency!=='standard'&&<Detail label="Priorité" value={row.urgency}/>}</div><div className="description-box"><span>DEMANDE</span><p>{row.description}</p></div></div>
+    <div className="drawer-block"><div className="drawer-section-title"><span>FIL DU DOSSIER</span><b>{messages.length} message{messages.length>1?'s':''}</b></div><div className="staff-conversation">{messages.map(m=><div className={cls('staff-message',m.visibility==='internal'&&'internal',m.author_type==='client'&&'from-client')} key={m.id}><div><b>{m.author_name||m.author_type}</b><span>{m.visibility==='internal'?'NOTE INTERNE':dt(m.created_at)}</span></div><p>{m.body}</p></div>)}{!messages.length&&<Empty icon={MessageSquareText} text="Aucun échange sur ce dossier."/>}</div><div className="reply-box"><div className="reply-mode"><button className={visibility==='public'?'active':''} onClick={()=>setVisibility('public')}><MessageCircle/> Réponse client</button><button className={visibility==='internal'?'active':''} onClick={()=>setVisibility('internal')}><LockKeyhole/> Note interne</button></div><Textarea rows="4" value={reply} onChange={e=>setReply(e.target.value)} placeholder={visibility==='public'?'Écrire une réponse visible par le client...':'Ajouter une note réservée au staff...'}/><button className="btn btn-dark" onClick={send} disabled={busy||!reply.trim()}><Send size={15}/> Envoyer</button></div></div>
+  </div></aside></div>
+}
+function Detail({label,value}){return <div className="detail"><span>{label}</span><b>{value||'—'}</b></div>}
+
+function PartnersPanel({items,reload,loadPublic,notify,demo}){
+  const [edit,setEdit]=React.useState(null)
+  async function save(v){try{
+    const payload={name:v.name,eyebrow:v.eyebrow||'PARTENAIRE Post OP',description:v.description,image_url:v.image_url||null,link_url:v.link_url||null,active:v.active??true,sort_order:Number(v.sort_order||0)}
+    if(demo){let rows=demoGet('partners');if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x);else rows=[...rows,{id:uuid(),...payload}];demoSet('partners',rows)}else{const q=v.id?supabase.from('partners').update(payload).eq('id',v.id):supabase.from('partners').insert(payload);const {error}=await q;if(error)throw error}
+    setEdit(null);await reload();await loadPublic();notify('Partenaire enregistré.')
+  }catch(e){notify(e.message,'error')}}
+  async function remove(id){if(!confirm('Supprimer ce partenaire ?'))return;try{if(demo)demoSet('partners',demoGet('partners').filter(x=>x.id!==id));else{const {error}=await supabase.from('partners').delete().eq('id',id);if(error)throw error}await reload();await loadPublic();notify('Partenaire supprimé.')}catch(e){notify(e.message,'error')}}
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>RÉSEAU PUBLIC</span><h2>Partenaires</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,sort_order:items.length+1})}><Plus size={15}/> Ajouter</button></div><div className="admin-grid">{items.map(p=><article className="admin-item" key={p.id}><div className="admin-thumb">{p.image_url?<img src={p.image_url}/>:<Handshake/>}</div><div><small>{p.eyebrow}</small><h3>{p.name}</h3><p>{p.description}</p></div><div className="admin-actions"><button onClick={()=>setEdit(p)}><Pencil/></button><button onClick={()=>remove(p.id)}><Trash2/></button></div></article>)}{!items.length&&<Empty icon={Handshake} text="Ajoute le premier partenaire du réseau."/>}</div>{edit&&<EntityEditor title="Partenaire" item={edit} close={()=>setEdit(null)} save={save} fields="partner"/>}</section>
+}
+
+function FleetPanel({items,reload,loadPublic,notify,demo}){
+  const [edit,setEdit]=React.useState(null)
+  async function save(v){try{
+    const payload={
+      name:(v.name||'').trim(),
+      brand:(v.brand||'').trim()||null,
+      category:(v.category||'').trim()||null,
+      registration:(v.registration||'').trim()||null,
+      capacity:(v.capacity||'').trim()||null,
+      description:(v.description||'').trim()||null,
+      image_url:(v.image_url||'').trim()||null,
+      status:v.status||'available',
+      active:v.active??true,
+      sort_order:Number(v.sort_order||0)
+    }
+    if(!payload.name)throw new Error('Le nom du véhicule est obligatoire.')
+    if(demo){
+      let rows=demoGet('fleet',FLEET_SEEDS)
+      if(v.id)rows=rows.map(x=>x.id===v.id?{...x,...payload}:x)
+      else rows=[...rows,{id:uuid(),...payload}]
+      demoSet('fleet',rows)
+    }else{
+      const q=v.id
+        ? supabase.from('fleet_vehicles').update(payload).eq('id',v.id).select().single()
+        : supabase.from('fleet_vehicles').insert(payload).select().single()
+      const {data,error}=await q
+      if(error){
+        console.error('Post OP fleet save error',error)
+        throw new Error([error.message,error.details,error.hint].filter(Boolean).join(' — '))
+      }
+      if(!data)throw new Error('Supabase n’a retourné aucun véhicule après enregistrement.')
+    }
+    setEdit(null)
+    await reload()
+    await loadPublic()
+    notify(v.id?'Véhicule modifié.':'Véhicule ajouté.')
+  }catch(e){
+    console.error('FleetPanel.save',e)
+    notify(e.message||'Impossible d’enregistrer le véhicule.','error')
+  }}
+  async function remove(id){if(!confirm('Retirer ce véhicule de la flotte ?'))return;try{if(demo)demoSet('fleet',demoGet('fleet',FLEET_SEEDS).filter(x=>x.id!==id));else{const {error}=await supabase.from('fleet_vehicles').delete().eq('id',id);if(error)throw error}await reload();await loadPublic();notify('Véhicule retiré.')}catch(e){notify(e.message,'error')}}
+  return <section className="staff-card no-pad"><div className="panel-toolbar"><div><span>POST OP LOGISTICS</span><h2>Flotte</h2></div><button className="btn btn-dark" onClick={()=>setEdit({active:true,status:'available',sort_order:items.length+1})}><Plus size={15}/> Ajouter un véhicule</button></div><div className="admin-grid">{items.map(v=><article className="admin-item" key={v.id}><div className="admin-thumb">{v.image_url?<img src={v.image_url}/>:<Truck/>}</div><div><small>{v.brand} · {v.category}{v.registration?' · '+v.registration:''}</small><h3>{v.name}</h3><p>{v.capacity&&<b>{v.capacity} — </b>}{v.description}</p><CaseStatus value={v.status}/></div><div className="admin-actions"><button onClick={()=>setEdit(v)} title="Modifier"><Pencil/></button><button onClick={()=>remove(v.id)} title="Supprimer"><Trash2/></button></div></article>)}{!items.length&&<Empty icon={Truck} text="Aucun véhicule dans la flotte."/>}</div>{edit&&<EntityEditor title="Véhicule Logistics" item={edit} close={()=>setEdit(null)} save={save} fields="fleet"/>}</section>
+}
+
+function EntityEditor({title,item,close,save,fields}){
+  const [v,setV]=React.useState({...item})
+  return <div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="GESTION" title={title} close={close}/><div className="drawer-body"><div className="form-grid"><Field label="Nom"><Input required value={v.name||''} onChange={e=>setV({...v,name:e.target.value})}/></Field>{fields==='fleet'?<Field label="Marque"><Input value={v.brand||''} onChange={e=>setV({...v,brand:e.target.value})}/></Field>:<Field label="Label"><Input value={v.eyebrow||''} onChange={e=>setV({...v,eyebrow:e.target.value})} placeholder="PARTENAIRE Post OP"/></Field>}</div>{fields==='fleet'&&<><div className="form-grid"><Field label="Catégorie"><Input value={v.category||''} onChange={e=>setV({...v,category:e.target.value})} placeholder="Poids lourd, utilitaire..."/></Field><Field label="Immatriculation"><Input value={v.registration||''} onChange={e=>setV({...v,registration:e.target.value})} placeholder="Optionnel"/></Field></div><Field label="Capacité / usage" full><Input value={v.capacity||''} onChange={e=>setV({...v,capacity:e.target.value})} placeholder="Ex. Fret lourd · longues tournées"/></Field></>}<Field label="Image (URL)" full><Input value={v.image_url||''} onChange={e=>setV({...v,image_url:e.target.value})}/></Field>{fields==='partner'&&<Field label="Lien externe (optionnel)" full><Input value={v.link_url||''} onChange={e=>setV({...v,link_url:e.target.value})}/></Field>}<Field label="Texte" full><Textarea rows="5" value={v.description||''} onChange={e=>setV({...v,description:e.target.value})}/></Field><div className="form-grid">{fields==='fleet'&&<Field label="Statut"><select value={v.status||'available'} onChange={e=>setV({...v,status:e.target.value})}><option value="available">Disponible</option><option value="service">En mission</option><option value="maintenance">Maintenance</option><option value="unavailable">Indisponible</option></select></Field>}<Field label="Ordre"><Input type="number" value={v.sort_order||0} onChange={e=>setV({...v,sort_order:e.target.value})}/></Field></div><label className="toggle"><input type="checkbox" checked={v.active??true} onChange={e=>setV({...v,active:e.target.checked})}/><span>Visible sur le site public</span></label><button className="btn btn-dark wide" onClick={()=>save(v)}>Enregistrer</button></div></aside></div>
+}
+
+function FinancePanel({items,cases,reload,notify,demo}){
+  const [show,setShow]=React.useState(false),[form,setForm]=React.useState({direction:'income',amount:'',branch:'Logistics',category:'Prestation',description:'',transaction_date:new Date().toISOString().slice(0,10),case_id:''})
+  const income=items.filter(x=>x.direction==='income').reduce((a,b)=>a+Number(b.amount||0),0), expense=items.filter(x=>x.direction==='expense').reduce((a,b)=>a+Number(b.amount||0),0)
+  async function save(e){e.preventDefault();try{const payload={...form,amount:Number(form.amount),case_id:form.case_id||null};if(demo)demoSet('finance',[{id:uuid(),created_at:new Date().toISOString(),...payload},...demoGet('finance')]);else{const {error}=await supabase.from('financial_transactions').insert(payload);if(error)throw error}setShow(false);await reload();notify('Opération enregistrée.')}catch(e){notify(e.message,'error')}}
+  return <><div className="metric-grid finance-metrics"><Metric icon={Banknote} label="Entrées" value={money(income)}/><Metric icon={CircleDollarSign} label="Sorties" value={money(expense)}/><Metric icon={Gauge} label="Solde" value={money(income-expense)}/></div><section className="staff-card no-pad"><div className="panel-toolbar"><div><span>JOURNAL</span><h2>Finance</h2></div><button className="btn btn-dark" onClick={()=>setShow(true)}><Plus size={15}/> Opération</button></div><div className="finance-list">{items.map(x=><div className="finance-row" key={x.id}><span className={x.direction}>{x.direction==='income'?'+':'−'} {money(x.amount)}</span><div><b>{x.description}</b><small>{x.branch} · {x.category}</small></div><span>{d(x.transaction_date)}</span></div>)}{!items.length&&<Empty icon={Banknote} text="Aucune opération enregistrée."/>}</div></section>{show&&<div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="FINANCE" title="Nouvelle opération" close={()=>setShow(false)}/><form className="drawer-body" onSubmit={save}><div className="form-grid"><Field label="Sens"><select value={form.direction} onChange={e=>setForm({...form,direction:e.target.value})}><option value="income">Entrée</option><option value="expense">Sortie</option></select></Field><Field label="Montant"><Input type="number" min="0" required value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})}/></Field></div><div className="form-grid"><Field label="Branche"><select value={form.branch} onChange={e=>setForm({...form,branch:e.target.value})}><option>Logistics</option></select></Field><Field label="Catégorie"><Input required value={form.category} onChange={e=>setForm({...form,category:e.target.value})}/></Field></div><Field label="Dossier lié (optionnel)" full><select value={form.case_id} onChange={e=>setForm({...form,case_id:e.target.value})}><option value="">Aucun</option>{cases.map(c=><option key={c.id} value={c.id}>{c.reference} · {c.title}</option>)}</select></Field><Field label="Description" full><Input required value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></Field><Field label="Date" full><Input type="date" value={form.transaction_date} onChange={e=>setForm({...form,transaction_date:e.target.value})}/></Field><button className="btn btn-dark wide">Enregistrer</button></form></aside></div>}</>
+}
+
+function CareersPanel({items,reload,notify,demo}){
+  const [filter,setFilter]=React.useState('all')
+  const [selected,setSelected]=React.useState(null)
+  const [notes,setNotes]=React.useState('')
+  const visible=filter==='all'?items:items.filter(x=>x.status===filter)
+  React.useEffect(()=>{setNotes(selected?.notes||'')},[selected])
+
+  async function update(id,patch){try{
+    if(demo)demoSet('applications',demoGet('applications').map(x=>x.id===id?{...x,...patch,updated_at:new Date().toISOString()}:x))
+    else {const {error}=await supabase.from('applications').update(patch).eq('id',id);if(error)throw error}
+    await reload();notify('Candidature mise à jour.')
+    setSelected(v=>v&&v.id===id?{...v,...patch}:v)
+  }catch(e){notify(e.message,'error')}}
+
+  return <>
+    <section className="staff-card no-pad">
+      <div className="panel-toolbar"><div><span>RESSOURCES HUMAINES</span><h2>Candidatures</h2></div><div className="segmented"><button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>Toutes · {items.length}</button><button className={filter==='new'?'active':''} onClick={()=>setFilter('new')}>Nouvelles · {items.filter(x=>x.status==='new').length}</button><button className={filter==='interview'?'active':''} onClick={()=>setFilter('interview')}>Entretien · {items.filter(x=>x.status==='interview').length}</button></div></div>
+      <div className="candidate-grid">{visible.map(a=><article className="candidate" key={a.id}>
+        <div><small>{dt(a.created_at)}</small><h3>{a.full_name}</h3><span>{JOBS.find(j=>j.id===a.position)?.title||a.position}</span></div>
+        <p className="candidate-phone"><Phone size={13}/>{a.phone}</p>
+        <blockquote>{a.motivation}</blockquote>
+        <div className="candidate-footer"><span className={cls('case-status',a.status)}><i/>{APP_STATUS[a.status]||a.status}</span><button className="btn btn-dark" onClick={()=>setSelected(a)}>Gérer <ArrowRight size={14}/></button></div>
+      </article>)}{!visible.length&&<Empty icon={UsersRound} text="Aucune candidature dans cette vue."/>}</div>
+    </section>
+    {selected&&<div className="drawer-overlay"><aside className="drawer editor"><ModalHeader kicker="CANDIDATURE" title={selected.full_name} close={()=>setSelected(null)}/><div className="drawer-body">
+      <div className="detail-grid"><div><span>Poste</span><b>{JOBS.find(j=>j.id===selected.position)?.title||selected.position}</b></div><div><span>Téléphone</span><b>{selected.phone}</b></div><div><span>Disponibilités</span><b>{selected.availability||'Non renseignées'}</b></div><div><span>Reçue le</span><b>{dt(selected.created_at)}</b></div></div>
+      <Field label="Statut" full><select value={selected.status} onChange={e=>{const value=e.target.value;setSelected({...selected,status:value});update(selected.id,{status:value})}}><option value="new">Nouvelle</option><option value="review">À étudier</option><option value="interview">Entretien</option><option value="accepted">Acceptée</option><option value="rejected">Refusée</option></select></Field>
+      <div className="candidate-detail-block"><span>Présentation</span><p>{selected.motivation}</p></div>
+      {selected.experience&&<div className="candidate-detail-block"><span>Expérience complémentaire</span><p>{selected.experience}</p></div>}
+      <Field label="Notes internes" full hint="Visible uniquement par l’équipe Post OP Logistics."><Textarea rows="5" value={notes} onChange={e=>setNotes(e.target.value)}/></Field>
+      <button className="btn btn-dark wide" onClick={()=>update(selected.id,{notes})}>Enregistrer les notes</button>
+    </div></aside></div>}
+  </>
+}
+
+function Toast({text,type}){return <div className={cls('toast',type)}>{type==='error'?<AlertTriangle/>:<Check/>}<span>{text}</span></div>}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><App/></React.StrictMode>)
